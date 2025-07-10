@@ -1,0 +1,64 @@
+import 'package:digitalisapp/core/utils/session_manager.dart';
+import 'package:digitalisapp/features/dashboard/screens/skladistar_dashboard.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import '../../../services/api_service.dart';
+import '../../../models/user_model.dart';
+import 'package:digitalisapp/features/dashboard/screens/admin_dashboard.dart';
+
+class LoginController extends GetxController {
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  var isLoading = false.obs;
+
+  void login() async {
+    isLoading.value = true;
+
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
+
+    final apiService = ApiService();
+    final response = await apiService.login(email, password);
+
+    isLoading.value = false;
+    // checking roles and assigning screens (modules)
+    if (response['success'] == true || response['success'] == 1) {
+      final user = UserModel.fromJson(response['data']);
+
+      //Seng user data to session manager
+      final session = SessionManager();
+      await session.saveUser({
+        'kup_id': user.kupId,
+        'pos_id': user.posId,
+        'name': user.name,
+        'email': user.email,
+        'level': user.level,
+        'hash1': user.hash1,
+        'hash2': user.hash2,
+        'firstLogin': true,
+      });
+
+      //checking user level and navigating to the appropriate dashboard
+      switch (user.level) {
+        case 'kupac':
+          Get.offAll(() => SkladistarDashboard(skladistarName: user.name));
+          break;
+        case 'admin':
+          Get.offAll(() => AdminDashboard(adminName: user.name));
+          // ignore: avoid_print
+
+          break;
+        case 'skladištar':
+          Get.offAllNamed('/warehouse');
+          break;
+        default:
+          Get.snackbar('Greška', 'Nepoznata korisnička rola');
+      }
+    } else {
+      Get.snackbar(
+        'Login neuspješan',
+        response['message'] ?? 'Greška prilikom prijave',
+      );
+    }
+  }
+}
