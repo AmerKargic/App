@@ -18,7 +18,7 @@ class BarcodeScannerScreen extends StatelessWidget {
             icon: Icon(Icons.bug_report),
             tooltip: 'Test scan (for emulator)',
             onPressed: () {
-              controller.fetchProduct("5453001045986"); // real EAN
+              controller.fetchProduct("1234567890123"); // real EAN
             },
           ),
         ],
@@ -95,16 +95,32 @@ class BarcodeScannerScreen extends StatelessWidget {
                             Text('Željeno: ${w['stock_wish']}'),
                           ],
                         ),
-                        trailing: locked
-                            ? const Icon(Icons.lock, color: Colors.red)
-                            : canChange
-                            ? IconButton(
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (controller.level == 'admin')
+                              IconButton(
+                                icon: Icon(
+                                  locked ? Icons.lock : Icons.lock_open,
+                                  color: locked ? Colors.red : Colors.grey,
+                                ),
+                                tooltip: locked ? 'Otključaj' : 'Zaključaj',
+                                onPressed: () {
+                                  controller.toggleLock(i);
+                                },
+                              ),
+                            if (canChange)
+                              IconButton(
                                 icon: Icon(Icons.edit, color: Colors.green),
+                                tooltip: 'Uredi željeno stanje',
                                 onPressed: () {
                                   _showEditDialog(context, i, w, controller);
                                 },
                               )
-                            : const Icon(Icons.lock_open, color: Colors.grey),
+                            else if (!locked)
+                              const Icon(Icons.lock_open, color: Colors.grey),
+                          ],
+                        ),
                       ),
                     );
                   }),

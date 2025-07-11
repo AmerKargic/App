@@ -45,28 +45,50 @@ class ApiService {
     required int posId,
     required double stockWish,
   }) async {
-    final url = Uri.parse(
-      '$baseUrl/api/save_wishstock.php',
-    ); // Adjust file name
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/api/save_wishstock.php'),
+        body: {
+          'aid': aid.toString(),
+          'kup_id': kupId.toString(),
+          'pos_id': posId.toString(),
+          'stock_wish': stockWish.toString(),
+        },
+      );
+      print('RAW response: ${response.body}');
 
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-      body: {
-        'aid': '$aid',
-        'kup_id': '$kupId',
-        'pos_id': '$posId',
-        'stock_wish': '$stockWish',
-      },
-    );
+      final data = jsonDecode(response.body);
 
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      return {
-        'success': false,
-        'message': 'Server error: ${response.statusCode}',
-      };
+      print('Save wishstock response: $data');
+      return data;
+    } catch (e) {
+      print('Save wishstock error: $e');
+      return {'success': 0, 'message': 'Greška pri komunikaciji s API-jem.'};
+    }
+  }
+
+  Future<Map<String, dynamic>> saveLockState({
+    required int aid,
+    required int kupId,
+    required int posId,
+    required int locked,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/api/save_lock.php'),
+        body: {
+          'aid': aid.toString(),
+          'kup_id': kupId.toString(),
+          'pos_id': posId.toString(),
+          'stock_wish_locked': locked.toString(),
+        },
+      );
+      print('RAW lock response: ${response.body}');
+      final data = jsonDecode(response.body);
+      return data;
+    } catch (e) {
+      print('Save lock error: $e');
+      return {'success': 0, 'message': 'Greška pri zaključavanju.'};
     }
   }
 }

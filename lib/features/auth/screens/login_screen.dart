@@ -37,7 +37,7 @@ class LoginScreen extends StatelessWidget {
                     filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                     child: Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.all(24),
+                      padding: const EdgeInsets.all(25),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(30),
                         border: Border.all(
@@ -82,6 +82,7 @@ class LoginScreen extends StatelessWidget {
                                   prefixIcon: const Icon(Icons.lock_outline),
                                   labelText: 'Password',
                                   filled: true,
+                                  // ignore: deprecated_member_use
                                   fillColor: Colors.white.withOpacity(0.8),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(16),
