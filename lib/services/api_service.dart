@@ -24,9 +24,21 @@ class ApiService {
     }
   }
 
-  Future<Map<String, dynamic>> getProductByBarcode(String barcode) async {
-    final url = Uri.parse('$baseUrl/api/get_product.php?ean=$barcode');
-    final response = await http.get(url);
+  Future<Map<String, dynamic>> getProductByBarcode(
+    String barcode,
+    int kupId,
+    int posId,
+  ) async {
+    final url = Uri.parse('$baseUrl/api/get_product.php');
+
+    final response = await http.post(
+      url,
+      body: {
+        'ean': barcode,
+        'kup_id': kupId.toString(),
+        'pos_id': posId.toString(),
+      },
+    );
 
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
@@ -75,7 +87,7 @@ class ApiService {
   }) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/api/save_lock.php'),
+        Uri.parse('$baseUrl/api/lock_state.php'),
         body: {
           'aid': aid.toString(),
           'kup_id': kupId.toString(),

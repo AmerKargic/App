@@ -11,7 +11,8 @@ class BarcodeScannerController extends GetxController {
   final ApiService _apiService = ApiService();
 
   int kupId = 0;
-  int level = 0;
+  int posId = 0;
+  final level = ''.obs;
 
   @override
   void onInit() {
@@ -24,8 +25,24 @@ class BarcodeScannerController extends GetxController {
     final user = await session.getUser();
     if (user != null) {
       kupId = user['kup_id'] ?? 0;
-      level = user['level'] == 'admin' ? 99 : 0;
+      posId = user['pos_id'] ?? 0; // make sure your session has this
+      level.value = user['level'] ?? '';
     }
+
+    debugPrintSession();
+  }
+
+  void debugPrintSession() {
+    print('DEBUG: BarcodeScannerController session/user:');
+    print('level: ${level.value}');
+    // Add more if you store other info, like:
+    // print('name: $name');
+    // print('email: $email');
+  }
+
+  bool isOwnStore(Map item) {
+    return item['kup_id'].toString() == kupId.toString() &&
+        item['pos_id'].toString() == posId.toString();
   }
 
   Future<void> fetchProduct(String barcode) async {
@@ -34,7 +51,11 @@ class BarcodeScannerController extends GetxController {
     productInfo.value = {};
 
     try {
-      final response = await _apiService.getProductByBarcode(barcode);
+      final response = await _apiService.getProductByBarcode(
+        barcode,
+        kupId,
+        posId,
+      );
       if (response['success'] == 1 && response['data'] != null) {
         productInfo.value = response['data'];
       } else {
@@ -48,29 +69,41 @@ class BarcodeScannerController extends GetxController {
   }
 
   bool canEditWishstock(Map item) {
-    if (level == 99) return true; // admin
-    return item['kup_id'] == kupId && item['stock_wish_locked'] == 0;
+    if (level.value == 'admin') return true;
+    final isMine =
+        item['kup_id'].toString() == kupId.toString() &&
+        item['pos_id'].toString() == posId.toString();
+    final locked = item['stock_wish_locked'].toString() == '1';
+    return isMine && !locked;
   }
 
   Future<void> toggleLock(int index) async {
-    if (level != 99) return;
+    if (level.value != 'admin') {
+      // Optionally show a warning:
+      Get.snackbar(
+        "Zabranjeno",
+        "Samo admin može zaključavati ili otključavati.",
+      );
+      return;
+    }
 
     final list = List<Map>.from(productInfo['wishstock']);
     final item = list[index];
-    final newLocked = item['stock_wish_locked'] == 1 ? 0 : 1;
+    final newLocked = item['stock_wish_locked'].toString() == '1' ? 0 : 1;
 
     final res = await _apiService.saveLockState(
       aid: int.tryParse(productInfo['ID'].toString()) ?? 0,
-
-      kupId: item['kup_id'],
-      posId: item['pos_id'],
+      kupId: int.tryParse(item['kup_id'].toString()) ?? 0,
+      posId: int.tryParse(item['pos_id'].toString()) ?? 0,
       locked: newLocked,
     );
 
     if (res['success'] == 1) {
       list[index]['stock_wish_locked'] = newLocked;
       productInfo['wishstock'] = list;
+
       Get.snackbar("Uspjeh", "Zaključavanje ažurirano.");
+      productInfo.refresh();
     } else {
       Get.snackbar("Greška", res['message'] ?? 'Neuspješno zaključavanje.');
     }
@@ -91,12 +124,14 @@ class BarcodeScannerController extends GetxController {
 
     for (final index in changedIndexes) {
       final item = list[index];
+
+      if (!canEditWishstock(item)) continue; // prevent unintended updates
+
       await _apiService.saveWishstock(
         aid: int.tryParse(productInfo['ID'].toString()) ?? 0,
-
-        kupId: item['kup_id'],
-        posId: item['pos_id'],
-        stockWish: item['stock_wish'],
+        kupId: int.tryParse(item['kup_id'].toString()) ?? 0,
+        posId: int.tryParse(item['pos_id'].toString()) ?? 0,
+        stockWish: double.tryParse(item['stock_wish'].toString()) ?? 0,
       );
     }
 

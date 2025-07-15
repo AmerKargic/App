@@ -8,6 +8,7 @@ class SessionManager {
   Future<void> saveUser(Map<String, dynamic> userData) async {
     final prefs = await SharedPreferences.getInstance();
     final jsonString = jsonEncode(userData);
+    print('Saving user to session: $userData');
     await prefs.setString(_userKey, jsonString);
   }
 
@@ -15,6 +16,7 @@ class SessionManager {
   Future<Map<String, dynamic>?> getUser() async {
     final prefs = await SharedPreferences.getInstance();
     final jsonString = prefs.getString(_userKey);
+    print('Loading user from session: $jsonString');
     if (jsonString == null) return null;
     return jsonDecode(jsonString);
   }
@@ -22,6 +24,7 @@ class SessionManager {
   // Obriši user podatke (logout)
   Future<void> clearUser() async {
     final prefs = await SharedPreferences.getInstance();
+    print('Clearing user from session');
     await prefs.remove(_userKey);
   }
 }

@@ -1,4 +1,5 @@
 import 'package:digitalisapp/core/utils/session_manager.dart';
+import 'package:digitalisapp/features/dashboard/screens/driver_dashboard.dart';
 import 'package:digitalisapp/features/dashboard/screens/skladistar_dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -22,6 +23,7 @@ class LoginController extends GetxController {
 
     isLoading.value = false;
     // checking roles and assigning screens (modules)
+
     if (response['success'] == true || response['success'] == 1) {
       final user = UserModel.fromJson(response['data']);
 
@@ -37,19 +39,23 @@ class LoginController extends GetxController {
         'hash2': user.hash2,
         'firstLogin': true,
       });
-
+      final loaded = await session.getUser();
+      print('Loaded user after save: $loaded');
+      print('LOGIN RESPONSE: ${response['data']}');
+      print('USER OBJ: ${user.toJson()}');
       //checking user level and navigating to the appropriate dashboard
       switch (user.level) {
         case 'kupac':
           Get.offAll(() => SkladistarDashboard(skladistarName: user.name));
+
           break;
         case 'admin':
           Get.offAll(() => AdminDashboard(adminName: user.name));
           // ignore: avoid_print
 
           break;
-        case 'skladištar':
-          Get.offAllNamed('/warehouse');
+        case 'vozac':
+          Get.offAll(() => DriverDashboard());
           break;
         default:
           Get.snackbar('Greška', 'Nepoznata korisnička rola');
