@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
+import 'app_theme.dart';
 import 'core/utils/session_manager.dart';
 import 'features/auth/controllers/login_controller.dart';
 import 'features/auth/screens/login_screen.dart';
@@ -51,6 +51,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       title: 'Digitalis',
+      theme: customLightTheme,
+      darkTheme: customDarkTheme,
+      themeMode: ThemeMode.light, //add ThemeMode.system to use system theme
+
       debugShowCheckedModeBanner: false,
       initialRoute: initialRoute,
       getPages: [

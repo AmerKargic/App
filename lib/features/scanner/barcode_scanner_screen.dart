@@ -18,6 +18,7 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen>
     BarcodeScannerController(),
   );
   MobileScannerController cameraController = MobileScannerController();
+  final TextEditingController textController = TextEditingController();
 
   bool _scanned = false;
 
@@ -131,6 +132,17 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen>
       ),
       body: Stack(
         children: [
+          Offstage(
+            offstage: true,
+            child: TextField(
+              autofocus: true,
+              controller: textController,
+              onSubmitted: (code) {
+                textController.clear();
+                controller.fetchProduct(code);
+              },
+            ),
+          ),
           // Camera preview (fullscreen)
           Offstage(
             offstage: _scanned,
@@ -272,31 +284,7 @@ class ScannerOverlay extends StatelessWidget {
               Positioned(
                 top: scanBoxTop,
                 left: width * 0.09,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(32),
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-                    child: Container(
-                      width: width * 0.82,
-                      height: scanBoxHeight,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.14),
-                        borderRadius: BorderRadius.circular(32),
-                        border: Border.all(
-                          color: Colors.white.withOpacity(0.19),
-                          width: 2.5,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.08),
-                            blurRadius: 20,
-                            offset: Offset(0, 10),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
+                child: ClipRRect(borderRadius: BorderRadius.circular(32)),
               ),
               // Animated scanner line
               if (animation != null)
@@ -361,7 +349,10 @@ class ProductModal extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                SpinKitThreeBounce(color: Colors.deepPurple, size: 38),
+                SpinKitThreeBounce(
+                  color: const Color.fromARGB(255, 20, 136, 49),
+                  size: 38,
+                ),
                 SizedBox(height: 20),
                 _Skeleton(width: 120, height: 18),
                 SizedBox(height: 16),
@@ -470,7 +461,10 @@ class ProductModal extends StatelessWidget {
                 return Card(
                   shape: isMine
                       ? RoundedRectangleBorder(
-                          side: BorderSide(color: Colors.deepPurple, width: 2),
+                          side: BorderSide(
+                            color: const Color.fromARGB(255, 39, 177, 69),
+                            width: 2,
+                          ),
                           borderRadius: BorderRadius.circular(8),
                         )
                       : null,

@@ -1,3 +1,4 @@
+import 'package:digitalisapp/core/utils/update_checker.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:digitalisapp/core/utils/logout_util.dart';
@@ -17,6 +18,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   @override
   void initState() {
+    UpdateChecker.checkForUpdate(context);
     super.initState();
     _loadAdminName();
   }
@@ -61,13 +63,13 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   const Spacer(),
                   _buildNeumorphicButton(
                     icon: Icons.bar_chart,
-                    label: 'Dashboard',
+                    label: 'Admin dashboard',
                     onTap: () {},
                   ),
                   const SizedBox(height: 20),
                   _buildNeumorphicButton(
                     icon: Icons.qr_code_scanner,
-                    label: 'QR code scanner',
+                    label: 'Barcode scanner',
                     onTap: () {
                       Navigator.push(
                         context,
