@@ -45,7 +45,7 @@ class LoginController extends GetxController {
       print('USER OBJ: ${user.toJson()}');
       //checking user level and navigating to the appropriate dashboard
       switch (user.level) {
-        case 'kupac':
+        case 'skladištar':
           Get.offAll(() => SkladistarDashboard(skladistarName: user.name));
 
           break;
@@ -56,6 +56,9 @@ class LoginController extends GetxController {
           break;
         case 'vozac':
           Get.offAll(() => DriverDashboard());
+          break;
+        case 'kupac':
+          Get.offAll(() => SkladistarDashboard(skladistarName: user.name));
           break;
         default:
           Get.snackbar('Greška', 'Nepoznata korisnička rola');

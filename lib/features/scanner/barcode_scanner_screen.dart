@@ -110,26 +110,7 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen>
 
     return Scaffold(
       backgroundColor: Colors.white, // Always light!
-      appBar: AppBar(
-        backgroundColor: Colors.white.withOpacity(0.96),
-        elevation: 1,
 
-        title: Text('Skeniraj barkod (${controller.level.value})'),
-        iconTheme: IconThemeData(color: Colors.black),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.bug_report),
-            tooltip: 'Test scan (for emulator)',
-            onPressed: () {
-              HapticFeedback.lightImpact();
-              if (!mounted) return;
-              setState(() => _scanned = true);
-              cameraController.stop();
-              controller.fetchProduct("1234567890123");
-            },
-          ),
-        ],
-      ),
       body: Stack(
         children: [
           Offstage(
@@ -303,14 +284,14 @@ class ScannerOverlay extends StatelessWidget {
                           borderRadius: BorderRadius.circular(5),
                           gradient: LinearGradient(
                             colors: [
-                              Colors.purpleAccent.withOpacity(0.8),
-                              Colors.deepPurple.withOpacity(0.7),
-                              Colors.purpleAccent.withOpacity(0.8),
+                              Colors.purpleAccent,
+                              Colors.deepPurple,
+                              Colors.purpleAccent,
                             ],
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.purpleAccent.withOpacity(0.22),
+                              color: Colors.purpleAccent,
                               blurRadius: 10,
                               spreadRadius: 1,
                             ),
@@ -620,7 +601,7 @@ class _ModalGlass extends StatelessWidget {
               maxHeight: 630,
             ),
             padding: EdgeInsets.all(0),
-            color: Colors.white.withOpacity(0.92), // Light glass, not dark
+            color: Colors.white, // Light glass, not dark
             child: child,
           ),
         ),
@@ -639,13 +620,14 @@ class _Skeleton extends StatelessWidget {
     required this.height,
     this.borderRadius = 8,
   });
+
   @override
   Widget build(BuildContext context) {
     return Container(
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: Colors.grey[300]!.withOpacity(0.31),
+        color: Colors.grey[300]!,
         borderRadius: BorderRadius.circular(borderRadius),
       ),
     );

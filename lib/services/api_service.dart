@@ -2,24 +2,40 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  static const String baseUrl = "http://192.168.153.231/appinternal";
+  static const String baseUrl = "http://10.0.2.2/appinternal";
+  //static const String baseUrl = "https://www.digitalis.ba/webshop/appinternal";
 
   Future<Map<String, dynamic>> login(String email, String password) async {
     final url = Uri.parse('$baseUrl/api/login.php');
 
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'email': email, 'password': password}),
-    );
+    print("🔄 [login] Sending request to: $url");
+    print("📤 [login] Payload: {email: $email, password: $password}");
 
-    if (response.statusCode == 200) {
-      print("Raw response: ${response.body}");
-      return jsonDecode(response.body);
-    } else {
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'email': email, 'password': password}),
+      );
+
+      print("📥 [login] Status code: ${response.statusCode}");
+      print("📥 [login] Raw response: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        print("✅ [login] Decoded JSON: $data");
+        return data;
+      } else {
+        return {
+          'success': false,
+          'message': 'Server error: ${response.statusCode}',
+        };
+      }
+    } catch (e) {
+      print("❌ [login] Exception: $e");
       return {
         'success': false,
-        'message': 'Server error: ${response.statusCode}',
+        'message': 'Greška prilikom povezivanja s API-jem: $e',
       };
     }
   }

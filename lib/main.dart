@@ -1,13 +1,19 @@
+import 'package:digitalisapp/features/dashboard/screens/warehouse_dashboard.dart';
+import 'package:digitalisapp/features/scanner/warehouse_scanner_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:provider/provider.dart'; // <--- Add this!
 import 'app_theme.dart';
 import 'core/utils/session_manager.dart';
 import 'features/auth/controllers/login_controller.dart';
 import 'features/auth/screens/login_screen.dart';
 import 'features/dashboard/screens/admin_dashboard.dart';
 import 'features/dashboard/screens/skladistar_dashboard.dart';
-// import 'features/dashboard/screens/skladistar_dashboard.dart';
-// import 'features/dashboard/screens/retail_dashboard.dart';
+import 'features/scanner/warehouse_scanner_screen.dart';
+import 'services/warehouse_api_service.dart';
+
+// Set your API base URL here:
+const String warehouseApiBaseUrl = "https://yourserver.com/api/";
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,7 +44,15 @@ void main() async {
 
   Get.put(LoginController());
 
-  runApp(MyApp(initialRoute: initialRoute, LoginScreen: false));
+  runApp(
+    MultiProvider(
+      providers: [
+        Provider<WarehouseApiService>(create: (_) => WarehouseApiService()),
+        // You can add more providers here if needed
+      ],
+      child: MyApp(initialRoute: initialRoute, LoginScreen: false),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -53,8 +67,7 @@ class MyApp extends StatelessWidget {
       title: 'Digitalis',
       theme: customLightTheme,
       darkTheme: customDarkTheme,
-      themeMode: ThemeMode.light, //add ThemeMode.system to use system theme
-
+      themeMode: ThemeMode.light,
       debugShowCheckedModeBanner: false,
       initialRoute: initialRoute,
       getPages: [
@@ -65,11 +78,16 @@ class MyApp extends StatelessWidget {
         ),
         GetPage(
           name: '/skladistar_dashboard',
-          page: () => SkladistarDashboard(skladistarName: ''),
+          page: () => WarehouseDashboard(),
         ),
-        // Add your other routes here, for example:
-        // GetPage(name: '/warehouse', page: () => SkladistarDashboard(user: ...)),
-        // GetPage(name: '/retail', page: () => RetailDashboard()),
+        GetPage(name: '/warehouse', page: () => WarehouseDashboard()),
+        // You can add more warehouse screens as needed:
+        // For deep navigation:
+        GetPage(
+          name: '/warehouse_scanner',
+          page: () =>
+              WarehouseScannerScreen(mode: WarehouseScanMode.createShelf),
+        ),
       ],
     );
   }

@@ -2,11 +2,8 @@ import 'dart:typed_data';
 import 'package:blue_thermal_printer/blue_thermal_printer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:barcode/barcode.dart';
 import 'package:image/image.dart' as im;
 import 'package:barcode_image/barcode_image.dart';
-import 'package:image/image.dart';
-import 'package:image/image.dart' as barcodeImg show fill;
 
 class PriceTagPrinter {
   static final BlueThermalPrinter _bluetooth = BlueThermalPrinter.instance;

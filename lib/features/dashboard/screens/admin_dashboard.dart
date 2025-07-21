@@ -113,9 +113,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
   }
 
   Widget _buildWelcomeHeader() {
-    const textColor = Color(0xFFF1F2F5);
     const darkShadow = Color.fromARGB(255, 151, 155, 161);
-    const lightShadow = Colors.white;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
