@@ -19,54 +19,73 @@ class HardwareBarcodeInput extends StatefulWidget {
 class _HardwareBarcodeInputState extends State<HardwareBarcodeInput> {
   final TextEditingController _controller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
-  String _buffer = '';
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      FocusScope.of(context).requestFocus(_focusNode);
+      if (mounted) {
+        FocusScope.of(context).requestFocus(_focusNode);
+      }
     });
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  void _handleBarcode(String code) {
+    final trimmedCode = code.trim();
+    if (trimmedCode.isNotEmpty) {
+      // Add haptic feedback like in your barcode scanner
+      HapticFeedback.mediumImpact();
+
+      // Call the callback
+      widget.onBarcodeScanned(trimmedCode);
+
+      // Clear the field for next scan
+      _controller.clear();
+
+      // Ensure focus stays on the input for continuous scanning
+      if (mounted) {
+        FocusScope.of(context).requestFocus(_focusNode);
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return KeyboardListener(
+    return TextField(
+      controller: _controller,
       focusNode: _focusNode,
-      onKeyEvent: (event) {
-        if (event is KeyDownEvent) {
-          if (event.logicalKey == LogicalKeyboardKey.enter) {
-            final code = _controller.text.trim();
-            if (code.isNotEmpty) {
-              widget.onBarcodeScanned(code);
-              _controller.clear();
-              _buffer = '';
+      autofocus: true,
+      decoration: InputDecoration(
+        labelText: widget.hintText,
+        border: const OutlineInputBorder(),
+        suffixIcon: Icon(Icons.qr_code_scanner),
+      ),
+      onSubmitted: _handleBarcode,
+      onChanged: (value) {
+        // Auto-submit when typical barcode length is reached
+        // Most barcodes are 8, 12, or 13 digits
+        if (value.length >= 8 &&
+            (value.length == 8 || value.length == 12 || value.length == 13)) {
+          // Small delay to ensure the full barcode is captured
+          Future.delayed(Duration(milliseconds: 100), () {
+            if (mounted && _controller.text == value) {
+              _handleBarcode(value);
             }
-          } else if (event.character != null && event.character != '') {
-            _buffer += event.character!;
-            _controller.text = _buffer;
-          }
+          });
         }
       },
-      child: TextField(
-        controller: _controller,
-        focusNode: _focusNode,
-        autofocus: true,
-        decoration: InputDecoration(
-          labelText: widget.hintText,
-          border: const OutlineInputBorder(),
-        ),
-        onSubmitted: (code) {
-          widget.onBarcodeScanned(code.trim());
-          _controller.clear();
-          _buffer = '';
-        },
-      ),
     );
   }
 }
 
-// Main scanner screen
+// Main scanner screen - keeping your existing implementation
 class WarehouseScannerScreen extends StatelessWidget {
   final WarehouseScanMode mode;
   const WarehouseScannerScreen({super.key, required this.mode});
@@ -88,9 +107,16 @@ class _WarehouseScannerBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ctrl = Provider.of<WarehouseScannerController>(context);
+
     if (mode == WarehouseScanMode.createShelf) {
       return Scaffold(
-        appBar: AppBar(title: const Text("Create Shelf Label")),
+        appBar: AppBar(
+          title: const Text("Create Shelf"),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ),
         body: Padding(
           padding: const EdgeInsets.all(20),
           child: Column(
@@ -131,7 +157,13 @@ class _WarehouseScannerBody extends StatelessWidget {
       );
     } else if (mode == WarehouseScanMode.organize) {
       return Scaffold(
-        appBar: AppBar(title: const Text("Organize Shelf")),
+        appBar: AppBar(
+          title: const Text("Organize Shelf"),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ),
         body: Padding(
           padding: const EdgeInsets.all(20),
           child: Column(
@@ -139,8 +171,10 @@ class _WarehouseScannerBody extends StatelessWidget {
               const Text("Scan shelf barcode:"),
               HardwareBarcodeInput(
                 hintText: "Scan shelf barcode",
-                onBarcodeScanned: (barcode) async {
-                  await ctrl.scanShelfBarcode(barcode);
+                onBarcodeScanned: (barcode) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) async {
+                    await ctrl.scanShelfBarcode(barcode);
+                  });
                 },
               ),
               if (ctrl.scannedShelfId != null) ...[

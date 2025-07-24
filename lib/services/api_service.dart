@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:digitalisapp/core/utils/session_manager.dart';
 import 'package:http/http.dart' as http;
 
 class ApiService {
@@ -40,10 +41,23 @@ class ApiService {
     }
   }
 
+  Future<Map<String, String>> _getSessionParams() async {
+    final user = await SessionManager().getUser();
+    if (user == null) return {};
+    return {
+      'kup_id': user['kup_id'].toString(),
+      'pos_id': user['pos_id'].toString(),
+      'hash1': user['hash1'],
+      'hash2': user['hash2'],
+    };
+  }
+
   Future<Map<String, dynamic>> getProductByBarcode(
     String barcode,
     int kupId,
     int posId,
+    String hash1,
+    String hash2,
   ) async {
     final url = Uri.parse('$baseUrl/api/get_product.php');
 
@@ -53,6 +67,8 @@ class ApiService {
         'ean': barcode,
         'kup_id': kupId.toString(),
         'pos_id': posId.toString(),
+        'hash1': hash1,
+        'hash2': hash2,
       },
     );
 

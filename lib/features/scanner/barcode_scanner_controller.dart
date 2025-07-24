@@ -12,6 +12,8 @@ class BarcodeScannerController extends GetxController {
 
   int kupId = 0;
   int posId = 0;
+  String hash1 = '';
+  String hash2 = '';
   final level = ''.obs;
 
   @override
@@ -27,6 +29,8 @@ class BarcodeScannerController extends GetxController {
       kupId = user['kup_id'] ?? 0;
       posId = user['pos_id'] ?? 0; // make sure your session has this
       level.value = user['level'] ?? '';
+      hash1 = user['hash1'] ?? '';
+      hash2 = user['hash2'] ?? '';
     }
 
     debugPrintSession();
@@ -55,6 +59,8 @@ class BarcodeScannerController extends GetxController {
         barcode,
         kupId,
         posId,
+        hash1,
+        hash2,
       );
       if (response['success'] == 1 && response['data'] != null) {
         productInfo.value = response['data'];

@@ -1,6 +1,7 @@
 import 'package:digitalisapp/core/utils/session_manager.dart';
 import 'package:digitalisapp/features/dashboard/screens/driver_dashboard.dart';
 import 'package:digitalisapp/features/dashboard/screens/skladistar_dashboard.dart';
+import 'package:digitalisapp/features/dashboard/screens/warehouse_dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../services/api_service.dart';
@@ -58,7 +59,10 @@ class LoginController extends GetxController {
           Get.offAll(() => DriverDashboard());
           break;
         case 'kupac':
-          Get.offAll(() => SkladistarDashboard(skladistarName: user.name));
+          Get.offAll(() => WarehouseDashboard());
+          break;
+        case 'vozač':
+          Get.offAll(() => DriverDashboard());
           break;
         default:
           Get.snackbar('Greška', 'Nepoznata korisnička rola');

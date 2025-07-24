@@ -2,18 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:digitalisapp/core/utils/logout_util.dart';
 import 'package:digitalisapp/core/utils/session_manager.dart';
-import 'package:digitalisapp/features/scanner/driver_scanner_screen.dart';
+import 'package:digitalisapp/features/scanner/driver_order_scan_screen.dart';
 
 class DriverDashboard extends StatefulWidget {
-  const DriverDashboard({Key? key}) : super(key: key);
+  const DriverDashboard({super.key});
 
   @override
   State<DriverDashboard> createState() => _DriverDashboardState();
 }
 
 class _DriverDashboardState extends State<DriverDashboard> {
-  String? driverName;
-  bool firstLogin = false;
+  String driverName = '';
 
   @override
   void initState() {
@@ -25,13 +24,8 @@ class _DriverDashboardState extends State<DriverDashboard> {
     final session = SessionManager();
     final userData = await session.getUser();
     setState(() {
-      driverName = userData?['name'] ?? '';
-      firstLogin = userData?['firstLogin'] ?? false;
+      driverName = userData?['name'] ?? 'Vozač';
     });
-    if (firstLogin) {
-      userData?['firstLogin'] = false;
-      await session.saveUser(userData!);
-    }
   }
 
   @override
@@ -47,20 +41,26 @@ class _DriverDashboardState extends State<DriverDashboard> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 75),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [Expanded(child: _buildWelcomeHeader())],
-                  ),
+                  _buildWelcomeHeader(),
                   const Spacer(),
                   _buildNeumorphicButton(
                     icon: Icons.qr_code_scanner,
-                    label: 'Start Scanning',
+                    label: 'Skeniraj paket',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const DriverOrderScanScreen(),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  _buildNeumorphicButton(
+                    icon: Icons.assignment,
+                    label: 'Kraj dana (uskoro)',
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => VozacScannerScreen(),
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Opcija će uskoro biti dostupna.'),
                         ),
                       );
                     },
@@ -91,7 +91,7 @@ class _DriverDashboardState extends State<DriverDashboard> {
         ],
       ),
       child: IconButton(
-        icon: const Icon(Icons.arrow_forward),
+        icon: const Icon(Icons.logout),
         color: Colors.grey.shade600,
         onPressed: () => appLogout(),
       ),
@@ -99,20 +99,17 @@ class _DriverDashboardState extends State<DriverDashboard> {
   }
 
   Widget _buildWelcomeHeader() {
-    const textColor = Color(0xFFEDEDED);
-    const darkShadow = Color.fromARGB(255, 151, 155, 161);
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          firstLogin ? 'Welcome,' : 'Welcome back,',
+          'Dobrodošli,',
           style: GoogleFonts.inter(
-            fontSize: 40,
+            fontSize: 36,
             fontWeight: FontWeight.w900,
-            color: textColor,
+            color: const Color(0xFFEDEDED),
             shadows: const [
-              Shadow(offset: Offset(4, 4), blurRadius: 10, color: darkShadow),
+              Shadow(offset: Offset(4, 4), blurRadius: 10, color: Colors.grey),
               Shadow(
                 offset: Offset(-3, -1),
                 blurRadius: 10,
@@ -122,13 +119,13 @@ class _DriverDashboardState extends State<DriverDashboard> {
           ),
         ),
         Text(
-          driverName ?? '',
+          driverName,
           style: GoogleFonts.inter(
-            fontSize: 32,
-            fontWeight: FontWeight.w900,
-            color: textColor,
+            fontSize: 28,
+            fontWeight: FontWeight.w700,
+            color: const Color(0xFFEDEDED),
             shadows: const [
-              Shadow(offset: Offset(4, 4), blurRadius: 10, color: darkShadow),
+              Shadow(offset: Offset(4, 4), blurRadius: 10, color: Colors.grey),
               Shadow(
                 offset: Offset(-3, -1),
                 blurRadius: 10,
@@ -151,7 +148,6 @@ class _DriverDashboardState extends State<DriverDashboard> {
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
-        margin: const EdgeInsets.symmetric(vertical: 6),
         decoration: BoxDecoration(
           color: const Color(0xFFF3F4F6),
           borderRadius: BorderRadius.circular(22),

@@ -27,6 +27,18 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen>
 
   StreamSubscription? _loadingSub, _productSub, _errorSub;
 
+  // Debug method to simulate barcode scan
+  void _debugScanBarcode() {
+    const debugBarcode = "1234567890123"; // Replace with your test barcode
+    if (controller.isLoading.isFalse) {
+      HapticFeedback.mediumImpact();
+      if (!mounted) return;
+      setState(() => _scanned = true);
+      cameraController.stop();
+      controller.fetchProduct(debugBarcode);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -109,8 +121,7 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen>
     final double safeTop = MediaQuery.of(context).padding.top + 24;
 
     return Scaffold(
-      backgroundColor: Colors.white, // Always light!
-
+      backgroundColor: Colors.white,
       body: Stack(
         children: [
           Offstage(
@@ -158,6 +169,18 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen>
                 onTap: () {
                   cameraController.toggleTorch();
                 },
+              ),
+            ),
+
+          // DEBUG BUTTON (bottom left)
+          if (!_scanned)
+            Positioned(
+              bottom: 40,
+              left: 32,
+              child: GlassIconButton(
+                icon: Icons.bug_report,
+                tooltip: "Debug Test Scan",
+                onTap: _debugScanBarcode,
               ),
             ),
 

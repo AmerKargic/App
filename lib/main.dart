@@ -1,3 +1,4 @@
+import 'package:digitalisapp/features/dashboard/screens/driver_dashboard.dart';
 import 'package:digitalisapp/features/dashboard/screens/warehouse_dashboard.dart';
 import 'package:digitalisapp/features/scanner/warehouse_scanner_controller.dart';
 import 'package:flutter/material.dart';
@@ -31,11 +32,15 @@ void main() async {
       case 'admin':
         initialRoute = '/admin_dashboard';
         break;
-      case 'kupac':
+      case 'skladištar':
         initialRoute = '/skladistar_dashboard';
         break;
-      case 'skladištar':
-        initialRoute = '/warehouse';
+      case 'kupac':
+        initialRoute = '/warehouse_dashboard';
+        break;
+
+      case 'vozač':
+        initialRoute = '/driver_dashboard';
         break;
       default:
         initialRoute = '/';
@@ -80,7 +85,8 @@ class MyApp extends StatelessWidget {
           name: '/skladistar_dashboard',
           page: () => WarehouseDashboard(),
         ),
-        GetPage(name: '/warehouse', page: () => WarehouseDashboard()),
+        GetPage(name: '/driver_dashboard', page: () => DriverDashboard()),
+        GetPage(name: '/warehouse_dashboard', page: () => WarehouseDashboard()),
         // You can add more warehouse screens as needed:
         // For deep navigation:
         GetPage(

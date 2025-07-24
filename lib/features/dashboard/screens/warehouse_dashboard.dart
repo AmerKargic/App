@@ -1,3 +1,4 @@
+import 'package:digitalisapp/core/utils/logout_util.dart';
 import 'package:digitalisapp/features/scanner/warehouse_scanner_controller.dart';
 import 'package:digitalisapp/features/scanner/warehouse_scanner_screen.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +9,19 @@ class WarehouseDashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Warehouse Dashboard')),
+      appBar: AppBar(
+        title: const Text('Warehouse Dashboard'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Logout',
+            onPressed: () {
+              appLogout();
+            },
+          ),
+        ],
+      ),
+
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
