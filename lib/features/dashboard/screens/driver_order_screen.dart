@@ -7,14 +7,11 @@ class DriverOrderScreen extends StatelessWidget {
   final DriverOrder order;
   final int scannedBoxCount;
 
-  const DriverOrderScreen({
-    Key? key,
-    required this.order,
-    this.scannedBoxCount = 0,
-  }) : super(key: key);
+  DriverOrderScreen({Key? key, required this.order, this.scannedBoxCount = 0})
+    : super(key: key);
 
   void _launchNavigation() async {
-    final address = Uri.encodeComponent(order.kupac.fullAddress());
+    final address = Uri.encodeComponent(order.kupac.adresa);
     final url = 'https://www.google.com/maps/dir/?api=1&destination=$address';
 
     if (await canLaunchUrl(Uri.parse(url))) {
@@ -54,7 +51,7 @@ class DriverOrderScreen extends StatelessWidget {
               "Kupac: ${kupac.naziv}",
               style: GoogleFonts.inter(fontSize: 18),
             ),
-            Text("Adresa: ${kupac.fullAddress()}"),
+            Text("Adresa: ${kupac.adresa}"),
             Text("Telefon: ${kupac.telefon}"),
             const SizedBox(height: 12),
             if (order.napomena.isNotEmpty)

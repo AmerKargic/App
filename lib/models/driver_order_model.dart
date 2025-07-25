@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class DriverOrder {
   final int oid;
   final int brojKutija;
@@ -65,6 +67,14 @@ class Kupac {
   final String drzava;
   final String telefon;
   final String email;
+  final bool isMaloprodaja;
+
+  // Optional fields for retail stores
+  final int? skladisteId;
+  final String? skladisteVrsta;
+  final int? posId;
+  final int? magId;
+  final int? mag2Id;
 
   Kupac({
     required this.naziv,
@@ -73,26 +83,32 @@ class Kupac {
     required this.drzava,
     required this.telefon,
     required this.email,
+    this.isMaloprodaja = false,
+    this.skladisteId,
+    this.skladisteVrsta,
+    this.posId,
+    this.magId,
+    this.mag2Id,
   });
 
   factory Kupac.fromJson(Map<String, dynamic> json) {
     return Kupac(
-      naziv: json['naziv'] ?? '',
-      adresa: json['adresa'] ?? '',
-      opstina: json['opstina'] ?? '',
-      drzava: json['drzava'] ?? '',
-      telefon: json['telefon'] ?? '',
-      email: json['email'] ?? '',
+      naziv: json['naziv']?.toString() ?? '',
+      adresa: json['adresa']?.toString() ?? '',
+      opstina: json['opstina']?.toString() ?? '',
+      drzava: json['drzava']?.toString() ?? '',
+      telefon: json['telefon']?.toString() ?? '',
+      email: json['email']?.toString() ?? '',
+      isMaloprodaja:
+          json['isMaloprodaja'] == true || json['isMaloprodaja'] == 1,
+      skladisteId: json['skladisteId'] != null
+          ? int.parse(json['skladisteId'].toString())
+          : 0,
+      skladisteVrsta: json['skladisteVrsta']?.toString() ?? '',
+      posId: json['posId'] != null ? int.parse(json['posId'].toString()) : 0,
+      magId: json['magId'] != null ? int.parse(json['magId'].toString()) : 0,
+      mag2Id: json['mag2Id'] != null ? int.parse(json['mag2Id'].toString()) : 0,
     );
-  }
-
-  String fullAddress() {
-    List<String> parts = [];
-    if (adresa.isNotEmpty) parts.add(adresa);
-    if (opstina.isNotEmpty) parts.add(opstina);
-    if (drzava.isNotEmpty) parts.add(drzava);
-
-    return parts.join(', ');
   }
 
   Map<String, dynamic> toJson() => {
@@ -102,6 +118,12 @@ class Kupac {
     'drzava': drzava,
     'telefon': telefon,
     'email': email,
+    'isMaloprodaja': isMaloprodaja,
+    'skladisteId': skladisteId,
+    'skladisteVrsta': skladisteVrsta,
+    'posId': posId,
+    'magId': magId,
+    'mag2Id': mag2Id,
   };
 }
 

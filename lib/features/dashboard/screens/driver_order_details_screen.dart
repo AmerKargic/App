@@ -100,7 +100,7 @@ class _DriverOrderDetailsScreenState extends State<DriverOrderDetailsScreen> {
       return;
     }
 
-    final address = Uri.encodeComponent(widget.order.kupac.fullAddress());
+    final address = Uri.encodeComponent(widget.order.kupac.adresa);
     final url = 'https://www.google.com/maps/dir/?api=1&destination=$address';
     final uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {
@@ -185,8 +185,8 @@ class _DriverOrderDetailsScreenState extends State<DriverOrderDetailsScreen> {
         const SizedBox(height: 8),
         if (kupac.naziv.isNotEmpty)
           Text('👤 ${kupac.naziv}', style: GoogleFonts.inter(fontSize: 16)),
-        if (kupac.fullAddress().isNotEmpty)
-          Text('📍 ${kupac.fullAddress()}', style: GoogleFonts.inter()),
+        if (kupac.adresa.isNotEmpty)
+          Text('📍 ${kupac.adresa}', style: GoogleFonts.inter()),
         if (kupac.telefon.isNotEmpty)
           Text('📞 ${kupac.telefon}', style: GoogleFonts.inter()),
         if (widget.order.napomena.isNotEmpty) ...[

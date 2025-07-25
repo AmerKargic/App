@@ -1,10 +1,11 @@
-import 'package:digitalisapp/features/maps/driver_navigation_screen.dart';
+import 'package:digitalisapp/features/maps/delivery_route_manager.dart';
+import 'package:digitalisapp/features/maps/multi_stop_navigation_screen.dart';
 import 'package:digitalisapp/features/scanner/warehouse_scanner_screen.dart';
 import 'package:digitalisapp/models/driver_order_model.dart';
 import 'package:digitalisapp/services/driver_api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:digitalisapp/features/dashboard/screens/driver_order_screen.dart';
 
 class DriverOrderScanScreen extends StatefulWidget {
   const DriverOrderScanScreen({super.key});
@@ -14,62 +15,128 @@ class DriverOrderScanScreen extends StatefulWidget {
 }
 
 class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
-  DriverOrder? order;
-  int scannedBoxes = 0;
-  Set<int> scannedBoxIds = {};
+  final DeliveryRouteManager _routeManager = DeliveryRouteManager();
+  Map<int, Set<int>> _scannedBoxesByOrder = {}; // Order ID -> Set of box IDs
   String statusMessage = '';
   bool loading = false;
+  final Set<int> _expandedOrders = {};
+  @override
+  void initState() {
+    super.initState();
+    // Load any existing delivery stops
+    setState(() {});
+  }
 
+  // Replace your current fetchOrder method with this one
   Future<void> fetchOrder(String code) async {
     setState(() {
       loading = true;
       statusMessage = '';
-      scannedBoxes = 0;
-      scannedBoxIds.clear();
-      order = null;
     });
 
-    final response = await DriverApiService.fetchOrder(code);
-    setState(() => loading = false);
+    try {
+      final response = await DriverApiService.fetchOrder(code);
+      setState(() => loading = false);
 
-    if (response['success'] == 1) {
-      final fetched = DriverOrder.fromJson(response['data']);
+      // Debug the response
+      debugPrint("API Response: $response");
+
+      if (response['success'] == 1) {
+        // Check if 'data' exists in the response
+
+        // Check if order exists in the response
+        if (response['order'] != null) {
+          // This is the structure used in your PHP API
+          final fetchedOrder = DriverOrder.fromJson(response['order']);
+
+          // Process the order...
+          processOrder(fetchedOrder, code);
+        } else if (response['data'] != null) {
+          // Alternative structure - using 'data' instead of 'order'
+          final fetchedOrder = DriverOrder.fromJson(response['data']);
+
+          // Process the order...
+          processOrder(fetchedOrder, code);
+        } else {
+          setState(() {
+            statusMessage = "❌ Neispravna struktura odgovora.";
+          });
+        }
+      } else {
+        setState(() {
+          statusMessage = response['message'] ?? 'Greška.';
+        });
+      }
+    } catch (e, stackTrace) {
+      debugPrint("Error fetching order: $e");
+      debugPrint("Stack trace: $stackTrace");
       setState(() {
-        order = fetched;
-        scannedBoxIds.add(_extractBoxNumber(code));
-        scannedBoxes = 1;
-        statusMessage = "Skenirana kutija 1/${fetched.brojKutija}";
-      });
-    } else {
-      setState(() {
-        statusMessage = response['message'] ?? 'Greška.';
+        loading = false;
+        statusMessage = "❌ Greška: ${e.toString()}";
       });
     }
   }
 
-  void scanNextBox(String code) async {
-    if (order == null) return;
+  // Add this helper method to process the order once retrieved
+  void processOrder(DriverOrder fetchedOrder, String code) async {
+    // Try to add to route manager
+    final added = await _routeManager.addStop(fetchedOrder);
 
-    final expectedOid = order!.oid;
+    if (added) {
+      // Initialize box tracking for this order
+      if (!_scannedBoxesByOrder.containsKey(fetchedOrder.oid)) {
+        _scannedBoxesByOrder[fetchedOrder.oid] = {};
+      }
 
-    if (!code.contains('ku') || !code.endsWith('$expectedOid')) {
+      // Add the scanned box
+      final boxNumber = _extractBoxNumber(code);
+      _scannedBoxesByOrder[fetchedOrder.oid]!.add(boxNumber);
+
+      setState(() {
+        statusMessage =
+            "✅ Dodana narudžba #${fetchedOrder.oid}. Ukupno: ${_routeManager.stopCount} narudžbi";
+      });
+    } else {
+      setState(() {
+        statusMessage = "⚠️ Narudžba #${fetchedOrder.oid} je već dodana.";
+      });
+    }
+  }
+
+  void scanBox(String code) async {
+    // Find which order this box belongs to
+    final orderId = _extractOrderId(code);
+    if (orderId == 0) {
       setState(() => statusMessage = '❌ Pogrešan barkod.');
       return;
     }
 
-    final boxNumber = _extractBoxNumber(code);
-    if (scannedBoxIds.contains(boxNumber)) {
-      setState(() => statusMessage = '❗ Kutija $boxNumber već skenirana.');
+    // Find if we have this order
+    final orderStop = _routeManager.allStops
+        .where((stop) => stop.order.oid == orderId)
+        .toList();
+    if (orderStop.isEmpty) {
+      setState(() => statusMessage = '❌ Prvo skenirajte narudžbu #$orderId.');
       return;
     }
 
-    final response = await DriverApiService.scanBox(code, expectedOid);
+    final boxNumber = _extractBoxNumber(code);
+    if (_scannedBoxesByOrder[orderId]!.contains(boxNumber)) {
+      setState(
+        () => statusMessage =
+            '❗ Kutija $boxNumber za narudžbu #$orderId je već skenirana.',
+      );
+      return;
+    }
+
+    final response = await DriverApiService.scanBox(code, orderId);
 
     if (response['success'] == 1) {
       setState(() {
-        scannedBoxIds.add(boxNumber);
-        scannedBoxes = scannedBoxIds.length;
-        statusMessage = "✅ Skenirano $scannedBoxes/${order!.brojKutija} kutija";
+        _scannedBoxesByOrder[orderId]!.add(boxNumber);
+        final order = orderStop.first.order;
+        statusMessage =
+            "✅ Skenirana kutija $boxNumber/${order.brojKutija} za narudžbu #$orderId";
       });
     } else {
       setState(() {
@@ -79,135 +146,514 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
   }
 
   int _extractBoxNumber(String code) {
-    final parts = code.split('ku');
+    final parts = code.toLowerCase().split('ku');
     if (parts.length >= 2) {
-      return int.tryParse(parts[1]) ?? 0;
+      final boxPart = parts[1].split(
+        RegExp(r'[^0-9]'),
+      )[0]; // Extract just the numeric part
+      return int.tryParse(boxPart) ?? 0;
     }
     return 0;
   }
 
-  //STARA NAVIGACIJA OTVARA GOOGLE MAPS
-  /*void startNavigation() async {
-    if (order?.kupac == null) return;
-    final address = Uri.encodeComponent(order!.kupac.fullAddress());
-    final url = 'https://www.google.com/maps/dir/?api=1&destination=$address';
-    final uri = Uri.parse(url);
-
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
+  int _extractOrderId(String code) {
+    // The order ID is typically at the end of the barcode after the last non-numeric character
+    final match = RegExp(r'([0-9]+)$').firstMatch(code);
+    if (match != null) {
+      return int.tryParse(match.group(1) ?? '0') ?? 0;
     }
-  }*/
-  void startNavigation() {
-    if (order?.kupac == null) return;
+    return 0;
+  }
 
+  void startMultiStopNavigation() {
     Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => DriverNavigationScreen(
-          address: order!.kupac.fullAddress(),
-          customerName: order!.kupac.naziv,
-          orderId: order!.oid.toString(),
+      MaterialPageRoute(builder: (context) => MultiStopNavigationScreen()),
+    );
+  }
+
+  void removeOrder(int orderId) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Ukloniti narudžbu?'),
+        content: Text(
+          'Da li ste sigurni da želite ukloniti narudžbu #$orderId iz rute?',
         ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Odustani'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              _routeManager.removeStop(orderId);
+              _scannedBoxesByOrder.remove(orderId);
+              setState(() {});
+              Navigator.pop(context);
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: Text('Ukloni'),
+          ),
+        ],
       ),
     );
   }
 
-  Widget buildOrderDetails() {
-    if (loading) {
-      return const Center(child: CircularProgressIndicator());
-    }
+  void clearAllOrders() {
+    if (_routeManager.stopCount == 0) return;
 
-    if (order == null) {
-      return const SizedBox.shrink();
-    }
-
-    final kupac = order!.kupac;
-    final isPovrat = order!.trebaVratitiNovac;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "📦 Narudžba #${order!.oid}",
-          style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold),
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Očistiti sve?'),
+        content: Text(
+          'Da li ste sigurni da želite ukloniti sve narudžbe iz rute?',
         ),
-        Text("👤 Kupac: ${kupac.naziv}", style: GoogleFonts.inter()),
-        Text("📍 Adresa: ${kupac.fullAddress()}", style: GoogleFonts.inter()),
-        Text("📞 Telefon: ${kupac.telefon}", style: GoogleFonts.inter()),
-        const SizedBox(height: 12),
-        if (order!.napomena.isNotEmpty)
-          Text(
-            "📝 Napomena: ${order!.napomena}",
-            style: const TextStyle(color: Colors.black87),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Odustani'),
           ),
-        if (order!.napomenaVozac.isNotEmpty)
-          Text(
-            "🛑 Vozaču: ${order!.napomenaVozac}",
-            style: const TextStyle(color: Colors.red),
+          ElevatedButton(
+            onPressed: () {
+              _routeManager.clearStops();
+              _scannedBoxesByOrder.clear();
+              setState(() {});
+              Navigator.pop(context);
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: Text('Očisti sve'),
           ),
-        const SizedBox(height: 12),
-        Text(
-          order!.iznos > 0
-              ? "💰 Naplatiti: ${order!.iznos.toStringAsFixed(2)} KM"
-              : isPovrat
-              ? "↩️ Povrat: ${order!.iznos.abs().toStringAsFixed(2)} KM"
-              : "✅ Bez naplate",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: isPovrat ? Colors.red : Colors.green.shade800,
-          ),
-        ),
-        const SizedBox(height: 16),
-        Text(
-          "🧾 Artikli:",
-          style: GoogleFonts.inter(fontWeight: FontWeight.w600),
-        ),
-        const SizedBox(height: 4),
-        ...order!.stavke.map((a) => Text("• ${a.naziv} × ${a.kol}")),
-        const SizedBox(height: 16),
-        if (scannedBoxes < order!.brojKutija)
-          HardwareBarcodeInput(
-            hintText: "Skeniraj sljedeću kutiju...",
-            onBarcodeScanned: scanNextBox,
-          ),
-        if (scannedBoxes == order!.brojKutija)
-          ElevatedButton.icon(
-            icon: const Icon(Icons.navigation),
-            label: const Text("Navigacija do kupca"),
-            onPressed: startNavigation,
-          ),
-      ],
+        ],
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final allStops = _routeManager.allStops;
+
     return Scaffold(
-      appBar: AppBar(title: const Text("Skeniranje paketa")),
+      appBar: AppBar(
+        title: Text("Skeniranje paketa"),
+        actions: [
+          if (allStops.isNotEmpty)
+            IconButton(
+              icon: Icon(Icons.delete_sweep),
+              onPressed: clearAllOrders,
+              tooltip: 'Očisti sve narudžbe',
+            ),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(20),
-        child: ListView(
+        child: Column(
           children: [
+            // Scanning section
             HardwareBarcodeInput(
               hintText: "Skeniraj barkod paketa...",
               onBarcodeScanned: fetchOrder,
             ),
-            // Additional test button specifically for this screen
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () {
-                fetchOrder("KU1KU2355444");
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                foregroundColor: Colors.white,
-              ),
-              child: const Text("Test Order Code: KU1KU2355444"),
+
+            // Test buttons
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => fetchOrder("KU1KU2355444"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                    ),
+                    child: Text("Test: Narudžba 1"),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => fetchOrder("KU1KU2348560"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                    ),
+                    child: Text("Test: Narudžba 2"),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 20),
+
+            // Status message
             if (statusMessage.isNotEmpty)
-              Text(statusMessage, style: const TextStyle(color: Colors.blue)),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Text(
+                  statusMessage,
+                  style: GoogleFonts.inter(
+                    color: statusMessage.startsWith('✅')
+                        ? Colors.green
+                        : statusMessage.startsWith('❗')
+                        ? Colors.orange
+                        : Colors.red,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+
+            // Navigation button if we have orders
+            if (allStops.isNotEmpty) ...[
+              const SizedBox(height: 16),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.blue.shade200),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      "Ruta dostave: ${allStops.length} narudžbi",
+                      style: GoogleFonts.inter(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    ElevatedButton.icon(
+                      onPressed: startMultiStopNavigation,
+                      icon: Icon(Icons.navigation),
+                      label: Text("Pokreni NAVIGACIJU"),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+
+            // List of orders
             const SizedBox(height: 16),
-            buildOrderDetails(),
+            // Replace your ListView.builder section with this
+            Expanded(
+              child: allStops.isEmpty
+                  ? Center(
+                      child: Text(
+                        "Nema skeniranih narudžbi.\nSkenirajte barkod da dodate narudžbu.",
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.inter(
+                          color: Colors.grey,
+                          fontSize: 16,
+                        ),
+                      ),
+                    )
+                  : ListView.builder(
+                      itemCount: allStops.length,
+                      itemBuilder: (context, index) {
+                        final stop = allStops[index];
+                        final order = stop.order;
+                        final scannedCount =
+                            _scannedBoxesByOrder[order.oid]?.length ?? 0;
+                        final isComplete = scannedCount >= order.brojKutija;
+
+                        // Track expanded state for each order
+                        final isExpanded = _expandedOrders.contains(order.oid);
+
+                        return Card(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          elevation: 2,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            side: BorderSide(
+                              color: isComplete
+                                  ? Colors.green
+                                  : Colors.blue.shade100,
+                              width: isComplete ? 2 : 1,
+                            ),
+                          ),
+                          child: InkWell(
+                            onTap: () {
+                              setState(() {
+                                // Toggle expanded state
+                                if (_expandedOrders.contains(order.oid)) {
+                                  _expandedOrders.remove(order.oid);
+                                } else {
+                                  _expandedOrders.add(order.oid);
+                                }
+                              });
+                            },
+                            borderRadius: BorderRadius.circular(12),
+                            child: Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Order header row - always visible
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        isComplete
+                                            ? Icons.check_circle
+                                            : Icons.local_shipping,
+                                        color: isComplete
+                                            ? Colors.green
+                                            : Colors.blue,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              "Narudžba #${order.oid}",
+                                              style: GoogleFonts.inter(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16,
+                                              ),
+                                            ),
+                                            Text(
+                                              "👤 ${order.kupac.naziv}",
+                                              style: GoogleFonts.inter(),
+                                              maxLines: isExpanded ? null : 1,
+                                              overflow: isExpanded
+                                                  ? null
+                                                  : TextOverflow.ellipsis,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      IconButton(
+                                        icon: Icon(
+                                          isExpanded
+                                              ? Icons.expand_less
+                                              : Icons.expand_more,
+                                        ),
+                                        onPressed: () {
+                                          setState(() {
+                                            if (_expandedOrders.contains(
+                                              order.oid,
+                                            )) {
+                                              _expandedOrders.remove(order.oid);
+                                            } else {
+                                              _expandedOrders.add(order.oid);
+                                            }
+                                          });
+                                        },
+                                      ),
+                                      IconButton(
+                                        icon: Icon(
+                                          Icons.delete_outline,
+                                          color: Colors.red,
+                                        ),
+                                        onPressed: () => removeOrder(order.oid),
+                                        tooltip: 'Ukloni narudžbu',
+                                      ),
+                                    ],
+                                  ),
+
+                                  // Expanded content - only visible when expanded
+                                  if (isExpanded) ...[
+                                    Divider(),
+
+                                    // Customer information
+                                    Text("📍 ${order.kupac.adresa}"),
+                                    if (order.kupac.telefon.isNotEmpty)
+                                      Text("📞 ${order.kupac.telefon}"),
+                                    if (order.kupac.email.isNotEmpty)
+                                      Text("📧 ${order.kupac.email}"),
+
+                                    // Order notes
+                                    if (order.napomena.isNotEmpty)
+                                      Padding(
+                                        padding: const EdgeInsets.only(top: 8),
+                                        child: Text(
+                                          "📝 Napomena: ${order.napomena}",
+                                          style: TextStyle(
+                                            color: Colors.grey.shade700,
+                                          ),
+                                        ),
+                                      ),
+                                    if (order.napomenaVozac.isNotEmpty)
+                                      Padding(
+                                        padding: const EdgeInsets.only(top: 4),
+                                        child: Text(
+                                          "🚨 Vozaču: ${order.napomenaVozac}",
+                                          style: TextStyle(
+                                            color: Colors.red,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ),
+
+                                    // Order items section
+                                    if (order.stavke.isNotEmpty) ...[
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                          top: 16,
+                                          bottom: 8,
+                                        ),
+                                        child: Text(
+                                          "STAVKE NARUDŽBE",
+                                          style: GoogleFonts.inter(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.grey.shade800,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ),
+                                      ...order.stavke.map(
+                                        (stavka) => Container(
+                                          margin: EdgeInsets.only(bottom: 8),
+                                          padding: EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            color: Colors.grey.shade100,
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                stavka.naziv,
+                                                style: GoogleFonts.inter(
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                              SizedBox(height: 4),
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Text(
+                                                    "Količina: ${stavka.kol}",
+                                                  ),
+                                                  Text(
+                                                    "Cijena: ${stavka.cijena.toStringAsFixed(2)} KM",
+                                                  ),
+                                                ],
+                                              ),
+                                              if (stavka.rabat > 0)
+                                                Text("Rabat: ${stavka.rabat}%"),
+                                              if (stavka.ean.isNotEmpty)
+                                                Text(
+                                                  "EAN: ${stavka.ean}",
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: Colors.grey,
+                                                  ),
+                                                ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+
+                                    const SizedBox(height: 8),
+                                  ],
+
+                                  // Payment info - always visible but formatted differently based on expansion
+                                  Container(
+                                    padding: EdgeInsets.symmetric(
+                                      vertical: 6,
+                                      horizontal: isExpanded ? 8 : 0,
+                                    ),
+                                    margin: EdgeInsets.only(
+                                      top: isExpanded ? 4 : 0,
+                                    ),
+                                    decoration: isExpanded
+                                        ? BoxDecoration(
+                                            color: order.trebaVratitiNovac
+                                                ? Colors.red.shade50
+                                                : order.iznos > 0
+                                                ? Colors.green.shade50
+                                                : Colors.grey.shade100,
+                                            borderRadius: BorderRadius.circular(
+                                              6,
+                                            ),
+                                          )
+                                        : null,
+                                    child: Text(
+                                      order.iznos > 0
+                                          ? "💰 Naplatiti: ${order.iznos.toStringAsFixed(2)} KM"
+                                          : order.trebaVratitiNovac
+                                          ? "↩️ Povrat: ${order.iznos.abs().toStringAsFixed(2)} KM"
+                                          : "✅ Bez naplate",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: order.trebaVratitiNovac
+                                            ? Colors.red
+                                            : order.iznos > 0
+                                            ? Colors.green.shade800
+                                            : Colors.grey.shade700,
+                                      ),
+                                    ),
+                                  ),
+
+                                  // Box count and scan button
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        "📦 Kutije: $scannedCount/${order.brojKutija}",
+                                        style: GoogleFonts.inter(
+                                          color: isComplete
+                                              ? Colors.green
+                                              : Colors.blue,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      Row(
+                                        children: [
+                                          if (!isComplete)
+                                            ElevatedButton(
+                                              onPressed: () {
+                                                // Focus scanner to scan box for this order
+                                                scanBox(
+                                                  "KU${scannedCount + 1}KU${order.oid}",
+                                                ); // Test scan next box
+                                              },
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: Colors.blue,
+                                                foregroundColor: Colors.white,
+                                              ),
+                                              child: Text("Skeniraj kutiju"),
+                                            ),
+                                          const SizedBox(width: 8),
+                                          IconButton(
+                                            onPressed: () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      MultiStopNavigationScreen(),
+                                                ),
+                                              );
+                                            },
+                                            style: IconButton.styleFrom(
+                                              backgroundColor: Colors.green,
+                                              foregroundColor: Colors.white,
+                                            ),
+                                            icon: Icon(Icons.navigation),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+            ),
           ],
         ),
       ),
