@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'package:digitalisapp/core/utils/session_manager.dart';
+import 'package:digitalisapp/services/offline_services.dart';
 import 'package:http/http.dart' as http;
-// Add this import for session data
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 class DriverApiService {
   static const String baseUrl = "http://10.0.2.2/appinternal/api";
@@ -51,7 +52,41 @@ class DriverApiService {
     }
   }
 
+  static Future<bool> isOnline() async {
+    final connectivityResult = await Connectivity().checkConnectivity();
+    return connectivityResult != ConnectivityResult.none;
+  }
+
   static Future<Map<String, dynamic>> fetchOrder(String code) async {
+    // Check if we're online
+    if (!await isOnline()) {
+      // Try to extract order ID from the code
+      RegExp regex = RegExp(r'^KU(\d+)KU(\d+)$');
+      final match = regex.firstMatch(code);
+      if (match == null) {
+        return {
+          'success': 0,
+          'message': 'Invalid barcode format and no internet connection',
+        };
+      }
+
+      final oid = int.parse(match.group(2)!);
+
+      // Check local storage
+      final offlineService = OfflineService();
+      final localOrder = await offlineService.getOrder(oid);
+
+      if (localOrder != null) {
+        return {'success': 1, 'order': localOrder, 'offline': true};
+      }
+
+      return {
+        'success': 0,
+        'message': 'No internet connection and order not found locally',
+      };
+    }
+
+    // Continue with your existing online implementation
     return await post('driver_order.php', {'code': code});
   }
 

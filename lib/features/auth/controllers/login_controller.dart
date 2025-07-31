@@ -2,6 +2,7 @@ import 'package:digitalisapp/core/utils/session_manager.dart';
 import 'package:digitalisapp/features/dashboard/screens/driver_dashboard.dart';
 import 'package:digitalisapp/features/dashboard/screens/skladistar_dashboard.dart';
 import 'package:digitalisapp/features/dashboard/screens/warehouse_dashboard.dart';
+import 'package:digitalisapp/services/offline_services.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../services/api_service.dart';
@@ -13,6 +14,8 @@ class LoginController extends GetxController {
   final passwordController = TextEditingController();
   var isLoading = false.obs;
 
+  // Your existing navigation code
+  // ...
   void login() async {
     isLoading.value = true;
 
@@ -72,6 +75,18 @@ class LoginController extends GetxController {
         'Login neuspješan',
         response['message'] ?? 'Greška prilikom prijave',
       );
+    }
+  }
+
+  void _onLoginSuccess(Map<String, dynamic> userData) async {
+    // Initialize offline service for this user
+    final offlineService = OfflineService();
+    try {
+      await offlineService.database;
+      // Try to sync any pending data
+      offlineService.syncNow();
+    } catch (e) {
+      debugPrint('Error initializing offline database: $e');
     }
   }
 }

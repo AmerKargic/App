@@ -1,8 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math' as math;
 import 'package:digitalisapp/features/maps/delivery_route_manager.dart';
 import 'package:digitalisapp/models/driver_order_model.dart';
+import 'package:digitalisapp/models/offline_status_widget.dart';
+import 'package:digitalisapp/services/offline_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -11,7 +14,6 @@ import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:http/http.dart' as http;
 import 'package:location/location.dart' as loc;
 import 'package:permission_handler/permission_handler.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class MultiStopNavigationScreen extends StatefulWidget {
   const MultiStopNavigationScreen({Key? key}) : super(key: key);
@@ -29,7 +31,8 @@ class _MultiStopNavigationScreenState extends State<MultiStopNavigationScreen>
   final Set<Marker> _markers = {};
   final Set<Polyline> _polylines = {};
   final Map<String, dynamic> _routeData = {}; // To store all route data
-
+  final OfflineService _offlineService = OfflineService();
+  final offlineService = OfflineService();
   LatLng? _currentPosition;
   bool _loading = true;
   String _statusMessage = "Učitavanje...";
@@ -809,34 +812,69 @@ class _MultiStopNavigationScreenState extends State<MultiStopNavigationScreen>
     }
   }
 
-  // Start navigation to selected stop
-  void _startNavigation() {
-    if (_routeManager.optimizedRoute.isEmpty || _currentPosition == null)
+  // Fix in _startNavigation method
+  Future<void> _startNavigation() async {
+    setState(() => _loading = true);
+
+    if (_routeManager.optimizedRoute.isEmpty || _currentPosition == null) {
+      setState(() {
+        _statusMessage =
+            "Nema odabranih destinacija ili lokacija nije dostupna.";
+        _loading = false;
+      });
       return;
-
-    // Start navigation mode
-    setState(() {
-      _navigationActive = true;
-      _freeMapControl = false;
-      _statusMessage = "Navigacija aktivna...";
-      _arrivalNotified = false;
-    });
-
-    // Make sure navigation steps are extracted
-    if (_navigationSteps.isEmpty) {
-      _extractNavigationSteps();
     }
 
-    // Start with camera animation
-    _animateToCurrentLocationWithHeading();
+    // Get the current destination
+    final selectedStop = _routeManager.optimizedRoute[_selectedStopIndex];
 
-    // Start timer for navigation updates
-    _navigationTimer?.cancel();
-    _navigationTimer = Timer.periodic(Duration(milliseconds: 1500), (timer) {
-      if (mounted && _navigationActive) {
-        _updateNavigationProgress();
-      }
-    });
+    // Log that we started navigation to this order
+    _offlineService.logActivity(
+      typeId: OfflineService.DRIVER_IN_TRANSIT,
+      description: 'Započeta dostava',
+      relatedId: selectedStop.order.oid,
+      text: 'Navigation started',
+      extraData: {
+        'customer_name': selectedStop.order.kupac.naziv,
+        'distance': _currentPosition != null
+            ? _calculateDistance(
+                _currentPosition!.latitude,
+                _currentPosition!.longitude,
+                selectedStop.coordinates.latitude,
+                selectedStop.coordinates.longitude,
+              )
+            : 0.0,
+        'estimated_time': _totalEstimatedTime,
+      },
+    );
+
+    try {
+      // Sync all box data
+      await _offlineService.syncBoxesAndProducts();
+
+      setState(() {
+        _loading = false;
+        _statusMessage = "✅ Podaci sinhronizirani!";
+      });
+      _offlineService.activateRoute();
+
+      // Calculate the route for in-app navigation
+      await _calculateMultiStopRoute();
+
+      // Focus on the selected stop
+      _focusOnSelectedStop();
+
+      // Enable navigation mode
+      setState(() {
+        _navigationActive = true;
+        _arrivalNotified = false;
+      });
+    } catch (e) {
+      setState(() {
+        _loading = false;
+        _statusMessage = "Greška prilikom pokretanja navigacije: $e";
+      });
+    }
   }
 
   void _stopNavigation() {
@@ -844,6 +882,7 @@ class _MultiStopNavigationScreenState extends State<MultiStopNavigationScreen>
       _navigationActive = false;
       _navigationTimer?.cancel();
     });
+    _offlineService.deactivateRoute();
     _fitAllMarkers();
   }
 
@@ -1145,465 +1184,6 @@ class _MultiStopNavigationScreenState extends State<MultiStopNavigationScreen>
     setState(() {
       _showingTurnAlert = true;
     });
-    // Add after line 717, right after _notifyOfUpcomingTurn() method
-    @override
-    Widget build(BuildContext context) {
-      // Get optimized route for UI
-      final optimizedStops = _routeManager.optimizedRoute;
-      final selectedStop =
-          optimizedStops.isNotEmpty &&
-              _selectedStopIndex < optimizedStops.length
-          ? optimizedStops[_selectedStopIndex]
-          : null;
-
-      return Scaffold(
-        appBar: AppBar(
-          title: Text(
-            'Ruta dostave (${optimizedStops.length} lokacija)',
-            style: GoogleFonts.inter(),
-          ),
-          actions: [
-            IconButton(
-              icon: Icon(
-                _freeMapControl ? Icons.follow_the_signs : Icons.explore,
-              ),
-              onPressed: () {
-                setState(() {
-                  _freeMapControl = !_freeMapControl;
-                  if (!_freeMapControl && _navigationActive) {
-                    _animateToCurrentLocationWithHeading();
-                  }
-                });
-              },
-              tooltip: _freeMapControl
-                  ? 'Uključi praćenje'
-                  : 'Slobodno kretanje mape',
-            ),
-            IconButton(
-              icon: const Icon(Icons.my_location),
-              onPressed: _animateToCurrentLocation,
-              tooltip: 'Moja lokacija',
-            ),
-            IconButton(
-              icon: const Icon(Icons.fullscreen),
-              onPressed: _fitAllMarkers,
-              tooltip: 'Prikaži cijelu rutu',
-            ),
-          ],
-        ),
-        body: Stack(
-          children: [
-            // Map
-            GoogleMap(
-              initialCameraPosition: const CameraPosition(
-                target: LatLng(43.8563, 18.4131), // Default: Sarajevo
-                zoom: 12,
-              ),
-              markers: _markers,
-              polylines: _polylines,
-              myLocationEnabled: true,
-              myLocationButtonEnabled: false,
-              zoomControlsEnabled: true,
-              onMapCreated: (GoogleMapController controller) {
-                print("Map created successfully!");
-                _controller.complete(controller);
-                setState(() => _mapReady = true);
-
-                // If we already have positions, update the map
-                if (_mapReady && _currentPosition != null) {
-                  Future.delayed(Duration(milliseconds: 500), _fitAllMarkers);
-                }
-              },
-              onCameraMove: (CameraPosition position) {
-                // Detect manual camera movement
-                if (!_cameraAnimationInProgress && !_freeMapControl) {
-                  setState(() => _freeMapControl = true);
-                }
-              },
-              onCameraMoveStarted: () {
-                // User started moving the camera manually
-                setState(() {
-                  _showLocationButton = true;
-                });
-              },
-            ),
-
-            // Return to navigation button (when in free control mode)
-            if (_showLocationButton && (_freeMapControl || !_navigationActive))
-              Positioned(
-                right: 16,
-                bottom: 240,
-                child: FloatingActionButton(
-                  mini: true,
-                  backgroundColor: Colors.white,
-                  onPressed: () {
-                    setState(() {
-                      _freeMapControl = false;
-                      _showLocationButton = false;
-                    });
-                    _animateToCurrentLocationWithHeading();
-                  },
-                  child: Icon(Icons.my_location, color: Colors.blue),
-                ),
-              ),
-
-            // Turn notification overlay
-            if (_navigationActive && _showingTurnAlert)
-              Positioned(
-                top: 100,
-                left: 0,
-                right: 0,
-                child: Center(
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.blue.withOpacity(0.9),
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black26,
-                          blurRadius: 8,
-                          offset: Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          _navigationSteps.isNotEmpty
-                              ? _navigationSteps[_currentStepIndex]['icon']
-                                    as IconData
-                              : Icons.info,
-                          color: Colors.white,
-                          size: 36,
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          _navigationSteps.isNotEmpty
-                              ? _navigationSteps[_currentStepIndex]['instruction']
-                                    as String
-                              : "Pratite rutu",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-
-            // Fallback button
-            Positioned(
-              bottom: 120,
-              left: 0,
-              right: 0,
-              child: Center(
-                child: Column(
-                  children: [
-                    if (_loading &&
-                        DateTime.now()
-                                .difference(
-                                  DateTime.fromMillisecondsSinceEpoch(0),
-                                )
-                                .inSeconds >
-                            5)
-                      ElevatedButton(
-                        onPressed: _enableDemoMode,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.orange,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 10,
-                          ),
-                        ),
-                        child: Text(
-                          "GPS ne radi? Pokreni demo mod",
-                          style: GoogleFonts.inter(color: Colors.white),
-                        ),
-                      ),
-
-                    // Debug info for developers
-                    if (_loading)
-                      Container(
-                        margin: const EdgeInsets.only(top: 10),
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.7),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          "Google Maps API status: $_statusMessage\n"
-                          "Map initialized: $_mapReady\n"
-                          "Current position: ${_currentPosition?.toString() ?? 'None'}\n"
-                          "Stops: ${optimizedStops.length}",
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ),
-
-            // Bottom info panel
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(20),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 10,
-                      offset: const Offset(0, -5),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Current destination info
-                    if (selectedStop != null)
-                      Row(
-                        children: [
-                          const Icon(Icons.location_on, color: Colors.red),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  selectedStop.order.kupac.naziv,
-                                  style: GoogleFonts.inter(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  selectedStop.order.kupac.adresa,
-                                  style: GoogleFonts.inter(
-                                    color: Colors.grey.shade700,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Text(
-                            "${_selectedStopIndex + 1}/${optimizedStops.length}",
-                            style: GoogleFonts.inter(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              color: Colors.blue,
-                            ),
-                          ),
-                        ],
-                      )
-                    else
-                      Text(
-                        "Nema odabranih destinacija",
-                        style: GoogleFonts.inter(fontWeight: FontWeight.bold),
-                      ),
-
-                    const SizedBox(height: 12),
-
-                    // Route summary
-                    if (_totalDistance > 0)
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            '🚗 Ukupno: ${_totalDistance.toStringAsFixed(1)} km',
-                            style: GoogleFonts.inter(
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          Text(
-                            '⏱️ $_totalEstimatedTime',
-                            style: GoogleFonts.inter(
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      )
-                    else
-                      Text(
-                        _statusMessage,
-                        style: GoogleFonts.inter(fontWeight: FontWeight.w500),
-                      ),
-
-                    // Navigation buttons
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        if (!_navigationActive)
-                          Expanded(
-                            child: ElevatedButton.icon(
-                              onPressed: selectedStop != null
-                                  ? _startNavigation
-                                  : null,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blue,
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 14,
-                                ),
-                              ),
-                              icon: Icon(Icons.navigation, size: 20),
-                              label: Text("POKRENI NAVIGACIJU"),
-                            ),
-                          )
-                        else
-                          Expanded(
-                            child: ElevatedButton.icon(
-                              onPressed: _stopNavigation,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.red,
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 14,
-                                ),
-                              ),
-                              icon: Icon(Icons.stop, size: 20),
-                              label: Text("ZAUSTAVI NAVIGACIJU"),
-                            ),
-                          ),
-                        const SizedBox(width: 8),
-                        if (!_navigationActive && optimizedStops.length > 1)
-                          ElevatedButton(
-                            onPressed: () {
-                              setState(() {
-                                _selectedStopIndex =
-                                    (_selectedStopIndex + 1) %
-                                    optimizedStops.length;
-                                _updateSelectedStopMarkers();
-                              });
-                              _focusOnSelectedStop();
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.green,
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 14,
-                                horizontal: 8,
-                              ),
-                            ),
-                            child: const Icon(Icons.navigate_next),
-                          ),
-                        if (_navigationActive)
-                          ElevatedButton(
-                            onPressed: () {
-                              // Toggle between showing the current step and showing the arrival step
-                              setState(() {
-                                if (_currentStepIndex ==
-                                    _navigationSteps.length - 1) {
-                                  _currentStepIndex = math.max(
-                                    0,
-                                    _currentStepIndex - 2,
-                                  );
-                                } else {
-                                  _currentStepIndex =
-                                      _navigationSteps.length - 1;
-                                }
-                              });
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.amber,
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 14,
-                                horizontal: 8,
-                              ),
-                            ),
-                            child: const Icon(Icons.visibility),
-                          ),
-                      ],
-                    ),
-
-                    // Navigation instructions panel
-                    if (_navigationActive && _navigationSteps.isNotEmpty) ...[
-                      const SizedBox(height: 12),
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.8),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                _navigationSteps[_currentStepIndex]['icon']
-                                    as IconData,
-                                color: Colors.blue,
-                                size: 28,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    _navigationSteps[_currentStepIndex]['instruction']
-                                        as String,
-                                    style: GoogleFonts.inter(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                  if (_navigationSteps[_currentStepIndex]['distance'] >
-                                      0)
-                                    Text(
-                                      'za ${(_navigationSteps[_currentStepIndex]['distance'] as double).toStringAsFixed(1)} km',
-                                      style: GoogleFonts.inter(
-                                        color: Colors.grey.shade300,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            ),
-
-            // Loading overlay
-            if (_loading)
-              Container(
-                color: Colors.black.withOpacity(0.5),
-                child: const Center(
-                  child: CircularProgressIndicator(color: Colors.white),
-                ),
-              ),
-          ],
-        ),
-      );
-    }
   }
 
   // Add after line 717, right after _notifyOfUpcomingTurn() method
@@ -1913,6 +1493,7 @@ class _MultiStopNavigationScreenState extends State<MultiStopNavigationScreen>
                             onPressed: selectedStop != null
                                 ? _startNavigation
                                 : null,
+
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.blue,
                               foregroundColor: Colors.white,

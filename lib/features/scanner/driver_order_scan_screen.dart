@@ -1,8 +1,11 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:digitalisapp/features/maps/delivery_route_manager.dart';
 import 'package:digitalisapp/features/maps/multi_stop_navigation_screen.dart';
 import 'package:digitalisapp/features/scanner/warehouse_scanner_screen.dart';
 import 'package:digitalisapp/models/driver_order_model.dart';
+import 'package:digitalisapp/models/offline_status_widget.dart';
 import 'package:digitalisapp/services/driver_api_service.dart';
+import 'package:digitalisapp/services/offline_services.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:digitalisapp/features/dashboard/screens/driver_order_screen.dart';
@@ -16,6 +19,8 @@ class DriverOrderScanScreen extends StatefulWidget {
 
 class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
   final DeliveryRouteManager _routeManager = DeliveryRouteManager();
+  final OfflineService _offlineService = OfflineService();
+
   Map<int, Set<int>> _scannedBoxesByOrder = {}; // Order ID -> Set of box IDs
   String statusMessage = '';
   bool loading = false;
@@ -35,27 +40,107 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
     });
 
     try {
+      // Parse barcode to extract OID
+      RegExp regex = RegExp(r'^KU(\d+)KU(\d+)$');
+      final match = regex.firstMatch(code);
+      if (match == null) {
+        setState(() {
+          loading = false;
+          statusMessage = "❌ Neispravan format barkoda.";
+        });
+        return;
+      }
+
+      final boxNumber = int.parse(match.group(1)!);
+      final oid = int.parse(match.group(2)!);
+
+      // Check connectivity
+      final connectivityResult = await Connectivity().checkConnectivity();
+
+      // First check if we have this order in local storage
+      final localOrder = await _offlineService.getOrder(oid);
+      print("Local order for OID $oid: $localOrder");
+
+      if (localOrder != null) {
+        // Found locally, use it
+        final fetchedOrder = DriverOrder.fromJson(localOrder);
+        print("Fetched order from local storage: ${fetchedOrder.toJson()}");
+
+        // Save the scanned box
+        print(
+          "Products being passed to saveScannedBox: ${fetchedOrder.stavke}",
+        );
+        await _offlineService.saveScannedBox(
+          orderId: oid,
+          boxNumber: boxNumber,
+          boxBarcode: code,
+          products: fetchedOrder.stavke,
+        );
+
+        // Log activity
+        await _offlineService.logActivity(
+          typeId: OfflineService.DRIVER_SCAN,
+          description: 'Skeniran paket',
+          relatedId: oid,
+          extraData: {'box_number': boxNumber, 'box_code': code},
+        );
+
+        setState(() {
+          loading = false;
+          statusMessage = connectivityResult == ConnectivityResult.none
+              ? "✅ Pronađena narudžba (offline)"
+              : "✅ Pronađena narudžba";
+        });
+
+        // Process the order
+        processOrder(fetchedOrder, code);
+        return;
+      }
+
+      // If we're offline and don't have the order locally, show error
+      if (connectivityResult == ConnectivityResult.none) {
+        setState(() {
+          loading = false;
+          statusMessage =
+              "❌ Narudžba nije pronađena u offline bazi. Potrebna internet konekcija.";
+        });
+        return;
+      }
+
+      // If we're online but don't have it locally, get from server
       final response = await DriverApiService.fetchOrder(code);
+      print("API response: $response");
+
       setState(() => loading = false);
 
-      // Debug the response
-      debugPrint("API Response: $response");
-
       if (response['success'] == 1) {
-        // Check if 'data' exists in the response
-
         // Check if order exists in the response
         if (response['order'] != null) {
-          // This is the structure used in your PHP API
           final fetchedOrder = DriverOrder.fromJson(response['order']);
+          print("Fetched order from server: ${fetchedOrder.toJson()}");
 
-          // Process the order...
-          processOrder(fetchedOrder, code);
-        } else if (response['data'] != null) {
-          // Alternative structure - using 'data' instead of 'order'
-          final fetchedOrder = DriverOrder.fromJson(response['data']);
+          // Save order for offline use
+          await _offlineService.saveOrder(fetchedOrder.oid, response['order']);
 
-          // Process the order...
+          // Save the scanned box
+          print(
+            "Products being passed to saveScannedBox: ${fetchedOrder.stavke}",
+          );
+          await _offlineService.saveScannedBox(
+            orderId: fetchedOrder.oid,
+            boxNumber: boxNumber,
+            boxBarcode: code,
+            products: fetchedOrder.stavke,
+          );
+
+          // Log activity
+          await _offlineService.logActivity(
+            typeId: OfflineService.DRIVER_SCAN,
+            description: 'Skeniran paket',
+            relatedId: fetchedOrder.oid,
+            extraData: {'box_number': boxNumber, 'box_code': code},
+          );
+
           processOrder(fetchedOrder, code);
         } else {
           setState(() {
@@ -245,417 +330,466 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
             ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            // Scanning section
-            HardwareBarcodeInput(
-              hintText: "Skeniraj barkod paketa...",
-              onBarcodeScanned: fetchOrder,
-            ),
-
-            // Test buttons
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () => fetchOrder("KU1KU2355444"),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
+      body: Column(
+        children: [
+          // Add offline status widget
+          OfflineStatusWidget(
+            onSyncPressed: () {
+              _offlineService.syncNow().then((success) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      success
+                          ? "Sinhronizacija uspješna!"
+                          : "Greška prilikom sinhronizacije",
                     ),
-                    child: Text("Test: Narudžba 1"),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () => fetchOrder("KU1KU2348560"),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                    ),
-                    child: Text("Test: Narudžba 2"),
+                );
+              });
+            },
+          ),
+          // Rest of your existing body content wrapped in an Expanded widget
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  // Scanning section
+                  HardwareBarcodeInput(
+                    hintText: "Skeniraj barkod paketa...",
+                    onBarcodeScanned: fetchOrder,
                   ),
-                ),
-              ],
-            ),
 
-            // Status message
-            if (statusMessage.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                child: Text(
-                  statusMessage,
-                  style: GoogleFonts.inter(
-                    color: statusMessage.startsWith('✅')
-                        ? Colors.green
-                        : statusMessage.startsWith('❗')
-                        ? Colors.orange
-                        : Colors.red,
-                    fontWeight: FontWeight.w500,
+                  // Test buttons
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () => fetchOrder("KU1KU2355444"),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                          ),
+                          child: Text("Test: Narudžba 1"),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () => fetchOrder("KU1KU2348560"),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                          ),
+                          child: Text("Test: Narudžba 2"),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ),
 
-            // Navigation button if we have orders
-            if (allStops.isNotEmpty) ...[
-              const SizedBox(height: 16),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.blue.shade50,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.blue.shade200),
-                ),
-                child: Column(
-                  children: [
-                    Text(
-                      "Ruta dostave: ${allStops.length} narudžbi",
-                      style: GoogleFonts.inter(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                  // Status message
+                  if (statusMessage.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      child: Text(
+                        statusMessage,
+                        style: GoogleFonts.inter(
+                          color: statusMessage.startsWith('✅')
+                              ? Colors.green
+                              : statusMessage.startsWith('❗')
+                              ? Colors.orange
+                              : Colors.red,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    ElevatedButton.icon(
-                      onPressed: startMultiStopNavigation,
-                      icon: Icon(Icons.navigation),
-                      label: Text("Pokreni NAVIGACIJU"),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        foregroundColor: Colors.white,
-                        padding: EdgeInsets.symmetric(vertical: 12),
+
+                  // Navigation button if we have orders
+                  if (allStops.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.shade50,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.blue.shade200),
+                      ),
+                      child: Column(
+                        children: [
+                          Text(
+                            "Ruta dostave: ${allStops.length} narudžbi",
+                            style: GoogleFonts.inter(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          ElevatedButton.icon(
+                            onPressed: startMultiStopNavigation,
+                            icon: Icon(Icons.navigation),
+                            label: Text("Pokreni NAVIGACIJU"),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green,
+                              foregroundColor: Colors.white,
+                              padding: EdgeInsets.symmetric(vertical: 12),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
-                ),
-              ),
-            ],
 
-            // List of orders
-            const SizedBox(height: 16),
-            // Replace your ListView.builder section with this
-            Expanded(
-              child: allStops.isEmpty
-                  ? Center(
-                      child: Text(
-                        "Nema skeniranih narudžbi.\nSkenirajte barkod da dodate narudžbu.",
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.inter(
-                          color: Colors.grey,
-                          fontSize: 16,
-                        ),
-                      ),
-                    )
-                  : ListView.builder(
-                      itemCount: allStops.length,
-                      itemBuilder: (context, index) {
-                        final stop = allStops[index];
-                        final order = stop.order;
-                        final scannedCount =
-                            _scannedBoxesByOrder[order.oid]?.length ?? 0;
-                        final isComplete = scannedCount >= order.brojKutija;
-
-                        // Track expanded state for each order
-                        final isExpanded = _expandedOrders.contains(order.oid);
-
-                        return Card(
-                          margin: const EdgeInsets.only(bottom: 12),
-                          elevation: 2,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            side: BorderSide(
-                              color: isComplete
-                                  ? Colors.green
-                                  : Colors.blue.shade100,
-                              width: isComplete ? 2 : 1,
+                  // List of orders
+                  const SizedBox(height: 16),
+                  // Replace your ListView.builder section with this
+                  Expanded(
+                    child: allStops.isEmpty
+                        ? Center(
+                            child: Text(
+                              "Nema skeniranih narudžbi.\nSkenirajte barkod da dodate narudžbu.",
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.inter(
+                                color: Colors.grey,
+                                fontSize: 16,
+                              ),
                             ),
-                          ),
-                          child: InkWell(
-                            onTap: () {
-                              setState(() {
-                                // Toggle expanded state
-                                if (_expandedOrders.contains(order.oid)) {
-                                  _expandedOrders.remove(order.oid);
-                                } else {
-                                  _expandedOrders.add(order.oid);
-                                }
-                              });
-                            },
-                            borderRadius: BorderRadius.circular(12),
-                            child: Padding(
-                              padding: const EdgeInsets.all(12),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // Order header row - always visible
-                                  Row(
-                                    children: [
-                                      Icon(
-                                        isComplete
-                                            ? Icons.check_circle
-                                            : Icons.local_shipping,
-                                        color: isComplete
-                                            ? Colors.green
-                                            : Colors.blue,
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              "Narudžba #${order.oid}",
-                                              style: GoogleFonts.inter(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 16,
-                                              ),
-                                            ),
-                                            Text(
-                                              "👤 ${order.kupac.naziv}",
-                                              style: GoogleFonts.inter(),
-                                              maxLines: isExpanded ? null : 1,
-                                              overflow: isExpanded
-                                                  ? null
-                                                  : TextOverflow.ellipsis,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      IconButton(
-                                        icon: Icon(
-                                          isExpanded
-                                              ? Icons.expand_less
-                                              : Icons.expand_more,
-                                        ),
-                                        onPressed: () {
-                                          setState(() {
-                                            if (_expandedOrders.contains(
-                                              order.oid,
-                                            )) {
-                                              _expandedOrders.remove(order.oid);
-                                            } else {
-                                              _expandedOrders.add(order.oid);
-                                            }
-                                          });
-                                        },
-                                      ),
-                                      IconButton(
-                                        icon: Icon(
-                                          Icons.delete_outline,
-                                          color: Colors.red,
-                                        ),
-                                        onPressed: () => removeOrder(order.oid),
-                                        tooltip: 'Ukloni narudžbu',
-                                      ),
-                                    ],
+                          )
+                        : ListView.builder(
+                            itemCount: allStops.length,
+                            itemBuilder: (context, index) {
+                              final stop = allStops[index];
+                              final order = stop.order;
+                              final scannedCount =
+                                  _scannedBoxesByOrder[order.oid]?.length ?? 0;
+                              final isComplete =
+                                  scannedCount >= order.brojKutija;
+
+                              // Track expanded state for each order
+                              final isExpanded = _expandedOrders.contains(
+                                order.oid,
+                              );
+
+                              return Card(
+                                margin: const EdgeInsets.only(bottom: 12),
+                                elevation: 2,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  side: BorderSide(
+                                    color: isComplete
+                                        ? Colors.green
+                                        : Colors.blue.shade100,
+                                    width: isComplete ? 2 : 1,
                                   ),
-
-                                  // Expanded content - only visible when expanded
-                                  if (isExpanded) ...[
-                                    Divider(),
-
-                                    // Customer information
-                                    Text("📍 ${order.kupac.adresa}"),
-                                    if (order.kupac.telefon.isNotEmpty)
-                                      Text("📞 ${order.kupac.telefon}"),
-                                    if (order.kupac.email.isNotEmpty)
-                                      Text("📧 ${order.kupac.email}"),
-
-                                    // Order notes
-                                    if (order.napomena.isNotEmpty)
-                                      Padding(
-                                        padding: const EdgeInsets.only(top: 8),
-                                        child: Text(
-                                          "📝 Napomena: ${order.napomena}",
-                                          style: TextStyle(
-                                            color: Colors.grey.shade700,
-                                          ),
-                                        ),
-                                      ),
-                                    if (order.napomenaVozac.isNotEmpty)
-                                      Padding(
-                                        padding: const EdgeInsets.only(top: 4),
-                                        child: Text(
-                                          "🚨 Vozaču: ${order.napomenaVozac}",
-                                          style: TextStyle(
-                                            color: Colors.red,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                      ),
-
-                                    // Order items section
-                                    if (order.stavke.isNotEmpty) ...[
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                          top: 16,
-                                          bottom: 8,
-                                        ),
-                                        child: Text(
-                                          "STAVKE NARUDŽBE",
-                                          style: GoogleFonts.inter(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.grey.shade800,
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                      ),
-                                      ...order.stavke.map(
-                                        (stavka) => Container(
-                                          margin: EdgeInsets.only(bottom: 8),
-                                          padding: EdgeInsets.all(8),
-                                          decoration: BoxDecoration(
-                                            color: Colors.grey.shade100,
-                                            borderRadius: BorderRadius.circular(
-                                              8,
+                                ),
+                                child: InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      // Toggle expanded state
+                                      if (_expandedOrders.contains(order.oid)) {
+                                        _expandedOrders.remove(order.oid);
+                                      } else {
+                                        _expandedOrders.add(order.oid);
+                                      }
+                                    });
+                                  },
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(12),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        // Order header row - always visible
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              isComplete
+                                                  ? Icons.check_circle
+                                                  : Icons.local_shipping,
+                                              color: isComplete
+                                                  ? Colors.green
+                                                  : Colors.blue,
                                             ),
-                                          ),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                stavka.naziv,
-                                                style: GoogleFonts.inter(
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                              ),
-                                              SizedBox(height: 4),
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
+                                            const SizedBox(width: 8),
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
                                                 children: [
                                                   Text(
-                                                    "Količina: ${stavka.kol}",
+                                                    "Narudžba #${order.oid}",
+                                                    style: GoogleFonts.inter(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 16,
+                                                    ),
                                                   ),
                                                   Text(
-                                                    "Cijena: ${stavka.cijena.toStringAsFixed(2)} KM",
+                                                    "👤 ${order.kupac.naziv}",
+                                                    style: GoogleFonts.inter(),
+                                                    maxLines: isExpanded
+                                                        ? null
+                                                        : 1,
+                                                    overflow: isExpanded
+                                                        ? null
+                                                        : TextOverflow.ellipsis,
                                                   ),
                                                 ],
                                               ),
-                                              if (stavka.rabat > 0)
-                                                Text("Rabat: ${stavka.rabat}%"),
-                                              if (stavka.ean.isNotEmpty)
-                                                Text(
-                                                  "EAN: ${stavka.ean}",
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: Colors.grey,
-                                                  ),
-                                                ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-
-                                    const SizedBox(height: 8),
-                                  ],
-
-                                  // Payment info - always visible but formatted differently based on expansion
-                                  Container(
-                                    padding: EdgeInsets.symmetric(
-                                      vertical: 6,
-                                      horizontal: isExpanded ? 8 : 0,
-                                    ),
-                                    margin: EdgeInsets.only(
-                                      top: isExpanded ? 4 : 0,
-                                    ),
-                                    decoration: isExpanded
-                                        ? BoxDecoration(
-                                            color: order.trebaVratitiNovac
-                                                ? Colors.red.shade50
-                                                : order.iznos > 0
-                                                ? Colors.green.shade50
-                                                : Colors.grey.shade100,
-                                            borderRadius: BorderRadius.circular(
-                                              6,
                                             ),
-                                          )
-                                        : null,
-                                    child: Text(
-                                      order.iznos > 0
-                                          ? "💰 Naplatiti: ${order.iznos.toStringAsFixed(2)} KM"
-                                          : order.trebaVratitiNovac
-                                          ? "↩️ Povrat: ${order.iznos.abs().toStringAsFixed(2)} KM"
-                                          : "✅ Bez naplate",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: order.trebaVratitiNovac
-                                            ? Colors.red
-                                            : order.iznos > 0
-                                            ? Colors.green.shade800
-                                            : Colors.grey.shade700,
-                                      ),
-                                    ),
-                                  ),
-
-                                  // Box count and scan button
-                                  const SizedBox(height: 8),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        "📦 Kutije: $scannedCount/${order.brojKutija}",
-                                        style: GoogleFonts.inter(
-                                          color: isComplete
-                                              ? Colors.green
-                                              : Colors.blue,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                      Row(
-                                        children: [
-                                          if (!isComplete)
-                                            ElevatedButton(
-                                              onPressed: () {
-                                                // Focus scanner to scan box for this order
-                                                scanBox(
-                                                  "KU${scannedCount + 1}KU${order.oid}",
-                                                ); // Test scan next box
-                                              },
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor: Colors.blue,
-                                                foregroundColor: Colors.white,
+                                            IconButton(
+                                              icon: Icon(
+                                                isExpanded
+                                                    ? Icons.expand_less
+                                                    : Icons.expand_more,
                                               ),
-                                              child: Text("Skeniraj kutiju"),
+                                              onPressed: () {
+                                                setState(() {
+                                                  if (_expandedOrders.contains(
+                                                    order.oid,
+                                                  )) {
+                                                    _expandedOrders.remove(
+                                                      order.oid,
+                                                    );
+                                                  } else {
+                                                    _expandedOrders.add(
+                                                      order.oid,
+                                                    );
+                                                  }
+                                                });
+                                              },
                                             ),
-                                          const SizedBox(width: 8),
-                                          IconButton(
-                                            onPressed: () {
-                                              Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      MultiStopNavigationScreen(),
+                                            IconButton(
+                                              icon: Icon(
+                                                Icons.delete_outline,
+                                                color: Colors.red,
+                                              ),
+                                              onPressed: () =>
+                                                  removeOrder(order.oid),
+                                              tooltip: 'Ukloni narudžbu',
+                                            ),
+                                          ],
+                                        ),
+
+                                        // Expanded content - only visible when expanded
+                                        if (isExpanded) ...[
+                                          Divider(),
+
+                                          // Customer information
+                                          Text("📍 ${order.kupac.adresa}"),
+                                          if (order.kupac.telefon.isNotEmpty)
+                                            Text("📞 ${order.kupac.telefon}"),
+                                          if (order.kupac.email.isNotEmpty)
+                                            Text("📧 ${order.kupac.email}"),
+
+                                          // Order notes
+                                          if (order.napomena.isNotEmpty)
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                top: 8,
+                                              ),
+                                              child: Text(
+                                                "📝 Napomena: ${order.napomena}",
+                                                style: TextStyle(
+                                                  color: Colors.grey.shade700,
                                                 ),
-                                              );
-                                            },
-                                            style: IconButton.styleFrom(
-                                              backgroundColor: Colors.green,
-                                              foregroundColor: Colors.white,
+                                              ),
                                             ),
-                                            icon: Icon(Icons.navigation),
-                                          ),
+                                          if (order.napomenaVozac.isNotEmpty)
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                top: 4,
+                                              ),
+                                              child: Text(
+                                                "🚨 Vozaču: ${order.napomenaVozac}",
+                                                style: TextStyle(
+                                                  color: Colors.red,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                            ),
+
+                                          // Order items section
+                                          if (order.stavke.isNotEmpty) ...[
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                top: 16,
+                                                bottom: 8,
+                                              ),
+                                              child: Text(
+                                                "STAVKE NARUDŽBE",
+                                                style: GoogleFonts.inter(
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.grey.shade800,
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                            ),
+                                            ...order.stavke.map(
+                                              (stavka) => Container(
+                                                margin: EdgeInsets.only(
+                                                  bottom: 8,
+                                                ),
+                                                padding: EdgeInsets.all(8),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.grey.shade100,
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                ),
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      stavka.naziv,
+                                                      style: GoogleFonts.inter(
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                      ),
+                                                    ),
+                                                    SizedBox(height: 4),
+                                                    Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
+                                                      children: [
+                                                        Text(
+                                                          "Količina: ${stavka.kol}",
+                                                        ),
+                                                        Text(
+                                                          "Cijena: ${stavka.cijena.toStringAsFixed(2)} KM",
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    if (stavka.rabat > 0)
+                                                      Text(
+                                                        "Rabat: ${stavka.rabat}%",
+                                                      ),
+                                                    if (stavka.ean.isNotEmpty)
+                                                      Text(
+                                                        "EAN: ${stavka.ean}",
+                                                        style: TextStyle(
+                                                          fontSize: 12,
+                                                          color: Colors.grey,
+                                                        ),
+                                                      ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+
+                                          const SizedBox(height: 8),
                                         ],
-                                      ),
-                                    ],
+
+                                        // Payment info - always visible but formatted differently based on expansion
+                                        Container(
+                                          padding: EdgeInsets.symmetric(
+                                            vertical: 6,
+                                            horizontal: isExpanded ? 8 : 0,
+                                          ),
+                                          margin: EdgeInsets.only(
+                                            top: isExpanded ? 4 : 0,
+                                          ),
+                                          decoration: isExpanded
+                                              ? BoxDecoration(
+                                                  color: order.trebaVratitiNovac
+                                                      ? Colors.red.shade50
+                                                      : order.iznos > 0
+                                                      ? Colors.green.shade50
+                                                      : Colors.grey.shade100,
+                                                  borderRadius:
+                                                      BorderRadius.circular(6),
+                                                )
+                                              : null,
+                                          child: Text(
+                                            order.iznos > 0
+                                                ? "💰 Naplatiti: ${order.iznos.toStringAsFixed(2)} KM"
+                                                : order.trebaVratitiNovac
+                                                ? "↩️ Povrat: ${order.iznos.abs().toStringAsFixed(2)} KM"
+                                                : "✅ Bez naplate",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: order.trebaVratitiNovac
+                                                  ? Colors.red
+                                                  : order.iznos > 0
+                                                  ? Colors.green.shade800
+                                                  : Colors.grey.shade700,
+                                            ),
+                                          ),
+                                        ),
+
+                                        // Box count and scan button
+                                        const SizedBox(height: 8),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              "📦 Kutije: $scannedCount/${order.brojKutija}",
+                                              style: GoogleFonts.inter(
+                                                color: isComplete
+                                                    ? Colors.green
+                                                    : Colors.blue,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                            Row(
+                                              children: [
+                                                if (!isComplete)
+                                                  ElevatedButton(
+                                                    onPressed: () {
+                                                      // Focus scanner to scan box for this order
+                                                      scanBox(
+                                                        "KU${scannedCount + 1}KU${order.oid}",
+                                                      ); // Test scan next box
+                                                    },
+                                                    style:
+                                                        ElevatedButton.styleFrom(
+                                                          backgroundColor:
+                                                              Colors.blue,
+                                                          foregroundColor:
+                                                              Colors.white,
+                                                        ),
+                                                    child: Text(
+                                                      "Skeniraj kutiju",
+                                                    ),
+                                                  ),
+                                                const SizedBox(width: 8),
+                                                IconButton(
+                                                  onPressed: () {
+                                                    Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            MultiStopNavigationScreen(),
+                                                      ),
+                                                    );
+                                                  },
+                                                  style: IconButton.styleFrom(
+                                                    backgroundColor:
+                                                        Colors.green,
+                                                    foregroundColor:
+                                                        Colors.white,
+                                                  ),
+                                                  icon: Icon(Icons.navigation),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ],
-                              ),
-                            ),
+                                ),
+                              );
+                            },
                           ),
-                        );
-                      },
-                    ),
+                  ),
+                ],
+              ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
