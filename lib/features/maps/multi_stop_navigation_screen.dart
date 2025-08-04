@@ -103,13 +103,13 @@ class _MultiStopNavigationScreenState extends State<MultiStopNavigationScreen>
     if (state == AppLifecycleState.paused) {
       // App going to background, reduce update frequency
       _navigationTimer?.cancel();
-      _navigationTimer = Timer.periodic(Duration(seconds: 5), (timer) {
+      _navigationTimer = Timer.periodic(Duration(minutes: 5), (timer) {
         if (mounted && _navigationActive) _updateNavigationProgress();
       });
     } else if (state == AppLifecycleState.resumed) {
       // App coming to foreground, restore update frequency
       _navigationTimer?.cancel();
-      _navigationTimer = Timer.periodic(Duration(milliseconds: 1500), (timer) {
+      _navigationTimer = Timer.periodic(Duration(minutes: 1), (timer) {
         if (mounted && _navigationActive) _updateNavigationProgress();
       });
     }

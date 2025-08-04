@@ -6,6 +6,64 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 
 class DriverApiService {
   static const String baseUrl = "http://10.0.2.2/appinternal/api";
+  // Add these methods to your existing driver_api_service.dart
+
+  // Accept order and start tracking
+  static Future<Map<String, dynamic>> acceptOrder(int orderId) async {
+    return await post('driver_confirm_order.php', {
+      'oid': orderId.toString(),
+      'action': 'accept',
+    });
+  }
+
+  // Complete order
+  static Future<Map<String, dynamic>> completeOrder(int orderId) async {
+    return await post('driver_confirm_order.php', {
+      'oid': orderId.toString(),
+      'action': 'complete',
+    });
+  }
+
+  // Check for box conflicts
+  static Future<Map<String, dynamic>> checkConflict(
+    int orderId,
+    int boxNumber,
+  ) async {
+    return await post('driver_check_conflict.php', {
+      'oid': orderId.toString(),
+      'box_number': boxNumber.toString(),
+    });
+  }
+
+  // Sync activity logs
+  static Future<Map<String, dynamic>> syncActivityLog(
+    Map<String, dynamic> logData,
+  ) async {
+    return await post('sync_logs.php', logData);
+  }
+
+  // Discard conflicted box
+  static Future<Map<String, dynamic>> discardBox(
+    int orderId,
+    int boxNumber,
+    String reason,
+  ) async {
+    return await post('sync_boxes.php', {
+      'action': 'discard',
+      'oid': orderId.toString(),
+      'box_number': boxNumber.toString(),
+      'reason': reason,
+    });
+  }
+
+  // Save location data
+  static Future<Map<String, dynamic>> saveLocation(
+    List<Map<String, dynamic>> locations,
+  ) async {
+    return await post('save_location.php', {
+      'locations': jsonEncode(locations), // Convert list to JSON string
+    });
+  }
 
   static Future<Map<String, dynamic>> post(
     String endpoint,

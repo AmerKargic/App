@@ -566,7 +566,7 @@ class _DriverOrderDetailsScreenState extends State<DriverOrderDetailsScreen> {
       try {
         position = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.high,
-          timeLimit: const Duration(seconds: 5),
+          timeLimit: const Duration(minutes: 5),
         );
       } catch (e) {
         debugPrint('Failed to get location: $e');

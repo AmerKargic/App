@@ -57,7 +57,7 @@ dependencies:
   flutter_polyline_points: ^2.0.0
   location: ^5.0.3
   permission_handler: ^11.0.1
-
+  fl_chart: ^0.64.0 
 
 
   # The following adds the Cupertino Icons font to your application.

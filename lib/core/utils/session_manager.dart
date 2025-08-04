@@ -14,6 +14,39 @@ class SessionManager {
     await prefs.setString(_userKey, jsonString);
   }
 
+  Future<Map<String, dynamic>?> getRealtimeStats() async {
+    final user = await getUser();
+    if (user == null) return null;
+
+    try {
+      final requestData = {
+        'kup_id': user['kup_id'].toString(),
+        'hash1': user['hash1'],
+        'hash2': user['hash2'],
+      };
+
+      final response = await http.post(
+        Uri.parse(
+          'http://10.0.2.2/appinternal/api/analytics/realtime_stats.php',
+        ),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(requestData),
+      );
+
+      print('Analytics response: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final result = jsonDecode(response.body);
+        if (result['success'] == 1) {
+          return result;
+        }
+      }
+    } catch (e) {
+      print('Error getting analytics: $e');
+    }
+    return null;
+  }
+
   // ✅ Load user data
   Future<Map<String, dynamic>?> getUser() async {
     final prefs = await SharedPreferences.getInstance();

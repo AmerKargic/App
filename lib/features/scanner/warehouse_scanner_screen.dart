@@ -1,3 +1,4 @@
+import 'package:digitalisapp/features/scanner/driver_scanner_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -65,7 +66,27 @@ class _HardwareBarcodeInputState extends State<HardwareBarcodeInput> {
       decoration: InputDecoration(
         labelText: widget.hintText,
         border: const OutlineInputBorder(),
-        suffixIcon: Icon(Icons.qr_code_scanner),
+        suffixIcon: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Add camera icon button
+            IconButton(
+              icon: Icon(Icons.camera_alt, color: Colors.blue),
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => VozacScannerScreen(
+                      onBarcodeDetected: widget.onBarcodeScanned,
+                    ),
+                  ),
+                );
+              },
+              tooltip: 'Skeniraj kamerom',
+            ),
+            // Keep the existing QR code icon
+            // Icon(Icons.qr_code_scanner),
+          ],
+        ),
       ),
       onSubmitted: _handleBarcode,
       onChanged: (value) {

@@ -386,6 +386,10 @@ class OfflineService extends ChangeNotifier {
   }
 
   Future<void> saveLocation(double latitude, double longitude) async {
+    print(' LOCATION SAVE CALLED FROM:');
+    print(StackTrace.current.toString().split('\n').take(15).join('\n'));
+    print(' END STACK TRACE');
+
     await _createLocationTableIfNeeded();
     final db = await database;
     final timestamp = DateTime.now().toIso8601String();
@@ -434,6 +438,28 @@ class OfflineService extends ChangeNotifier {
 
       print('📦 Request bodwy: ${jsonEncode(data)}');
       print('📥 Response status: ${response.statusCode}');
+      if (response.statusCode == 200) {
+        final result = jsonDecode(response.body);
+
+        if (result['success'] == 1) {
+          // ✅ STEP 1: Mark locations as synced
+          final db = await database;
+          for (final location in unsyncedLocations) {
+            await db.update(
+              'user_locations',
+              {'synced': 1},
+              where: 'id = ?',
+              whereArgs: [location['id']],
+            );
+          }
+          print('✅ Marked ${unsyncedLocations.length} locations as synced');
+
+          // ✅ STEP 2: Delete all synced data
+          await _deleteSyncedLogs();
+        } else {
+          print('❌ Server returned error: ${result['message']}');
+        }
+      }
     } catch (e) {
       print('❌ Error syncing locations: $e');
     }
@@ -670,6 +696,7 @@ class OfflineService extends ChangeNotifier {
               );
             }
             print('✅ Successfully synced ${logs.length} logs');
+            await _deleteSyncedLogs();
           } else {
             print(
               '❌ Server returned error: ${result['message'] ?? 'Unknown error'}',
@@ -684,6 +711,60 @@ class OfflineService extends ChangeNotifier {
     } catch (e, stack) {
       print('❌ Sync error: $e');
       print('Stack trace: $stack');
+    }
+  }
+
+  Future<void> _deleteSyncedLogs() async {
+    try {
+      final db = await database;
+
+      // Delete all synced activity logs
+      final deletedLogs = await db.delete('activity_logs', where: 'synced = 1');
+      print('🗑️ DELETED $deletedLogs synced activity logs');
+
+      // Delete all synced box scans and their products
+      final syncedBoxes = await db.query('box_scans', where: 'synced = 1');
+      for (final box in syncedBoxes) {
+        // Delete products first
+        await db.delete(
+          'box_products',
+          where: 'oid = ? AND box_number = ?',
+          whereArgs: [box['oid'], box['box_number']],
+        );
+      }
+      final deletedBoxes = await db.delete('box_scans', where: 'synced = 1');
+      print('🗑️ DELETED $deletedBoxes synced box scans');
+
+      // Delete all synced locations
+      final deletedLocations = await db.delete(
+        'user_locations',
+        where: 'synced = 1',
+      );
+      print('🗑️ DELETED $deletedLocations synced locations');
+
+      // Delete all synced shelf data
+      final deletedShelfLabels = await db.delete(
+        'shelf_labels',
+        where: 'synced = 1',
+      );
+      final deletedShelfProducts = await db.delete(
+        'shelf_products',
+        where: 'synced = 1',
+      );
+      print(
+        '🗑️ DELETED $deletedShelfLabels shelf labels, $deletedShelfProducts shelf products',
+      );
+
+      // Delete all synced wishstock changes
+      final deletedWishstock = await db.delete(
+        'wishstock_changes',
+        where: 'synced = 1',
+      );
+      print('🗑️ DELETED $deletedWishstock wishstock changes');
+
+      print('🧹 Cleanup complete - all synced data deleted');
+    } catch (e) {
+      print('❌ Error deleting synced data: $e');
     }
   }
 
@@ -709,13 +790,14 @@ class OfflineService extends ChangeNotifier {
       for (final box in boxesForSync) {
         final response = await http.post(
           Uri.parse('http://10.0.2.2/appinternal/api/driver_scan_box.php'),
-          body: {
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
             'code': box['box_barcode'],
             'oid': box['oid'].toString(),
             'kup_id': user['kup_id'].toString(),
             'hash1': user['hash1'],
             'hash2': user['hash2'],
-          },
+          }),
         );
 
         if (response.statusCode == 200) {
@@ -746,13 +828,14 @@ class OfflineService extends ChangeNotifier {
       for (final label in labels) {
         final response = await http.post(
           Uri.parse('http://10.0.2.2/appinternal/api/add_shelf.php'),
-          body: {
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
             'shelf_name': label['name'].toString(),
             'shelf_ean': label['barcode'].toString(),
             'kup_id': user['kup_id'].toString(),
             'hash1': user['hash1'],
             'hash2': user['hash2'],
-          },
+          }),
         );
 
         if (response.statusCode == 200) {
@@ -775,13 +858,14 @@ class OfflineService extends ChangeNotifier {
           Uri.parse(
             'http://10.0.2.2/appinternal/api/add_products_to_shelf.php',
           ),
-          body: {
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
             'shelf_barcode': product['shelf_barcode'].toString(),
             'product_ids': jsonEncode([product['product_id']]),
             'kup_id': user['kup_id'].toString(),
             'hash1': user['hash1'],
             'hash2': user['hash2'],
-          },
+          }),
         );
 
         if (response.statusCode == 200) {
@@ -851,27 +935,20 @@ class OfflineService extends ChangeNotifier {
   // Clean up old data
   Future<void> cleanupOldData() async {
     try {
+      // Just delete all synced data - no time-based cleanup needed
+      await _deleteSyncedLogs();
+
+      // Only keep time-based cleanup for orders since they don't have synced flag
       final db = await database;
-
-      // Delete synced logs older than 30 days
-      final cutoffDate = DateTime.now()
-          .subtract(const Duration(days: 30))
-          .toIso8601String();
-      await db.delete(
-        'activity_logs',
-        where: 'synced = 1 AND timestamp < ?',
-        whereArgs: [cutoffDate],
-      );
-
-      // Delete old orders (7 days)
       final orderCutoffDate = DateTime.now()
           .subtract(const Duration(days: 7))
           .toIso8601String();
-      await db.delete(
+      final deletedOrders = await db.delete(
         'offline_orders',
         where: 'timestamp < ?',
         whereArgs: [orderCutoffDate],
       );
+      print('🗑️ DELETED $deletedOrders old orders');
     } catch (e) {
       debugPrint('Database cleanup error: $e');
     }
@@ -1032,6 +1109,7 @@ class OfflineService extends ChangeNotifier {
             );
           }
           print('✅ Synced ${boxes.length} boxes successfully');
+          await _deleteSyncedLogs(); // Clean up synced logs
         } else {
           print('❌ Server returned error: ${result['message']}');
         }
@@ -1046,7 +1124,7 @@ class OfflineService extends ChangeNotifier {
   void startLocationTracking() {
     print('🔄 Starting location tracking');
 
-    Timer.periodic(const Duration(minutes: 1), (_) async {
+    Timer.periodic(const Duration(minutes: 5), (_) async {
       if (isRouteActive) {
         print('📍 Saving location');
         final position = await Geolocator.getCurrentPosition();
@@ -1056,7 +1134,7 @@ class OfflineService extends ChangeNotifier {
       }
     });
 
-    Timer.periodic(const Duration(minutes: 1), (_) async {
+    Timer.periodic(const Duration(minutes: 15), (_) async {
       print('🔄 Syncing locations');
       final db = await database;
       final unsyncedLocations = await db.query(

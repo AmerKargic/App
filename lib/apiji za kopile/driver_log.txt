@@ -1,0 +1,974 @@
+[2025-07-23 10:42:02] OrderData: []
+[2025-07-23 11:00:01] OrderData: []
+[2025-07-23 11:00:45] OrderData: []
+[2025-07-23 11:00:46] OrderData: []
+[2025-07-23 11:00:46] OrderData: []
+[2025-07-23 11:00:46] OrderData: []
+[2025-07-23 11:00:46] OrderData: []
+[2025-07-23 11:00:47] OrderData: []
+[2025-07-23 11:00:47] OrderData: []
+[2025-07-23 11:01:03] OrderData: []
+[2025-07-23 11:01:17] OrderData: []
+[2025-07-23 11:04:26] OrderData: {"code":"KU1KU2348498","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 11:04:29] OrderData: []
+[2025-07-23 11:04:35] OrderData: []
+[2025-07-23 11:04:37] OrderData: {"code":"KU1KU2348498","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 11:04:37] API hit
+[2025-07-23 11:05:27] OrderData: {"code":"KU1KU2348498","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 11:05:27] API hit
+[2025-07-23 11:05:27] Box: 1, OID: 2348498, Driver: 1
+[2025-07-23 11:05:27] ERROR: Table 'baza.z_web_dokk' doesn't exist
+[2025-07-23 11:06:00] OrderData: {"code":"KU1KU2348498","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 11:06:00] API hit
+[2025-07-23 11:06:00] Box: 1, OID: 2348498, Driver: 1
+[2025-07-23 11:06:05] OrderData: {"code":"KU1KU2348498","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 11:06:05] API hit
+[2025-07-23 11:06:05] Box: 1, OID: 2348498, Driver: 1
+[2025-07-23 11:06:39] OrderData: {"code":"KU1KU2348498","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 11:06:39] API hit
+[2025-07-23 11:06:39] Box: 1, OID: 2348498, Driver: 1
+[2025-07-23 11:13:48] OrderData: {"code":"KU1KU2348498","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 11:13:48] API hit
+[2025-07-23 11:13:48] Box: 1, OID: 2348498, Driver: 1
+[2025-07-23 11:31:19] OrderData: {"code":"KU1KU2348498","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 11:31:19] API hit
+[2025-07-23 11:31:19] Box: 1, OID: 2348498, Driver: 1
+[2025-07-23 11:31:30] OrderData: {"code":"KU1KU2348498","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 11:31:30] API hit
+[2025-07-23 11:31:30] Box: 1, OID: 2348498, Driver: 1
+[2025-07-23 11:31:31] OrderData: {"code":"KU1KU2348498","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 11:31:31] API hit
+[2025-07-23 11:31:31] Box: 1, OID: 2348498, Driver: 1
+[2025-07-23 11:32:05] OrderData: {"code":"KU1KU2348498","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 11:32:05] API hit
+[2025-07-23 11:32:05] Box: 1, OID: 2348498, Driver: 1
+[2025-07-23 12:02:34] OrderData: {"code":"KU1KU2348498","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 12:02:34] API hit
+[2025-07-23 12:02:34] Box: 1, OID: 2348498, Driver: 1
+[2025-07-23 12:02:34] ERROR: Unknown column 'D.kup_tel' in 'field list'
+[2025-07-23 12:02:34] OrderData: {"code":"KU1KU2348498","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 12:02:34] API hit
+[2025-07-23 12:02:34] Box: 1, OID: 2348498, Driver: 1
+[2025-07-23 12:02:34] ERROR: Unknown column 'D.kup_tel' in 'field list'
+[2025-07-23 12:02:39] OrderData: {"code":"KU1KU2348498","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 12:02:39] API hit
+[2025-07-23 12:02:39] Box: 1, OID: 2348498, Driver: 1
+[2025-07-23 12:02:39] ERROR: Unknown column 'D.kup_tel' in 'field list'
+[2025-07-23 12:03:21] OrderData: {"code":"KU1KU2348498","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 12:03:21] API hit
+[2025-07-23 12:03:21] Box: 1, OID: 2348498, Driver: 1
+[2025-07-23 12:03:21] ERROR: Unknown column 'D.kup_drzava' in 'on clause'
+[2025-07-23 12:04:20] OrderData: {"code":"KU1KU2348498","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 12:04:20] API hit
+[2025-07-23 12:04:20] Box: 1, OID: 2348498, Driver: 1
+[2025-07-23 12:05:25] OrderData: {"code":"KU1KU2348498","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 12:05:25] API hit
+[2025-07-23 12:05:25] Box: 1, OID: 2348498, Driver: 1
+[2025-07-23 12:05:49] OrderData: {"code":"KU1KU2348498","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 12:05:49] API hit
+[2025-07-23 12:05:49] Box: 1, OID: 2348498, Driver: 1
+[2025-07-23 12:05:49] Customer SQL: SELECT D.kup_naziv, D.kup_adresa, D.kup_opstina, D.Drzava, D.kup_telefon FROM z_web_dok D WHERE D.oid = 2348498
+[2025-07-23 12:05:49] Customer data: {"NazivKupca":null,"Adresa1":null,"Opstina":null,"ImeDrzave":null,"Telefon1":null}
+[2025-07-23 12:06:55] OrderData: {"code":"KU1KU2348498","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 12:06:56] API hit
+[2025-07-23 12:06:56] Box: 1, OID: 2348498, Driver: 1
+[2025-07-23 12:06:56] Customer SQL: SELECT D.kup_naziv, D.kup_adresa, D.kup_opstina, D.Drzava, D.kup_telefon FROM z_web_dok D WHERE D.oid = 2348498
+[2025-07-23 12:06:56] Customer data: {"NazivKupca":null,"Adresa1":null,"Opstina":null,"ImeDrzave":null,"Telefon1":null}
+[2025-07-23 12:06:56] OrderData: {"code":"KU1KU2348498","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 12:06:56] API hit
+[2025-07-23 12:06:56] Box: 1, OID: 2348498, Driver: 1
+[2025-07-23 12:06:56] Customer SQL: SELECT D.kup_naziv, D.kup_adresa, D.kup_opstina, D.Drzava, D.kup_telefon FROM z_web_dok D WHERE D.oid = 2348498
+[2025-07-23 12:06:56] Customer data: {"NazivKupca":null,"Adresa1":null,"Opstina":null,"ImeDrzave":null,"Telefon1":null}
+[2025-07-23 12:06:57] OrderData: {"code":"KU1KU2348498","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 12:06:57] API hit
+[2025-07-23 12:06:57] Box: 1, OID: 2348498, Driver: 1
+[2025-07-23 12:06:57] Customer SQL: SELECT D.kup_naziv, D.kup_adresa, D.kup_opstina, D.Drzava, D.kup_telefon FROM z_web_dok D WHERE D.oid = 2348498
+[2025-07-23 12:06:57] Customer data: {"NazivKupca":null,"Adresa1":null,"Opstina":null,"ImeDrzave":null,"Telefon1":null}
+[2025-07-23 12:06:58] OrderData: {"code":"KU1KU2348498","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 12:06:58] API hit
+[2025-07-23 12:06:58] Box: 1, OID: 2348498, Driver: 1
+[2025-07-23 12:06:58] Customer SQL: SELECT D.kup_naziv, D.kup_adresa, D.kup_opstina, D.Drzava, D.kup_telefon FROM z_web_dok D WHERE D.oid = 2348498
+[2025-07-23 12:06:58] Customer data: {"NazivKupca":null,"Adresa1":null,"Opstina":null,"ImeDrzave":null,"Telefon1":null}
+[2025-07-23 12:06:58] OrderData: {"code":"KU1KU2348498","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 12:06:58] API hit
+[2025-07-23 12:06:58] Box: 1, OID: 2348498, Driver: 1
+[2025-07-23 12:06:58] Customer SQL: SELECT D.kup_naziv, D.kup_adresa, D.kup_opstina, D.Drzava, D.kup_telefon FROM z_web_dok D WHERE D.oid = 2348498
+[2025-07-23 12:06:58] Customer data: {"NazivKupca":null,"Adresa1":null,"Opstina":null,"ImeDrzave":null,"Telefon1":null}
+[2025-07-23 12:06:59] OrderData: {"code":"KU1KU2348498","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 12:06:59] API hit
+[2025-07-23 12:06:59] Box: 1, OID: 2348498, Driver: 1
+[2025-07-23 12:06:59] Customer SQL: SELECT D.kup_naziv, D.kup_adresa, D.kup_opstina, D.Drzava, D.kup_telefon FROM z_web_dok D WHERE D.oid = 2348498
+[2025-07-23 12:06:59] Customer data: {"NazivKupca":null,"Adresa1":null,"Opstina":null,"ImeDrzave":null,"Telefon1":null}
+[2025-07-23 12:06:59] OrderData: {"code":"KU1KU2348498","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 12:06:59] API hit
+[2025-07-23 12:06:59] Box: 1, OID: 2348498, Driver: 1
+[2025-07-23 12:06:59] Customer SQL: SELECT D.kup_naziv, D.kup_adresa, D.kup_opstina, D.Drzava, D.kup_telefon FROM z_web_dok D WHERE D.oid = 2348498
+[2025-07-23 12:06:59] Customer data: {"NazivKupca":null,"Adresa1":null,"Opstina":null,"ImeDrzave":null,"Telefon1":null}
+[2025-07-23 12:08:32] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 12:08:32] API hit
+[2025-07-23 12:08:32] Box: 1, OID: 2355444, Driver: 1
+[2025-07-23 12:08:32] Customer SQL: SELECT D.kup_naziv, D.kup_adresa, D.kup_opstina, D.Drzava, D.kup_telefon FROM z_web_dok D WHERE D.oid = 2355444
+[2025-07-23 12:08:32] Customer data: {"NazivKupca":"Gorak Brki\u0107","Adresa1":"16 Kraji\u0161ke brigade 63","Opstina":"Bosanska Gradi\u0161ka","ImeDrzave":null,"Telefon1":"065\/531-039"}
+[2025-07-23 12:41:16] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 12:41:16] API hit
+[2025-07-23 12:41:16] Box: 1, OID: 2355444, Driver: 1
+[2025-07-23 12:41:16] Customer SQL: SELECT D.kup_naziv, D.kup_adresa, D.kup_opstina, D.Drzava, D.kup_telefon FROM z_web_dok D WHERE D.oid = 2355444
+[2025-07-23 12:41:16] Customer data: {"NazivKupca":"Gorak Brki\u0107","Adresa1":"16 Kraji\u0161ke brigade 63","Opstina":"Bosanska Gradi\u0161ka","ImeDrzave":null,"Telefon1":"065\/531-039"}
+[2025-07-23 12:41:17] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 12:41:17] API hit
+[2025-07-23 12:41:17] Box: 1, OID: 2355444, Driver: 1
+[2025-07-23 12:41:17] Customer SQL: SELECT D.kup_naziv, D.kup_adresa, D.kup_opstina, D.Drzava, D.kup_telefon FROM z_web_dok D WHERE D.oid = 2355444
+[2025-07-23 12:41:17] Customer data: {"NazivKupca":"Gorak Brki\u0107","Adresa1":"16 Kraji\u0161ke brigade 63","Opstina":"Bosanska Gradi\u0161ka","ImeDrzave":null,"Telefon1":"065\/531-039"}
+[2025-07-23 12:41:18] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 12:41:18] API hit
+[2025-07-23 12:41:18] Box: 1, OID: 2355444, Driver: 1
+[2025-07-23 12:41:18] Customer SQL: SELECT D.kup_naziv, D.kup_adresa, D.kup_opstina, D.Drzava, D.kup_telefon FROM z_web_dok D WHERE D.oid = 2355444
+[2025-07-23 12:41:18] Customer data: {"NazivKupca":"Gorak Brki\u0107","Adresa1":"16 Kraji\u0161ke brigade 63","Opstina":"Bosanska Gradi\u0161ka","ImeDrzave":null,"Telefon1":"065\/531-039"}
+[2025-07-23 13:04:18] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 13:04:18] API hit
+[2025-07-23 13:04:18] Box: 1, OID: 2355444, Driver: 1
+[2025-07-23 13:04:18] Found 0 items for order #2355444
+[2025-07-23 13:04:18] Final items array: []
+[2025-07-23 13:05:01] OrderData: []
+[2025-07-23 13:09:30] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 13:09:30] API hit
+[2025-07-23 13:09:30] Box: 1, OID: 2355444, Driver: 1
+[2025-07-23 13:09:30] Found 0 items for order #2355444
+[2025-07-23 13:09:30] Final items array: []
+[2025-07-23 13:09:36] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 13:09:36] API hit
+[2025-07-23 13:09:36] Box: 1, OID: 2355444, Driver: 1
+[2025-07-23 13:09:36] Found 0 items for order #2355444
+[2025-07-23 13:09:36] Final items array: []
+[2025-07-23 13:09:36] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 13:09:36] API hit
+[2025-07-23 13:09:36] Box: 1, OID: 2355444, Driver: 1
+[2025-07-23 13:09:36] Found 0 items for order #2355444
+[2025-07-23 13:09:36] Final items array: []
+[2025-07-23 13:09:37] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 13:09:37] API hit
+[2025-07-23 13:09:37] Box: 1, OID: 2355444, Driver: 1
+[2025-07-23 13:09:37] Found 0 items for order #2355444
+[2025-07-23 13:09:37] Final items array: []
+[2025-07-23 13:09:37] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 13:09:37] API hit
+[2025-07-23 13:09:37] Box: 1, OID: 2355444, Driver: 1
+[2025-07-23 13:09:37] Found 0 items for order #2355444
+[2025-07-23 13:09:37] Final items array: []
+[2025-07-23 13:09:37] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 13:09:37] API hit
+[2025-07-23 13:09:37] Box: 1, OID: 2355444, Driver: 1
+[2025-07-23 13:09:37] Found 0 items for order #2355444
+[2025-07-23 13:09:37] Final items array: []
+[2025-07-23 13:09:37] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 13:09:37] API hit
+[2025-07-23 13:09:37] Box: 1, OID: 2355444, Driver: 1
+[2025-07-23 13:09:37] Found 0 items for order #2355444
+[2025-07-23 13:09:37] Final items array: []
+[2025-07-23 13:09:38] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 13:09:38] API hit
+[2025-07-23 13:09:38] Box: 1, OID: 2355444, Driver: 1
+[2025-07-23 13:09:38] Found 0 items for order #2355444
+[2025-07-23 13:09:38] Final items array: []
+[2025-07-23 13:10:01] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 13:10:01] API hit
+[2025-07-23 13:10:01] Box: 1, OID: 2355444, Driver: 1
+[2025-07-23 13:10:01] Found 0 items for order #2355444
+[2025-07-23 13:10:01] Final items array: []
+[2025-07-23 13:10:02] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 13:10:02] API hit
+[2025-07-23 13:10:02] Box: 1, OID: 2355444, Driver: 1
+[2025-07-23 13:10:02] Found 0 items for order #2355444
+[2025-07-23 13:10:02] Final items array: []
+[2025-07-23 13:10:03] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 13:10:03] API hit
+[2025-07-23 13:10:03] Box: 1, OID: 2355444, Driver: 1
+[2025-07-23 13:10:03] Found 0 items for order #2355444
+[2025-07-23 13:10:03] Final items array: []
+[2025-07-23 13:10:07] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 13:10:07] API hit
+[2025-07-23 13:10:07] Box: 1, OID: 2355444, Driver: 1
+[2025-07-23 13:10:07] Found 0 items for order #2355444
+[2025-07-23 13:10:07] Final items array: []
+[2025-07-23 13:10:08] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 13:10:08] API hit
+[2025-07-23 13:10:08] Box: 1, OID: 2355444, Driver: 1
+[2025-07-23 13:10:08] Found 0 items for order #2355444
+[2025-07-23 13:10:08] Final items array: []
+[2025-07-23 13:12:30] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 13:12:30] API hit
+[2025-07-23 13:12:30] Box: 1, OID: 2355444, Driver: 1
+[2025-07-23 13:12:30] Found 0 items for order #2355444
+[2025-07-23 13:12:30] Final items array: []
+[2025-07-23 13:12:32] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 13:12:32] API hit
+[2025-07-23 13:12:32] Box: 1, OID: 2355444, Driver: 1
+[2025-07-23 13:12:32] Found 0 items for order #2355444
+[2025-07-23 13:12:32] Final items array: []
+[2025-07-23 13:12:32] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 13:12:32] API hit
+[2025-07-23 13:12:32] Box: 1, OID: 2355444, Driver: 1
+[2025-07-23 13:12:32] Found 0 items for order #2355444
+[2025-07-23 13:12:32] Final items array: []
+[2025-07-23 13:12:32] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 13:12:32] API hit
+[2025-07-23 13:12:32] Box: 1, OID: 2355444, Driver: 1
+[2025-07-23 13:12:32] Found 0 items for order #2355444
+[2025-07-23 13:12:32] Final items array: []
+[2025-07-23 13:12:33] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 13:12:33] API hit
+[2025-07-23 13:12:33] Box: 1, OID: 2355444, Driver: 1
+[2025-07-23 13:12:33] Found 0 items for order #2355444
+[2025-07-23 13:12:33] Final items array: []
+[2025-07-23 13:12:33] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 13:12:33] API hit
+[2025-07-23 13:12:33] Box: 1, OID: 2355444, Driver: 1
+[2025-07-23 13:12:33] Found 0 items for order #2355444
+[2025-07-23 13:12:33] Final items array: []
+[2025-07-23 13:12:33] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 13:12:33] API hit
+[2025-07-23 13:12:33] Box: 1, OID: 2355444, Driver: 1
+[2025-07-23 13:12:33] Found 0 items for order #2355444
+[2025-07-23 13:12:33] Final items array: []
+[2025-07-23 13:12:33] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 13:12:33] API hit
+[2025-07-23 13:12:33] Box: 1, OID: 2355444, Driver: 1
+[2025-07-23 13:12:33] Found 0 items for order #2355444
+[2025-07-23 13:12:33] Final items array: []
+[2025-07-23 13:13:22] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 13:13:22] API hit
+[2025-07-23 13:13:22] Box: 1, OID: 2355444, Driver: 1
+[2025-07-23 13:13:22] Found 0 items for order #2355444
+[2025-07-23 13:13:22] Final items array: []
+[2025-07-23 13:13:32] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 13:13:32] API hit
+[2025-07-23 13:13:32] Box: 1, OID: 2355444, Driver: 1
+[2025-07-23 13:13:32] Found 0 items for order #2355444
+[2025-07-23 13:13:32] Final items array: []
+[2025-07-23 13:21:10] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 13:21:10] API hit
+[2025-07-23 13:21:10] Box: 1, OID: 2355444, Driver: 1
+[2025-07-23 13:21:10] Found 2 items for order #2355444
+[2025-07-23 13:21:10] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":null,"EAN":null,"mpc":null}
+[2025-07-23 13:21:10] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":null,"EAN":null,"mpc":null}
+[2025-07-23 13:21:10] Final items array: [{"aid":16708,"naziv":"Artikal #16708","kol":2,"ean":"","cijena":1776,"mpc":0},{"aid":34356,"naziv":"Artikal #34356","kol":1,"ean":"","cijena":112.96,"mpc":0}]
+[2025-07-23 13:25:01] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 13:25:01] API hit
+[2025-07-23 13:25:01] Box: 1, OID: 2355444, Driver: 1
+[2025-07-23 13:25:01] Found 2 items for order #2355444
+[2025-07-23 13:25:01] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":null,"EAN":null,"mpc":null}
+[2025-07-23 13:25:01] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":null,"EAN":null,"mpc":null}
+[2025-07-23 13:25:01] Final items array: [{"aid":16708,"naziv":"Artikal #16708","kol":2,"ean":"","cijena":1776,"mpc":0},{"aid":34356,"naziv":"Artikal #34356","kol":1,"ean":"","cijena":112.96,"mpc":0}]
+[2025-07-23 13:25:02] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 13:25:02] API hit
+[2025-07-23 13:25:02] Box: 1, OID: 2355444, Driver: 1
+[2025-07-23 13:25:02] Found 2 items for order #2355444
+[2025-07-23 13:25:02] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":null,"EAN":null,"mpc":null}
+[2025-07-23 13:25:02] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":null,"EAN":null,"mpc":null}
+[2025-07-23 13:25:02] Final items array: [{"aid":16708,"naziv":"Artikal #16708","kol":2,"ean":"","cijena":1776,"mpc":0},{"aid":34356,"naziv":"Artikal #34356","kol":1,"ean":"","cijena":112.96,"mpc":0}]
+[2025-07-23 13:28:00] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 13:28:00] API hit
+[2025-07-23 13:28:00] Box: 1, OID: 2355444, Driver: 1
+[2025-07-23 13:28:00] Found 2 items for order #2355444
+[2025-07-23 13:28:00] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":null,"EAN":null,"mpc":null}
+[2025-07-23 13:28:00] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-23 13:28:00] Final items array: [{"aid":16708,"naziv":"Artikal #16708","kol":2,"ean":"","cijena":1776,"mpc":0},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
+[2025-07-23 13:28:48] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 13:28:48] API hit
+[2025-07-23 13:28:48] Box: 1, OID: 2355444, Driver: 1
+[2025-07-23 13:28:48] Found 2 items for order #2355444
+[2025-07-23 13:28:48] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","EAN":"3856001015263","mpc":99.9}
+[2025-07-23 13:28:48] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-23 13:28:48] Final items array: [{"aid":16708,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","kol":2,"ean":"3856001015263","cijena":1776,"mpc":99.9},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
+[2025-07-23 14:13:45] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 14:13:45] API hit
+[2025-07-23 14:13:45] Box: 1, OID: 2355444, Driver: 1
+[2025-07-23 14:13:45] Found 2 items for order #2355444
+[2025-07-23 14:13:45] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","EAN":"3856001015263","mpc":99.9}
+[2025-07-23 14:13:45] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-23 14:13:45] Final items array: [{"aid":16708,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","kol":2,"ean":"3856001015263","cijena":1776,"mpc":99.9},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
+[2025-07-23 14:19:13] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 14:19:13] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 14:19:13] API hit
+[2025-07-23 14:19:13] API hit
+[2025-07-23 14:19:13] Box: 1, OID: 2355444, Driver: 1
+[2025-07-23 14:19:13] Found 2 items for order #2355444
+[2025-07-23 14:19:13] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","EAN":"3856001015263","mpc":99.9}
+[2025-07-23 14:19:13] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-23 14:19:13] Final items array: [{"aid":16708,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","kol":2,"ean":"3856001015263","cijena":1776,"mpc":99.9},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
+[2025-07-23 14:19:13] Found 2 items for order #2355444
+[2025-07-23 14:19:13] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","EAN":"3856001015263","mpc":99.9}
+[2025-07-23 14:19:13] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-23 14:19:13] Final items array: [{"aid":16708,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","kol":2,"ean":"3856001015263","cijena":1776,"mpc":99.9},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
+[2025-07-23 14:23:20] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 14:23:20] API hit
+[2025-07-23 14:23:20] Box: 1, OID: 2355444, Driver: 1
+[2025-07-23 14:23:20] Found 2 items for order #2355444
+[2025-07-23 14:23:20] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","EAN":"3856001015263","mpc":99.9}
+[2025-07-23 14:23:20] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-23 14:23:20] Final items array: [{"aid":16708,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","kol":2,"ean":"3856001015263","cijena":1776,"mpc":99.9},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
+[2025-07-23 14:25:05] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 14:25:05] API hit
+[2025-07-23 14:25:05] Box: 1, OID: 2355444, Driver: 1
+[2025-07-23 14:25:05] Found 2 items for order #2355444
+[2025-07-23 14:25:05] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","EAN":"3856001015263","mpc":99.9}
+[2025-07-23 14:25:05] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-23 14:25:05] Final items array: [{"aid":16708,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","kol":2,"ean":"3856001015263","cijena":1776,"mpc":99.9},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
+[2025-07-23 14:48:20] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-23 14:48:20] API hit
+[2025-07-23 14:48:20] Box: 1, OID: 2355444, Driver: 1
+[2025-07-23 14:48:20] Found 2 items for order #2355444
+[2025-07-23 14:48:20] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","EAN":"3856001015263","mpc":99.9}
+[2025-07-23 14:48:20] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-23 14:48:20] Final items array: [{"aid":16708,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","kol":2,"ean":"3856001015263","cijena":1776,"mpc":99.9},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
+[2025-07-24 08:48:08] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-24 08:48:09] API hit
+[2025-07-24 08:48:09] Box: 1, OID: 2355444, Driver: 1
+[2025-07-24 08:48:10] Found 2 items for order #2355444
+[2025-07-24 08:48:10] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","EAN":"3856001015263","mpc":99.9}
+[2025-07-24 08:48:10] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-24 08:48:10] Final items array: [{"aid":16708,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","kol":2,"ean":"3856001015263","cijena":1776,"mpc":99.9},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
+[2025-07-24 11:15:06] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-24 11:15:06] API hit
+[2025-07-24 11:15:06] Box: 1, OID: 2355444, Driver: 1
+[2025-07-24 11:15:07] Found 2 items for order #2355444
+[2025-07-24 11:15:07] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","EAN":"3856001015263","mpc":99.9}
+[2025-07-24 11:15:07] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-24 11:15:07] Final items array: [{"aid":16708,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","kol":2,"ean":"3856001015263","cijena":1776,"mpc":99.9},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
+[2025-07-24 11:26:21] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-24 11:26:21] API hit
+[2025-07-24 11:26:21] Box: 1, OID: 2355444, Driver: 1
+[2025-07-24 11:26:21] Found 2 items for order #2355444
+[2025-07-24 11:26:21] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","EAN":"3856001015263","mpc":99.9}
+[2025-07-24 11:26:21] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-24 11:26:21] Final items array: [{"aid":16708,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","kol":2,"ean":"3856001015263","cijena":1776,"mpc":99.9},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
+[2025-07-24 12:55:09] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-24 12:55:09] API hit
+[2025-07-24 12:55:09] Box: 1, OID: 2355444, Driver: 1
+[2025-07-24 12:55:09] Found 2 items for order #2355444
+[2025-07-24 12:55:09] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","EAN":"3856001015263","mpc":99.9}
+[2025-07-24 12:55:09] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-24 12:55:09] Final items array: [{"aid":16708,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","kol":2,"ean":"3856001015263","cijena":1776,"mpc":99.9},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
+[2025-07-24 12:55:10] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-24 12:55:10] API hit
+[2025-07-24 12:55:10] Box: 1, OID: 2355444, Driver: 1
+[2025-07-24 12:55:10] Found 2 items for order #2355444
+[2025-07-24 12:55:10] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","EAN":"3856001015263","mpc":99.9}
+[2025-07-24 12:55:10] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-24 12:55:10] Final items array: [{"aid":16708,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","kol":2,"ean":"3856001015263","cijena":1776,"mpc":99.9},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
+[2025-07-24 12:55:25] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-24 12:55:25] API hit
+[2025-07-24 12:55:25] Box: 1, OID: 2355444, Driver: 1
+[2025-07-24 12:55:25] Found 2 items for order #2355444
+[2025-07-24 12:55:25] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","EAN":"3856001015263","mpc":99.9}
+[2025-07-24 12:55:25] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-24 12:55:25] Final items array: [{"aid":16708,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","kol":2,"ean":"3856001015263","cijena":1776,"mpc":99.9},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
+[2025-07-24 12:55:26] OrderData: {"code":"KU1KU2355445","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-24 12:55:26] API hit
+[2025-07-24 12:55:26] Box: 1, OID: 2355445, Driver: 1
+[2025-07-24 12:55:26] Found 0 items for order #2355445
+[2025-07-24 12:55:26] Final items array: []
+[2025-07-24 12:55:28] OrderData: {"code":"KU1KU2355445","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-24 12:55:28] API hit
+[2025-07-24 12:55:28] Box: 1, OID: 2355445, Driver: 1
+[2025-07-24 12:55:28] Found 0 items for order #2355445
+[2025-07-24 12:55:28] Final items array: []
+[2025-07-24 12:57:00] OrderData: {"code":"KU1KU2348484","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-24 12:57:00] API hit
+[2025-07-24 12:57:00] Box: 1, OID: 2348484, Driver: 1
+[2025-07-24 12:57:00] Found 0 items for order #2348484
+[2025-07-24 12:57:00] Final items array: []
+[2025-07-24 12:57:11] OrderData: {"code":"KU1KU2348484","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-24 12:57:11] API hit
+[2025-07-24 12:57:11] Box: 1, OID: 2348484, Driver: 1
+[2025-07-24 12:57:11] Found 0 items for order #2348484
+[2025-07-24 12:57:11] Final items array: []
+[2025-07-24 13:03:26] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-24 13:03:27] API hit
+[2025-07-24 13:03:27] Box: 1, OID: 2355444, Driver: 1
+[2025-07-24 13:03:27] Found 2 items for order #2355444
+[2025-07-24 13:03:27] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","EAN":"3856001015263","mpc":99.9}
+[2025-07-24 13:03:27] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-24 13:03:27] Final items array: [{"aid":16708,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","kol":2,"ean":"3856001015263","cijena":1776,"mpc":99.9},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
+[2025-07-24 13:03:29] OrderData: {"code":"KU1KU2348484","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-24 13:03:29] API hit
+[2025-07-24 13:03:29] Box: 1, OID: 2348484, Driver: 1
+[2025-07-24 13:03:29] Found 0 items for order #2348484
+[2025-07-24 13:03:29] Final items array: []
+[2025-07-24 14:40:04] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-24 14:40:04] API hit
+[2025-07-24 14:40:04] Box: 1, OID: 2355444, Driver: 1
+[2025-07-24 14:40:04] Found 2 items for order #2355444
+[2025-07-24 14:40:04] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","EAN":"3856001015263","mpc":99.9}
+[2025-07-24 14:40:04] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-24 14:40:04] Final items array: [{"aid":16708,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","kol":2,"ean":"3856001015263","cijena":1776,"mpc":99.9},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
+[2025-07-24 14:40:06] OrderData: {"code":"KU1KU2348484","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-24 14:40:06] API hit
+[2025-07-24 14:40:06] Box: 1, OID: 2348484, Driver: 1
+[2025-07-24 14:40:06] Found 0 items for order #2348484
+[2025-07-24 14:40:06] Final items array: []
+[2025-07-24 15:00:12] OrderData: {"code":"KU1KU2348484","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-24 15:00:12] API hit
+[2025-07-24 15:00:12] Box: 1, OID: 2348484, Driver: 1
+[2025-07-24 15:00:12] Found 0 items for order #2348484
+[2025-07-24 15:00:12] Final items array: []
+[2025-07-24 15:00:15] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-24 15:00:15] API hit
+[2025-07-24 15:00:15] Box: 1, OID: 2355444, Driver: 1
+[2025-07-24 15:00:15] Found 2 items for order #2355444
+[2025-07-24 15:00:15] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","EAN":"3856001015263","mpc":99.9}
+[2025-07-24 15:00:15] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-24 15:00:15] Final items array: [{"aid":16708,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","kol":2,"ean":"3856001015263","cijena":1776,"mpc":99.9},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
+[2025-07-24 15:17:14] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-24 15:17:14] API hit
+[2025-07-24 15:17:14] Box: 1, OID: 2355444, Driver: 1
+[2025-07-24 15:17:14] Found 2 items for order #2355444
+[2025-07-24 15:17:14] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","EAN":"3856001015263","mpc":99.9}
+[2025-07-24 15:17:14] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-24 15:17:14] Final items array: [{"aid":16708,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","kol":2,"ean":"3856001015263","cijena":1776,"mpc":99.9},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
+[2025-07-24 15:17:24] OrderData: {"code":"KU1KU2348484","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-24 15:17:24] API hit
+[2025-07-24 15:17:24] Box: 1, OID: 2348484, Driver: 1
+[2025-07-24 15:17:24] Found 0 items for order #2348484
+[2025-07-24 15:17:24] Final items array: []
+[2025-07-24 15:23:57] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-24 15:23:58] API hit
+[2025-07-24 15:23:58] Box: 1, OID: 2355444, Driver: 1
+[2025-07-24 15:23:58] Found 2 items for order #2355444
+[2025-07-24 15:23:58] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","EAN":"3856001015263","mpc":99.9}
+[2025-07-24 15:23:58] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-24 15:23:58] Final items array: [{"aid":16708,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","kol":2,"ean":"3856001015263","cijena":1776,"mpc":99.9},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
+[2025-07-24 15:23:58] OrderData: {"code":"KU1KU2348484","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-24 15:23:58] API hit
+[2025-07-24 15:23:58] Box: 1, OID: 2348484, Driver: 1
+[2025-07-24 15:23:58] Found 0 items for order #2348484
+[2025-07-24 15:23:58] Final items array: []
+[2025-07-24 15:32:11] OrderData: {"code":"KU1KU2348484","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-24 15:32:11] API hit
+[2025-07-24 15:32:11] Box: 1, OID: 2348484, Driver: 1
+[2025-07-24 15:32:11] Found 0 items for order #2348484
+[2025-07-24 15:32:11] Final items array: []
+[2025-07-24 15:32:13] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-24 15:32:13] API hit
+[2025-07-24 15:32:13] Box: 1, OID: 2355444, Driver: 1
+[2025-07-24 15:32:13] Found 2 items for order #2355444
+[2025-07-24 15:32:13] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","EAN":"3856001015263","mpc":99.9}
+[2025-07-24 15:32:13] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-24 15:32:13] Final items array: [{"aid":16708,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","kol":2,"ean":"3856001015263","cijena":1776,"mpc":99.9},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
+[2025-07-24 15:37:24] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-24 15:37:24] API hit
+[2025-07-24 15:37:24] Box: 1, OID: 2355444, Driver: 1
+[2025-07-24 15:37:24] Found 2 items for order #2355444
+[2025-07-24 15:37:24] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","EAN":"3856001015263","mpc":99.9}
+[2025-07-24 15:37:24] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-24 15:37:24] Final items array: [{"aid":16708,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","kol":2,"ean":"3856001015263","cijena":1776,"mpc":99.9},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
+[2025-07-24 15:37:36] OrderData: {"code":"KU1KU2348484","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-24 15:37:36] API hit
+[2025-07-24 15:37:36] Box: 1, OID: 2348484, Driver: 1
+[2025-07-24 15:37:36] Found 0 items for order #2348484
+[2025-07-24 15:37:36] Final items array: []
+[2025-07-24 15:58:33] OrderData: {"code":"KU1KU2348484","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-24 15:58:33] API hit
+[2025-07-24 15:58:33] Box: 1, OID: 2348484, Driver: 1
+[2025-07-24 15:58:33] Found 0 items for order #2348484
+[2025-07-24 15:58:33] Final items array: []
+[2025-07-25 08:52:35] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 08:52:36] API hit
+[2025-07-25 08:52:36] Box: 1, OID: 2355444, Driver: 1
+[2025-07-25 08:52:36] Found 2 items for order #2355444
+[2025-07-25 08:52:36] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","EAN":"3856001015263","mpc":99.9}
+[2025-07-25 08:52:36] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-25 08:52:36] Final items array: [{"aid":16708,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","kol":2,"ean":"3856001015263","cijena":1776,"mpc":99.9},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
+[2025-07-25 08:54:25] OrderData: {"code":"KU1KU2348484","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 08:54:26] API hit
+[2025-07-25 08:54:26] Box: 1, OID: 2348484, Driver: 1
+[2025-07-25 08:54:26] Found 0 items for order #2348484
+[2025-07-25 08:54:26] Final items array: []
+[2025-07-25 10:16:31] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 10:16:31] API hit
+[2025-07-25 10:16:31] Box: 1, OID: 2355444, Driver: 1
+[2025-07-25 10:16:31] Found 2 items for order #2355444
+[2025-07-25 10:16:31] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","EAN":"3856001015263","mpc":99.9}
+[2025-07-25 10:16:31] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-25 10:16:31] Final items array: [{"aid":16708,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","kol":2,"ean":"3856001015263","cijena":1776,"mpc":99.9},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
+[2025-07-25 10:16:31] OrderData: {"code":"KU1KU2348484","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 10:16:31] API hit
+[2025-07-25 10:16:31] Box: 1, OID: 2348484, Driver: 1
+[2025-07-25 10:16:31] Found 0 items for order #2348484
+[2025-07-25 10:16:31] Final items array: []
+[2025-07-25 10:17:20] OrderData: {"code":"KU1KU2348484","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 10:17:20] API hit
+[2025-07-25 10:17:20] Box: 1, OID: 2348484, Driver: 1
+[2025-07-25 10:17:20] Found 0 items for order #2348484
+[2025-07-25 10:17:20] Final items array: []
+[2025-07-25 10:17:22] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 10:17:22] API hit
+[2025-07-25 10:17:22] Box: 1, OID: 2355444, Driver: 1
+[2025-07-25 10:17:22] Found 2 items for order #2355444
+[2025-07-25 10:17:22] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","EAN":"3856001015263","mpc":99.9}
+[2025-07-25 10:17:22] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-25 10:17:22] Final items array: [{"aid":16708,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","kol":2,"ean":"3856001015263","cijena":1776,"mpc":99.9},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
+[2025-07-25 10:18:12] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 10:18:12] API hit
+[2025-07-25 10:18:12] Box: 1, OID: 2355444, Driver: 1
+[2025-07-25 10:18:12] Found 2 items for order #2355444
+[2025-07-25 10:18:12] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","EAN":"3856001015263","mpc":99.9}
+[2025-07-25 10:18:12] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-25 10:18:12] Final items array: [{"aid":16708,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","kol":2,"ean":"3856001015263","cijena":1776,"mpc":99.9},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
+[2025-07-25 10:18:13] OrderData: {"code":"KU1KU2348484","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 10:18:13] API hit
+[2025-07-25 10:18:13] Box: 1, OID: 2348484, Driver: 1
+[2025-07-25 10:18:13] Found 0 items for order #2348484
+[2025-07-25 10:18:13] Final items array: []
+[2025-07-25 10:18:14] OrderData: {"code":"KU1KU2348484","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 10:18:14] API hit
+[2025-07-25 10:18:14] Box: 1, OID: 2348484, Driver: 1
+[2025-07-25 10:18:14] Found 0 items for order #2348484
+[2025-07-25 10:18:14] Final items array: []
+[2025-07-25 11:01:51] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 11:01:51] API hit
+[2025-07-25 11:01:51] Box: 1, OID: 2355444, Driver: 1
+[2025-07-25 11:01:51] Found 2 items for order #2355444
+[2025-07-25 11:01:51] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","EAN":"3856001015263","mpc":99.9}
+[2025-07-25 11:01:51] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-25 11:01:51] Final items array: [{"aid":16708,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","kol":2,"ean":"3856001015263","cijena":1776,"mpc":99.9},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
+[2025-07-25 11:01:52] OrderData: {"code":"KU1KU2348484","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 11:01:52] API hit
+[2025-07-25 11:01:52] Box: 1, OID: 2348484, Driver: 1
+[2025-07-25 11:01:52] Found 0 items for order #2348484
+[2025-07-25 11:01:52] Final items array: []
+[2025-07-25 14:20:27] OrderData: {"code":"KU1KU2348484","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 14:20:27] API hit
+[2025-07-25 14:20:27] Box: 1, OID: 2348484, Driver: 1
+[2025-07-25 14:20:27] ERROR: Unknown column 'E.Adresamagacin' in 'field list'
+[2025-07-25 14:20:32] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 14:20:32] API hit
+[2025-07-25 14:20:32] Box: 1, OID: 2355444, Driver: 1
+[2025-07-25 14:20:32] ERROR: Unknown column 'E.Adresamagacin' in 'field list'
+[2025-07-25 14:21:23] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 14:21:23] API hit
+[2025-07-25 14:21:23] Box: 1, OID: 2355444, Driver: 1
+[2025-07-25 14:21:23] Order #2355444 is for retail store
+[2025-07-25 14:21:23] Customer data: {"naziv":"Internet prodaja (Novi Travnik)","adresa":"16 Kraji\u0161ke brigade 63","opstina":"Bosanska Gradi\u0161ka","drzava":"","telefon":"065\/531-039","email":"","isMaloprodaja":true,"skladisteId":310,"skladisteVrsta":6,"posId":0,"magId":310,"mag2Id":0}
+[2025-07-25 14:21:23] Found 2 items for order #2355444
+[2025-07-25 14:21:23] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","EAN":"3856001015263","mpc":99.9}
+[2025-07-25 14:21:23] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-25 14:21:23] Final items array: [{"aid":16708,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","kol":2,"ean":"3856001015263","cijena":1776,"mpc":99.9},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
+[2025-07-25 14:21:24] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 14:21:24] API hit
+[2025-07-25 14:21:24] Box: 1, OID: 2355444, Driver: 1
+[2025-07-25 14:21:24] Order #2355444 is for retail store
+[2025-07-25 14:21:24] Customer data: {"naziv":"Internet prodaja (Novi Travnik)","adresa":"16 Kraji\u0161ke brigade 63","opstina":"Bosanska Gradi\u0161ka","drzava":"","telefon":"065\/531-039","email":"","isMaloprodaja":true,"skladisteId":310,"skladisteVrsta":6,"posId":0,"magId":310,"mag2Id":0}
+[2025-07-25 14:21:24] Found 2 items for order #2355444
+[2025-07-25 14:21:24] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","EAN":"3856001015263","mpc":99.9}
+[2025-07-25 14:21:24] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-25 14:21:24] Final items array: [{"aid":16708,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","kol":2,"ean":"3856001015263","cijena":1776,"mpc":99.9},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
+[2025-07-25 14:21:30] OrderData: {"code":"KU1KU2348484","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 14:21:30] API hit
+[2025-07-25 14:21:30] Box: 1, OID: 2348484, Driver: 1
+[2025-07-25 14:21:30] Order #2348484 is for retail store
+[2025-07-25 14:21:30] Customer data: {"naziv":"Internet prodaja (Novi Travnik)","adresa":"Mehemedagi\u0107i","opstina":"Klju\u010d","drzava":"","telefon":"061\/908-170","email":"","isMaloprodaja":true,"skladisteId":310,"skladisteVrsta":6,"posId":0,"magId":310,"mag2Id":0}
+[2025-07-25 14:21:30] Found 0 items for order #2348484
+[2025-07-25 14:21:30] Final items array: []
+[2025-07-25 14:22:05] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 14:22:05] API hit
+[2025-07-25 14:22:05] Box: 1, OID: 2355444, Driver: 1
+[2025-07-25 14:22:05] Order #2355444 is for retail store
+[2025-07-25 14:22:05] Customer data: {"naziv":"Internet prodaja (Novi Travnik)","adresa":"16 Kraji\u0161ke brigade 63","opstina":"Bosanska Gradi\u0161ka","drzava":"","telefon":"065\/531-039","email":"","isMaloprodaja":true,"skladisteId":310,"skladisteVrsta":6,"posId":0,"magId":310,"mag2Id":0}
+[2025-07-25 14:22:05] Found 2 items for order #2355444
+[2025-07-25 14:22:05] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","EAN":"3856001015263","mpc":99.9}
+[2025-07-25 14:22:05] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-25 14:22:05] Final items array: [{"aid":16708,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","kol":2,"ean":"3856001015263","cijena":1776,"mpc":99.9},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
+[2025-07-25 14:25:32] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 14:25:32] API hit
+[2025-07-25 14:25:32] Box: 1, OID: 2355444, Driver: 1
+[2025-07-25 14:25:32] Order #2355444 is for retail store
+[2025-07-25 14:25:32] Customer data: {"naziv":"Internet prodaja (Novi Travnik)","adresa":"16 Kraji\u0161ke brigade 63","opstina":"Bosanska Gradi\u0161ka","drzava":"","telefon":"065\/531-039","email":"","isMaloprodaja":true,"skladisteId":310,"skladisteVrsta":6,"posId":0,"magId":310,"mag2Id":0,"Adresa1":"16 Kraji\u0161ke brigade 63"}
+[2025-07-25 14:25:32] Found 2 items for order #2355444
+[2025-07-25 14:25:32] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","EAN":"3856001015263","mpc":99.9}
+[2025-07-25 14:25:32] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-25 14:25:32] Final items array: [{"aid":16708,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","kol":2,"ean":"3856001015263","cijena":1776,"mpc":99.9},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
+[2025-07-25 14:30:22] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 14:30:22] API hit
+[2025-07-25 14:30:22] Box: 1, OID: 2355444, Driver: 1
+[2025-07-25 14:30:22] Order #2355444 is for regular customer
+[2025-07-25 14:30:22] Customer data: {"naziv":"Gorak Brki\u0107","adresa":"16 Kraji\u0161ke brigade 63","opstina":"Bosanska Gradi\u0161ka","drzava":"","telefon":"065\/531-039","email":"","isMaloprodaja":false}
+[2025-07-25 14:30:22] Found 2 items for order #2355444
+[2025-07-25 14:30:22] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","EAN":"3856001015263","mpc":99.9}
+[2025-07-25 14:30:22] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-25 14:30:22] Final items array: [{"aid":16708,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","kol":2,"ean":"3856001015263","cijena":1776,"mpc":99.9},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
+[2025-07-25 14:32:03] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 14:32:03] API hit
+[2025-07-25 14:32:03] Box: 1, OID: 2355444, Driver: 1
+[2025-07-25 14:32:03] Order #2355444 is for regular customer
+[2025-07-25 14:32:03] Customer data: {"naziv":"Gorak Brki\u0107","adresa":"16 Kraji\u0161ke brigade 63","opstina":"Bosanska Gradi\u0161ka","drzava":"","telefon":"065\/531-039","email":"","isMaloprodaja":false}
+[2025-07-25 14:32:03] Found 2 items for order #2355444
+[2025-07-25 14:32:03] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","EAN":"3856001015263","mpc":99.9}
+[2025-07-25 14:32:03] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-25 14:32:03] Final items array: [{"aid":16708,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","kol":2,"ean":"3856001015263","cijena":1776,"mpc":99.9},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
+[2025-07-25 14:38:12] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 14:38:12] API hit
+[2025-07-25 14:38:12] Box: 1, OID: 2355444, Driver: 1
+[2025-07-25 14:38:12] Order #2355444 is for regular customer
+[2025-07-25 14:38:12] Customer data: {"naziv":"Gorak Brki\u0107","adresa":"16 Kraji\u0161ke brigade 63","opstina":"Bosanska Gradi\u0161ka","drzava":"","telefon":"065\/531-039","email":"","isMaloprodaja":false}
+[2025-07-25 14:38:12] Found 2 items for order #2355444
+[2025-07-25 14:38:12] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","EAN":"3856001015263","mpc":99.9}
+[2025-07-25 14:38:12] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-25 14:38:12] Final items array: [{"aid":16708,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","kol":2,"ean":"3856001015263","cijena":1776,"mpc":99.9},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
+[2025-07-25 14:38:13] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 14:38:13] API hit
+[2025-07-25 14:38:13] Box: 1, OID: 2355444, Driver: 1
+[2025-07-25 14:38:13] Order #2355444 is for regular customer
+[2025-07-25 14:38:13] Customer data: {"naziv":"Gorak Brki\u0107","adresa":"16 Kraji\u0161ke brigade 63","opstina":"Bosanska Gradi\u0161ka","drzava":"","telefon":"065\/531-039","email":"","isMaloprodaja":false}
+[2025-07-25 14:38:13] Found 2 items for order #2355444
+[2025-07-25 14:38:13] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","EAN":"3856001015263","mpc":99.9}
+[2025-07-25 14:38:13] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-25 14:38:13] Final items array: [{"aid":16708,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","kol":2,"ean":"3856001015263","cijena":1776,"mpc":99.9},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
+[2025-07-25 14:38:14] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 14:38:14] API hit
+[2025-07-25 14:38:14] Box: 1, OID: 2355444, Driver: 1
+[2025-07-25 14:38:14] Order #2355444 is for regular customer
+[2025-07-25 14:38:14] Customer data: {"naziv":"Gorak Brki\u0107","adresa":"16 Kraji\u0161ke brigade 63","opstina":"Bosanska Gradi\u0161ka","drzava":"","telefon":"065\/531-039","email":"","isMaloprodaja":false}
+[2025-07-25 14:38:14] Found 2 items for order #2355444
+[2025-07-25 14:38:14] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","EAN":"3856001015263","mpc":99.9}
+[2025-07-25 14:38:14] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-25 14:38:14] Final items array: [{"aid":16708,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","kol":2,"ean":"3856001015263","cijena":1776,"mpc":99.9},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
+[2025-07-25 14:46:13] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 14:46:13] API hit
+[2025-07-25 14:46:13] Box: 1, OID: 2355444, Driver: 1
+[2025-07-25 14:46:13] Raw kupac data: {"NazivKupca":"Gorak Brki\u0107","Adresa1":"16 Kraji\u0161ke brigade 63","Opstina":"Bosanska Gradi\u0161ka","ImeDrzave":null,"Telefon1":"065\/531-039","Email":null,"PosId":0,"MagId":310,"Mag2Id":null,"SkladisteId":null,"SkladisteNaziv":null,"SkladisteVrsta":null,"IsMaloprodaja":null}
+[2025-07-25 14:46:13] Order #2355444 is for regular customer
+[2025-07-25 14:46:13] Customer data: {"adresa":"16 Kraji\u0161ke brigade 63","opstina":"Bosanska Gradi\u0161ka","drzava":"","telefon":"065\/531-039","email":"","naziv":"Gorak Brki\u0107","isMaloprodaja":false}
+[2025-07-25 14:46:13] Found 2 items for order #2355444
+[2025-07-25 14:46:13] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","EAN":"3856001015263","mpc":99.9}
+[2025-07-25 14:46:13] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-25 14:46:13] Final items array: [{"aid":16708,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","kol":2,"ean":"3856001015263","cijena":1776,"mpc":99.9},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
+[2025-07-25 14:48:01] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 14:48:01] API hit
+[2025-07-25 14:48:01] Box: 1, OID: 2355444, Driver: 1
+[2025-07-25 14:48:01] Raw kupac data: {"NazivKupca":"Gorak Brki\u0107","Adresa1":"16 Kraji\u0161ke brigade 63","Opstina":"Bosanska Gradi\u0161ka","ImeDrzave":null,"Telefon1":"065\/531-039","Email":null,"PosId":0,"MagId":310,"Mag2Id":null,"SkladisteId":null,"SkladisteNaziv":null,"SkladisteVrsta":null,"IsMaloprodaja":null}
+[2025-07-25 14:48:01] Order #2355444 is for regular customer
+[2025-07-25 14:48:01] Customer data: {"adresa":"16 Kraji\u0161ke brigade 63","opstina":"Bosanska Gradi\u0161ka","drzava":"","telefon":"065\/531-039","email":"","naziv":"Gorak Brki\u0107","isMaloprodaja":false}
+[2025-07-25 14:48:01] Found 2 items for order #2355444
+[2025-07-25 14:48:01] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","EAN":"3856001015263","mpc":99.9}
+[2025-07-25 14:48:01] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-25 14:48:01] Final items array: [{"aid":16708,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","kol":2,"ean":"3856001015263","cijena":1776,"mpc":99.9},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
+[2025-07-25 14:49:09] OrderData: {"code":"KU1KU2348484","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 14:49:09] API hit
+[2025-07-25 14:49:09] Box: 1, OID: 2348484, Driver: 1
+[2025-07-25 14:49:09] Raw kupac data: {"NazivKupca":"Edina Mu\u0161anovi\u0107","Adresa1":"Mehemedagi\u0107i","Opstina":"Klju\u010d","ImeDrzave":null,"Telefon1":"061\/908-170","Email":null,"PosId":0,"MagId":310,"Mag2Id":null,"SkladisteId":null,"SkladisteNaziv":null,"SkladisteVrsta":null,"IsMaloprodaja":null}
+[2025-07-25 14:49:09] Order #2348484 is for regular customer
+[2025-07-25 14:49:09] Customer data: {"adresa":"Mehemedagi\u0107i","opstina":"Klju\u010d","drzava":"","telefon":"061\/908-170","email":"","naziv":"Edina Mu\u0161anovi\u0107","isMaloprodaja":false}
+[2025-07-25 14:49:09] Found 0 items for order #2348484
+[2025-07-25 14:49:09] Final items array: []
+[2025-07-25 14:49:22] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 14:49:22] API hit
+[2025-07-25 14:49:22] Box: 1, OID: 2355444, Driver: 1
+[2025-07-25 14:49:22] Raw kupac data: {"NazivKupca":"Gorak Brki\u0107","Adresa1":"16 Kraji\u0161ke brigade 63","Opstina":"Bosanska Gradi\u0161ka","ImeDrzave":null,"Telefon1":"065\/531-039","Email":null,"PosId":0,"MagId":310,"Mag2Id":null,"SkladisteId":null,"SkladisteNaziv":null,"SkladisteVrsta":null,"IsMaloprodaja":null}
+[2025-07-25 14:49:22] Order #2355444 is for regular customer
+[2025-07-25 14:49:22] Customer data: {"adresa":"16 Kraji\u0161ke brigade 63","opstina":"Bosanska Gradi\u0161ka","drzava":"","telefon":"065\/531-039","email":"","naziv":"Gorak Brki\u0107","isMaloprodaja":false}
+[2025-07-25 14:49:22] Found 2 items for order #2355444
+[2025-07-25 14:49:22] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","EAN":"3856001015263","mpc":99.9}
+[2025-07-25 14:49:22] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-25 14:49:22] Final items array: [{"aid":16708,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","kol":2,"ean":"3856001015263","cijena":1776,"mpc":99.9},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
+[2025-07-25 14:51:50] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 14:51:50] API hit
+[2025-07-25 14:51:50] Box: 1, OID: 2355444, Driver: 1
+[2025-07-25 14:51:50] Raw kupac data: {"NazivKupca":"Gorak Brki\u0107","Adresa1":"16 Kraji\u0161ke brigade 63","Opstina":"Bosanska Gradi\u0161ka","ImeDrzave":null,"Telefon1":"065\/531-039","Email":null,"PosId":0,"MagId":310,"Mag2Id":null,"SkladisteId":null,"SkladisteNaziv":null,"SkladisteVrsta":null,"IsMaloprodaja":null}
+[2025-07-25 14:51:50] Order #2355444 is for regular customer
+[2025-07-25 14:51:50] Customer data: {"adresa":"16 Kraji\u0161ke brigade 63","opstina":"Bosanska Gradi\u0161ka","drzava":"","telefon":"065\/531-039","email":"","naziv":"Gorak Brki\u0107","isMaloprodaja":false}
+[2025-07-25 14:51:50] Found 2 items for order #2355444
+[2025-07-25 14:51:50] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","EAN":"3856001015263","mpc":99.9}
+[2025-07-25 14:51:50] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-25 14:51:50] Final items array: [{"aid":16708,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","kol":2,"ean":"3856001015263","cijena":1776,"mpc":99.9},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
+[2025-07-25 14:51:55] OrderData: {"code":"KU1KU2348484","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 14:51:55] API hit
+[2025-07-25 14:51:55] Box: 1, OID: 2348484, Driver: 1
+[2025-07-25 14:51:55] Raw kupac data: {"NazivKupca":"Edina Mu\u0161anovi\u0107","Adresa1":"Mehemedagi\u0107i","Opstina":"Klju\u010d","ImeDrzave":null,"Telefon1":"061\/908-170","Email":null,"PosId":0,"MagId":310,"Mag2Id":null,"SkladisteId":null,"SkladisteNaziv":null,"SkladisteVrsta":null,"IsMaloprodaja":null}
+[2025-07-25 14:51:55] Order #2348484 is for regular customer
+[2025-07-25 14:51:55] Customer data: {"adresa":"Mehemedagi\u0107i","opstina":"Klju\u010d","drzava":"","telefon":"061\/908-170","email":"","naziv":"Edina Mu\u0161anovi\u0107","isMaloprodaja":false}
+[2025-07-25 14:51:55] Found 0 items for order #2348484
+[2025-07-25 14:51:55] Final items array: []
+[2025-07-25 14:54:20] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 14:54:20] API hit
+[2025-07-25 14:54:20] Box: 1, OID: 2355444, Driver: 1
+[2025-07-25 14:54:20] Raw kupac data: {"NazivKupca":"Gorak Brki\u0107","Adresa1":"16 Kraji\u0161ke brigade 63","Opstina":"Bosanska Gradi\u0161ka","ImeDrzave":null,"Telefon1":"065\/531-039","Email":null,"PosId":0,"MagId":310,"Mag2Id":null,"SkladisteId":null,"SkladisteNaziv":null,"SkladisteVrsta":null,"IsMaloprodaja":null}
+[2025-07-25 14:54:20] Order #2355444 is for regular customer
+[2025-07-25 14:54:20] Customer data: {"adresa":"16 Kraji\u0161ke brigade 63","opstina":"Bosanska Gradi\u0161ka","drzava":"","telefon":"065\/531-039","email":"","naziv":"Gorak Brki\u0107","isMaloprodaja":false}
+[2025-07-25 14:54:20] Found 2 items for order #2355444
+[2025-07-25 14:54:20] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","EAN":"3856001015263","mpc":99.9}
+[2025-07-25 14:54:20] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-25 14:54:20] Final items array: [{"aid":16708,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","kol":2,"ean":"3856001015263","cijena":1776,"mpc":99.9},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
+[2025-07-25 14:54:22] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 14:54:22] API hit
+[2025-07-25 14:54:22] Box: 1, OID: 2355444, Driver: 1
+[2025-07-25 14:54:22] Raw kupac data: {"NazivKupca":"Gorak Brki\u0107","Adresa1":"16 Kraji\u0161ke brigade 63","Opstina":"Bosanska Gradi\u0161ka","ImeDrzave":null,"Telefon1":"065\/531-039","Email":null,"PosId":0,"MagId":310,"Mag2Id":null,"SkladisteId":null,"SkladisteNaziv":null,"SkladisteVrsta":null,"IsMaloprodaja":null}
+[2025-07-25 14:54:22] Order #2355444 is for regular customer
+[2025-07-25 14:54:22] Customer data: {"adresa":"16 Kraji\u0161ke brigade 63","opstina":"Bosanska Gradi\u0161ka","drzava":"","telefon":"065\/531-039","email":"","naziv":"Gorak Brki\u0107","isMaloprodaja":false}
+[2025-07-25 14:54:22] Found 2 items for order #2355444
+[2025-07-25 14:54:22] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","EAN":"3856001015263","mpc":99.9}
+[2025-07-25 14:54:22] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-25 14:54:22] Final items array: [{"aid":16708,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","kol":2,"ean":"3856001015263","cijena":1776,"mpc":99.9},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
+[2025-07-25 14:54:23] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 14:54:23] API hit
+[2025-07-25 14:54:23] Box: 1, OID: 2355444, Driver: 1
+[2025-07-25 14:54:23] Raw kupac data: {"NazivKupca":"Gorak Brki\u0107","Adresa1":"16 Kraji\u0161ke brigade 63","Opstina":"Bosanska Gradi\u0161ka","ImeDrzave":null,"Telefon1":"065\/531-039","Email":null,"PosId":0,"MagId":310,"Mag2Id":null,"SkladisteId":null,"SkladisteNaziv":null,"SkladisteVrsta":null,"IsMaloprodaja":null}
+[2025-07-25 14:54:23] Order #2355444 is for regular customer
+[2025-07-25 14:54:23] Customer data: {"adresa":"16 Kraji\u0161ke brigade 63","opstina":"Bosanska Gradi\u0161ka","drzava":"","telefon":"065\/531-039","email":"","naziv":"Gorak Brki\u0107","isMaloprodaja":false}
+[2025-07-25 14:54:23] Found 2 items for order #2355444
+[2025-07-25 14:54:23] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","EAN":"3856001015263","mpc":99.9}
+[2025-07-25 14:54:23] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-25 14:54:23] Final items array: [{"aid":16708,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","kol":2,"ean":"3856001015263","cijena":1776,"mpc":99.9},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
+[2025-07-25 14:54:24] OrderData: {"code":"KU1KU2348484","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 14:54:24] API hit
+[2025-07-25 14:54:24] Box: 1, OID: 2348484, Driver: 1
+[2025-07-25 14:54:24] Raw kupac data: {"NazivKupca":"Edina Mu\u0161anovi\u0107","Adresa1":"Mehemedagi\u0107i","Opstina":"Klju\u010d","ImeDrzave":null,"Telefon1":"061\/908-170","Email":null,"PosId":0,"MagId":310,"Mag2Id":null,"SkladisteId":null,"SkladisteNaziv":null,"SkladisteVrsta":null,"IsMaloprodaja":null}
+[2025-07-25 14:54:24] Order #2348484 is for regular customer
+[2025-07-25 14:54:24] Customer data: {"adresa":"Mehemedagi\u0107i","opstina":"Klju\u010d","drzava":"","telefon":"061\/908-170","email":"","naziv":"Edina Mu\u0161anovi\u0107","isMaloprodaja":false}
+[2025-07-25 14:54:24] Found 0 items for order #2348484
+[2025-07-25 14:54:24] Final items array: []
+[2025-07-25 14:54:57] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 14:54:57] API hit
+[2025-07-25 14:54:57] Box: 1, OID: 2355444, Driver: 1
+[2025-07-25 14:54:57] Raw kupac data: {"NazivKupca":"Gorak Brki\u0107","Adresa1":"16 Kraji\u0161ke brigade 63","Opstina":"Bosanska Gradi\u0161ka","ImeDrzave":null,"Telefon1":"065\/531-039","Email":null,"PosId":0,"MagId":310,"Mag2Id":null,"SkladisteId":null,"SkladisteNaziv":null,"SkladisteVrsta":null,"IsMaloprodaja":null}
+[2025-07-25 14:54:57] Order #2355444 is for regular customer
+[2025-07-25 14:54:57] Customer data: {"adresa":"16 Kraji\u0161ke brigade 63","opstina":"Bosanska Gradi\u0161ka","drzava":"","telefon":"065\/531-039","email":"","naziv":"Gorak Brki\u0107","isMaloprodaja":false}
+[2025-07-25 14:54:57] Found 2 items for order #2355444
+[2025-07-25 14:54:57] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","EAN":"3856001015263","mpc":99.9}
+[2025-07-25 14:54:57] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-25 14:54:57] Final items array: [{"aid":16708,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","kol":2,"ean":"3856001015263","cijena":1776,"mpc":99.9},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
+[2025-07-25 14:54:58] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 14:54:58] API hit
+[2025-07-25 14:54:58] Box: 1, OID: 2355444, Driver: 1
+[2025-07-25 14:54:58] Raw kupac data: {"NazivKupca":"Gorak Brki\u0107","Adresa1":"16 Kraji\u0161ke brigade 63","Opstina":"Bosanska Gradi\u0161ka","ImeDrzave":null,"Telefon1":"065\/531-039","Email":null,"PosId":0,"MagId":310,"Mag2Id":null,"SkladisteId":null,"SkladisteNaziv":null,"SkladisteVrsta":null,"IsMaloprodaja":null}
+[2025-07-25 14:54:58] Order #2355444 is for regular customer
+[2025-07-25 14:54:58] Customer data: {"adresa":"16 Kraji\u0161ke brigade 63","opstina":"Bosanska Gradi\u0161ka","drzava":"","telefon":"065\/531-039","email":"","naziv":"Gorak Brki\u0107","isMaloprodaja":false}
+[2025-07-25 14:54:58] Found 2 items for order #2355444
+[2025-07-25 14:54:58] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","EAN":"3856001015263","mpc":99.9}
+[2025-07-25 14:54:58] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-25 14:54:58] Final items array: [{"aid":16708,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","kol":2,"ean":"3856001015263","cijena":1776,"mpc":99.9},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
+[2025-07-25 14:55:01] OrderData: {"code":"KU1KU2348484","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 14:55:01] API hit
+[2025-07-25 14:55:01] Box: 1, OID: 2348484, Driver: 1
+[2025-07-25 14:55:01] Raw kupac data: {"NazivKupca":"Edina Mu\u0161anovi\u0107","Adresa1":"Mehemedagi\u0107i","Opstina":"Klju\u010d","ImeDrzave":null,"Telefon1":"061\/908-170","Email":null,"PosId":0,"MagId":310,"Mag2Id":null,"SkladisteId":null,"SkladisteNaziv":null,"SkladisteVrsta":null,"IsMaloprodaja":null}
+[2025-07-25 14:55:01] Order #2348484 is for regular customer
+[2025-07-25 14:55:01] Customer data: {"adresa":"Mehemedagi\u0107i","opstina":"Klju\u010d","drzava":"","telefon":"061\/908-170","email":"","naziv":"Edina Mu\u0161anovi\u0107","isMaloprodaja":false}
+[2025-07-25 14:55:01] Found 0 items for order #2348484
+[2025-07-25 14:55:01] Final items array: []
+[2025-07-25 15:00:33] OrderData: {"code":"KU1KU2348484","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 15:00:33] API hit
+[2025-07-25 15:00:33] Box: 1, OID: 2348484, Driver: 1
+[2025-07-25 15:00:33] Raw kupac data: {"NazivKupca":"Edina Mu\u0161anovi\u0107","Adresa1":"Mehemedagi\u0107i","Opstina":"Klju\u010d","ImeDrzave":null,"Telefon1":"061\/908-170","Email":null,"PosId":0,"MagId":310,"Mag2Id":null,"SkladisteId":null,"SkladisteNaziv":null,"SkladisteVrsta":null,"IsMaloprodaja":null}
+[2025-07-25 15:00:33] Order #2348484 is for regular customer
+[2025-07-25 15:00:33] Customer data: {"adresa":"Mehemedagi\u0107i","opstina":"Klju\u010d","drzava":"","telefon":"061\/908-170","email":"","naziv":"Edina Mu\u0161anovi\u0107","isMaloprodaja":false}
+[2025-07-25 15:00:33] Found 0 items for order #2348484
+[2025-07-25 15:00:33] Final items array: []
+[2025-07-25 15:00:40] OrderData: {"code":"KU1KU2348484","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 15:00:40] API hit
+[2025-07-25 15:00:40] Box: 1, OID: 2348484, Driver: 1
+[2025-07-25 15:00:40] Raw kupac data: {"NazivKupca":"Edina Mu\u0161anovi\u0107","Adresa1":"Mehemedagi\u0107i","Opstina":"Klju\u010d","ImeDrzave":null,"Telefon1":"061\/908-170","Email":null,"PosId":0,"MagId":310,"Mag2Id":null,"SkladisteId":null,"SkladisteNaziv":null,"SkladisteVrsta":null,"IsMaloprodaja":null}
+[2025-07-25 15:00:40] Order #2348484 is for regular customer
+[2025-07-25 15:00:40] Customer data: {"adresa":"Mehemedagi\u0107i","opstina":"Klju\u010d","drzava":"","telefon":"061\/908-170","email":"","naziv":"Edina Mu\u0161anovi\u0107","isMaloprodaja":false}
+[2025-07-25 15:00:40] Found 0 items for order #2348484
+[2025-07-25 15:00:40] Final items array: []
+[2025-07-25 15:01:23] OrderData: {"code":"KU1KU2349281","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 15:01:23] API hit
+[2025-07-25 15:01:23] Box: 1, OID: 2349281, Driver: 1
+[2025-07-25 15:01:23] Raw kupac data: {"NazivKupca":null,"Adresa1":null,"Opstina":null,"ImeDrzave":null,"Telefon1":null,"Email":null,"PosId":2,"MagId":7,"Mag2Id":null,"SkladisteId":null,"SkladisteNaziv":null,"SkladisteVrsta":null,"IsMaloprodaja":null}
+[2025-07-25 15:01:23] Order #2349281 is for regular customer
+[2025-07-25 15:01:23] Customer data: {"adresa":"","opstina":"","drzava":"","telefon":"","email":"","naziv":"","isMaloprodaja":false}
+[2025-07-25 15:01:23] Found 0 items for order #2349281
+[2025-07-25 15:01:23] Final items array: []
+[2025-07-25 15:12:20] OrderData: {"code":"KU1KU2348706","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 15:12:20] API hit
+[2025-07-25 15:12:20] Box: 1, OID: 2348706, Driver: 1
+[2025-07-25 15:12:20] Raw kupac data: {"NazivKupca":null,"Adresa1":null,"Opstina":null,"ImeDrzave":null,"Telefon1":null,"Email":null,"PosId":4431,"MagId":7,"Mag2Id":2,"SkladisteId":2,"SkladisteNaziv":"Servis","SkladisteVrsta":4,"IsMaloprodaja":0}
+[2025-07-25 15:12:20] Order #2348706 is for regular customer
+[2025-07-25 15:12:20] Customer data: {"adresa":"","opstina":"","drzava":"","telefon":"","email":"","naziv":"","isMaloprodaja":false}
+[2025-07-25 15:12:20] Found 0 items for order #2348706
+[2025-07-25 15:12:20] Final items array: []
+[2025-07-25 15:16:30] OrderData: {"code":"KU1KU2348706","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 15:16:30] API hit
+[2025-07-25 15:16:30] Box: 1, OID: 2348706, Driver: 1
+[2025-07-25 15:16:30] Raw kupac data: {"NazivKupca":null,"Adresa1":null,"Opstina":null,"ImeDrzave":null,"Telefon1":null,"Email":null,"PosId":4431,"MagId":7,"Mag2Id":2,"SkladisteId":2,"SkladisteNaziv":"Servis","SkladisteVrsta":4,"IsMaloprodaja":0,"ActualSkladisteId":2}
+[2025-07-25 15:16:30] Warehouse IDs - MagId: 7, Mag2Id: 2, SkladisteId: 2
+[2025-07-25 15:16:30] Order #2348706 is for regular customer
+[2025-07-25 15:16:30] Customer data: {"adresa":"","opstina":"","drzava":"","telefon":"","email":"","naziv":"","isMaloprodaja":false,"skladisteId":0,"skladisteVrsta":"","posId":4431,"magId":7,"mag2Id":2}
+[2025-07-25 15:16:30] Found 0 items for order #2348706
+[2025-07-25 15:16:30] Final items array: []
+[2025-07-25 15:16:35] OrderData: {"code":"KU1KU2348706","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 15:16:35] API hit
+[2025-07-25 15:16:35] Box: 1, OID: 2348706, Driver: 1
+[2025-07-25 15:16:35] Raw kupac data: {"NazivKupca":null,"Adresa1":null,"Opstina":null,"ImeDrzave":null,"Telefon1":null,"Email":null,"PosId":4431,"MagId":7,"Mag2Id":2,"SkladisteId":2,"SkladisteNaziv":"Servis","SkladisteVrsta":4,"IsMaloprodaja":0,"ActualSkladisteId":2}
+[2025-07-25 15:16:35] Warehouse IDs - MagId: 7, Mag2Id: 2, SkladisteId: 2
+[2025-07-25 15:16:35] Order #2348706 is for regular customer
+[2025-07-25 15:16:35] Customer data: {"adresa":"","opstina":"","drzava":"","telefon":"","email":"","naziv":"","isMaloprodaja":false,"skladisteId":0,"skladisteVrsta":"","posId":4431,"magId":7,"mag2Id":2}
+[2025-07-25 15:16:35] Found 0 items for order #2348706
+[2025-07-25 15:16:35] Final items array: []
+[2025-07-25 15:17:24] OrderData: {"code":"KU1KU2348560","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 15:17:24] API hit
+[2025-07-25 15:17:24] Box: 1, OID: 2348560, Driver: 1
+[2025-07-25 15:17:24] Raw kupac data: {"NazivKupca":null,"Adresa1":null,"Opstina":null,"ImeDrzave":null,"Telefon1":null,"Email":null,"PosId":9509,"MagId":2,"Mag2Id":228,"SkladisteId":228,"SkladisteNaziv":"Maloprodaja (Novi Travnik)","SkladisteVrsta":2,"IsMaloprodaja":1,"ActualSkladisteId":228}
+[2025-07-25 15:17:24] Warehouse IDs - MagId: 2, Mag2Id: 228, SkladisteId: 228
+[2025-07-25 15:17:24] Order #2348560 is for retail store (IsMaloprodaja=1)
+[2025-07-25 15:17:24] Customer data: {"adresa":"","opstina":"","drzava":"","telefon":"","email":"","naziv":"Maloprodaja (Novi Travnik)","isMaloprodaja":true,"skladisteId":228,"skladisteVrsta":2,"posId":9509,"magId":2,"mag2Id":228}
+[2025-07-25 15:17:24] Found 0 items for order #2348560
+[2025-07-25 15:17:24] Final items array: []
+[2025-07-25 15:17:27] OrderData: {"code":"KU1KU2348560","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 15:17:27] API hit
+[2025-07-25 15:17:27] Box: 1, OID: 2348560, Driver: 1
+[2025-07-25 15:17:27] Raw kupac data: {"NazivKupca":null,"Adresa1":null,"Opstina":null,"ImeDrzave":null,"Telefon1":null,"Email":null,"PosId":9509,"MagId":2,"Mag2Id":228,"SkladisteId":228,"SkladisteNaziv":"Maloprodaja (Novi Travnik)","SkladisteVrsta":2,"IsMaloprodaja":1,"ActualSkladisteId":228}
+[2025-07-25 15:17:27] Warehouse IDs - MagId: 2, Mag2Id: 228, SkladisteId: 228
+[2025-07-25 15:17:27] Order #2348560 is for retail store (IsMaloprodaja=1)
+[2025-07-25 15:17:27] Customer data: {"adresa":"","opstina":"","drzava":"","telefon":"","email":"","naziv":"Maloprodaja (Novi Travnik)","isMaloprodaja":true,"skladisteId":228,"skladisteVrsta":2,"posId":9509,"magId":2,"mag2Id":228}
+[2025-07-25 15:17:27] Found 0 items for order #2348560
+[2025-07-25 15:17:27] Final items array: []
+[2025-07-25 15:18:49] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 15:18:49] API hit
+[2025-07-25 15:18:49] Box: 1, OID: 2355444, Driver: 1
+[2025-07-25 15:18:49] Raw kupac data: {"NazivKupca":"Gorak Brki\u0107","Adresa1":"16 Kraji\u0161ke brigade 63","Opstina":"Bosanska Gradi\u0161ka","ImeDrzave":null,"Telefon1":"065\/531-039","Email":null,"PosId":0,"MagId":310,"Mag2Id":null,"SkladisteId":null,"SkladisteNaziv":null,"SkladisteVrsta":null,"IsMaloprodaja":null,"ActualSkladisteId":310}
+[2025-07-25 15:18:49] Warehouse IDs - MagId: 310, Mag2Id: empty, SkladisteId: empty
+[2025-07-25 15:18:49] Order #2355444 is for regular customer
+[2025-07-25 15:18:49] Customer data: {"adresa":"16 Kraji\u0161ke brigade 63","opstina":"Bosanska Gradi\u0161ka","drzava":"","telefon":"065\/531-039","email":"","naziv":"Gorak Brki\u0107","isMaloprodaja":false,"skladisteId":0,"skladisteVrsta":"","posId":0,"magId":310,"mag2Id":0}
+[2025-07-25 15:18:49] Found 2 items for order #2355444
+[2025-07-25 15:18:49] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","EAN":"3856001015263","mpc":99.9}
+[2025-07-25 15:18:49] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-25 15:18:49] Final items array: [{"aid":16708,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","kol":2,"ean":"3856001015263","cijena":1776,"mpc":99.9},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
+[2025-07-25 15:18:53] OrderData: {"code":"KU1KU2348560","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 15:18:53] API hit
+[2025-07-25 15:18:53] Box: 1, OID: 2348560, Driver: 1
+[2025-07-25 15:18:53] Raw kupac data: {"NazivKupca":null,"Adresa1":null,"Opstina":null,"ImeDrzave":null,"Telefon1":null,"Email":null,"PosId":9509,"MagId":2,"Mag2Id":228,"SkladisteId":228,"SkladisteNaziv":"Maloprodaja (Novi Travnik)","SkladisteVrsta":2,"IsMaloprodaja":1,"ActualSkladisteId":228}
+[2025-07-25 15:18:53] Warehouse IDs - MagId: 2, Mag2Id: 228, SkladisteId: 228
+[2025-07-25 15:18:53] Order #2348560 is for retail store (IsMaloprodaja=1)
+[2025-07-25 15:18:53] Customer data: {"adresa":"","opstina":"","drzava":"","telefon":"","email":"","naziv":"Maloprodaja (Novi Travnik)","isMaloprodaja":true,"skladisteId":228,"skladisteVrsta":2,"posId":9509,"magId":2,"mag2Id":228}
+[2025-07-25 15:18:53] Found 0 items for order #2348560
+[2025-07-25 15:18:53] Final items array: []
+[2025-07-25 15:18:55] OrderData: {"code":"KU1KU2348560","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 15:18:55] API hit
+[2025-07-25 15:18:55] Box: 1, OID: 2348560, Driver: 1
+[2025-07-25 15:18:55] Raw kupac data: {"NazivKupca":null,"Adresa1":null,"Opstina":null,"ImeDrzave":null,"Telefon1":null,"Email":null,"PosId":9509,"MagId":2,"Mag2Id":228,"SkladisteId":228,"SkladisteNaziv":"Maloprodaja (Novi Travnik)","SkladisteVrsta":2,"IsMaloprodaja":1,"ActualSkladisteId":228}
+[2025-07-25 15:18:55] Warehouse IDs - MagId: 2, Mag2Id: 228, SkladisteId: 228
+[2025-07-25 15:18:55] Order #2348560 is for retail store (IsMaloprodaja=1)
+[2025-07-25 15:18:55] Customer data: {"adresa":"","opstina":"","drzava":"","telefon":"","email":"","naziv":"Maloprodaja (Novi Travnik)","isMaloprodaja":true,"skladisteId":228,"skladisteVrsta":2,"posId":9509,"magId":2,"mag2Id":228}
+[2025-07-25 15:18:55] Found 0 items for order #2348560
+[2025-07-25 15:18:55] Final items array: []
+[2025-07-25 15:20:14] OrderData: {"code":"KU1KU2348560","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 15:20:14] API hit
+[2025-07-25 15:20:14] Box: 1, OID: 2348560, Driver: 1
+[2025-07-25 15:20:14] Raw kupac data: {"NazivKupca":null,"Adresa1":null,"Opstina":null,"ImeDrzave":null,"Telefon1":null,"Email":null,"PosId":9509,"MagId":2,"Mag2Id":228,"SkladisteId":228,"SkladisteNaziv":"Maloprodaja (Novi Travnik)","SkladisteVrsta":2,"IsMaloprodaja":1,"ActualSkladisteId":228}
+[2025-07-25 15:20:14] Warehouse IDs - MagId: 2, Mag2Id: 228, SkladisteId: 228
+[2025-07-25 15:20:14] Order #2348560 is for retail store (IsMaloprodaja=1)
+[2025-07-25 15:20:14] Customer data: {"adresa":"","opstina":"","drzava":"","telefon":"","email":"","naziv":"Maloprodaja (Novi Travnik)","isMaloprodaja":true,"skladisteId":228,"skladisteVrsta":2,"posId":9509,"magId":2,"mag2Id":228}
+[2025-07-25 15:20:14] Found 0 items for order #2348560
+[2025-07-25 15:20:14] Final items array: []
+[2025-07-25 15:30:18] OrderData: {"code":"KU1KU2348560","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 15:30:18] API hit
+[2025-07-25 15:30:18] Box: 1, OID: 2348560, Driver: 1
+[2025-07-25 15:30:18] Raw kupac data: {"NazivKupca":null,"Adresa1":null,"Opstina":null,"ImeDrzave":null,"Telefon1":null,"Email":null,"PosId":9509,"MagId":2,"Mag2Id":228,"SkladisteId":228,"SkladisteNaziv":"Maloprodaja (Novi Travnik)","SkladisteVrsta":2,"IsMaloprodaja":1,"SkladistePosition":"44.177979,17.665001","ActualSkladisteId":228}
+[2025-07-25 15:30:18] Warehouse IDs - MagId: 2, Mag2Id: 228, SkladisteId: 228
+[2025-07-25 15:30:18] Order #2348560 is for retail store (IsMaloprodaja=1)
+[2025-07-25 15:30:18] Found position string: 44.177979,17.665001
+[2025-07-25 15:30:18] Parsed coordinates: lat=17.665001, lng=44.177979
+[2025-07-25 15:30:18] Customer data: {"adresa":"","opstina":"","drzava":"","telefon":"","email":"","naziv":"Maloprodaja (Novi Travnik)","isMaloprodaja":true,"skladisteId":228,"skladisteVrsta":2,"posId":9509,"magId":2,"mag2Id":228,"longitude":44.177979,"latitude":17.665001,"hasCoordinates":true}
+[2025-07-25 15:30:18] Found 0 items for order #2348560
+[2025-07-25 15:30:18] Final items array: []
+[2025-07-25 15:36:54] OrderData: {"code":"KU1KU2348560","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 15:36:54] API hit
+[2025-07-25 15:36:54] Box: 1, OID: 2348560, Driver: 1
+[2025-07-25 15:36:54] Raw kupac data: {"NazivKupca":null,"Adresa1":null,"Opstina":null,"ImeDrzave":null,"Telefon1":null,"Email":null,"PosId":9509,"MagId":2,"Mag2Id":228,"SkladisteId":228,"SkladisteNaziv":"Maloprodaja (Novi Travnik)","SkladisteVrsta":2,"IsMaloprodaja":1,"SkladistePosition":"44.177979,17.665001","ActualSkladisteId":228}
+[2025-07-25 15:36:54] Warehouse IDs - MagId: 2, Mag2Id: 228, SkladisteId: 228
+[2025-07-25 15:36:54] Order #2348560 is for retail store (IsMaloprodaja=1)
+[2025-07-25 15:36:54] Found position string: 44.177979,17.665001
+[2025-07-25 15:36:54] Parsed coordinates: lat=17.665001, lng=44.177979
+[2025-07-25 15:36:54] Reverse geocoding URL: https://maps.googleapis.com/maps/api/geocode/json?latlng=17.665001,44.177979&key=AIzaSyDfbZ7pns5PGR8YNwWIIdLqQmnNdCkQOjo&language=bs&region=ba
+[2025-07-25 15:36:55] Reverse geocoding successful: M58H+25 Najran Saudijska Arabija
+[2025-07-25 15:36:55] Updated address with geocoded value: M58H+25 Najran Saudijska Arabija
+[2025-07-25 15:36:55] Customer data: {"adresa":"M58H+25 Najran Saudijska Arabija","opstina":"","drzava":"","telefon":"","email":"","naziv":"Maloprodaja (Novi Travnik)","isMaloprodaja":true,"skladisteId":228,"skladisteVrsta":2,"posId":9509,"magId":2,"mag2Id":228,"longitude":44.177979,"latitude":17.665001,"hasCoordinates":true}
+[2025-07-25 15:36:55] Found 0 items for order #2348560
+[2025-07-25 15:36:55] Final items array: []
+[2025-07-25 15:39:01] OrderData: {"code":"KU1KU2348560","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 15:39:01] API hit
+[2025-07-25 15:39:01] Box: 1, OID: 2348560, Driver: 1
+[2025-07-25 15:39:01] Raw kupac data: {"NazivKupca":null,"Adresa1":null,"Opstina":null,"ImeDrzave":null,"Telefon1":null,"Email":null,"PosId":9509,"MagId":2,"Mag2Id":228,"SkladisteId":228,"SkladisteNaziv":"Maloprodaja (Novi Travnik)","SkladisteVrsta":2,"IsMaloprodaja":1,"SkladistePosition":"44.177979,17.665001","ActualSkladisteId":228}
+[2025-07-25 15:39:01] Warehouse IDs - MagId: 2, Mag2Id: 228, SkladisteId: 228
+[2025-07-25 15:39:01] Order #2348560 is for retail store (IsMaloprodaja=1)
+[2025-07-25 15:39:01] Found position string: 44.177979,17.665001
+[2025-07-25 15:39:01] Parsed coordinates: lat=44.177979, lng=17.665001
+[2025-07-25 15:39:01] Reverse geocoding URL: https://maps.googleapis.com/maps/api/geocode/json?latlng=44.177979,17.665001&key=AIzaSyDfbZ7pns5PGR8YNwWIIdLqQmnNdCkQOjo&language=bs&region=ba
+[2025-07-25 15:39:02] Reverse geocoding successful: Stjepana Tomaševića 76, Novi Travnik 72290, Bosna i Hercegovina
+[2025-07-25 15:39:02] Updated address with geocoded value: Stjepana Tomaševića 76, Novi Travnik 72290, Bosna i Hercegovina
+[2025-07-25 15:39:02] Customer data: {"adresa":"Stjepana Toma\u0161evi\u0107a 76, Novi Travnik 72290, Bosna i Hercegovina","opstina":"","drzava":"","telefon":"","email":"","naziv":"Maloprodaja (Novi Travnik)","isMaloprodaja":true,"skladisteId":228,"skladisteVrsta":2,"posId":9509,"magId":2,"mag2Id":228,"longitude":17.665001,"latitude":44.177979,"hasCoordinates":true}
+[2025-07-25 15:39:02] Found 0 items for order #2348560
+[2025-07-25 15:39:02] Final items array: []
+[2025-07-25 15:49:27] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"452ea361d11db9951753261196","hash2":"dd6d8f4412120e2004cc7651b5e6870394a1157dec24"}
+[2025-07-25 15:49:27] API hit
+[2025-07-25 15:49:27] Box: 1, OID: 2355444, Driver: 1
+[2025-07-25 15:49:27] Raw kupac data: {"NazivKupca":"Gorak Brki\u0107","Adresa1":"16 Kraji\u0161ke brigade 63","Opstina":"Bosanska Gradi\u0161ka","ImeDrzave":null,"Telefon1":"065\/531-039","Email":null,"PosId":0,"MagId":310,"Mag2Id":null,"SkladisteId":null,"SkladisteNaziv":null,"SkladisteVrsta":null,"IsMaloprodaja":null,"SkladistePosition":null,"ActualSkladisteId":310}
+[2025-07-25 15:49:27] Warehouse IDs - MagId: 310, Mag2Id: empty, SkladisteId: empty
+[2025-07-25 15:49:27] Order #2355444 is for regular customer
+[2025-07-25 15:49:27] Customer data: {"adresa":"16 Kraji\u0161ke brigade 63","opstina":"Bosanska Gradi\u0161ka","drzava":"","telefon":"065\/531-039","email":"","naziv":"Gorak Brki\u0107","isMaloprodaja":false,"hasCoordinates":false,"skladisteId":0,"skladisteVrsta":"","posId":0,"magId":310,"mag2Id":0}
+[2025-07-25 15:49:27] Found 2 items for order #2355444
+[2025-07-25 15:49:27] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","EAN":"3856001015263","mpc":99.9}
+[2025-07-25 15:49:27] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-25 15:49:27] Final items array: [{"aid":16708,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","kol":2,"ean":"3856001015263","cijena":1776,"mpc":99.9},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
+[2025-07-28 08:27:40] OrderData: {"code":"KU1KU2348560","kup_id":"1","pos_id":"0","hash1":"27a204bbc2455fa21753684056","hash2":"c08e2a80416615c543bff43d4d6abcf76692a78e673b"}
+[2025-07-28 08:27:40] API hit
+[2025-07-28 08:27:40] Box: 1, OID: 2348560, Driver: 1
+[2025-07-28 08:27:40] Raw kupac data: {"NazivKupca":null,"Adresa1":null,"Opstina":null,"ImeDrzave":null,"Telefon1":null,"Email":null,"PosId":9509,"MagId":2,"Mag2Id":228,"SkladisteId":228,"SkladisteNaziv":"Maloprodaja (Novi Travnik)","SkladisteVrsta":2,"IsMaloprodaja":1,"SkladistePosition":"44.177979,17.665001","ActualSkladisteId":228}
+[2025-07-28 08:27:40] Warehouse IDs - MagId: 2, Mag2Id: 228, SkladisteId: 228
+[2025-07-28 08:27:40] Order #2348560 is for retail store (IsMaloprodaja=1)
+[2025-07-28 08:27:40] Found position string: 44.177979,17.665001
+[2025-07-28 08:27:40] Parsed coordinates: lat=44.177979, lng=17.665001
+[2025-07-28 08:27:40] Reverse geocoding URL: https://maps.googleapis.com/maps/api/geocode/json?latlng=44.177979,17.665001&key=AIzaSyDfbZ7pns5PGR8YNwWIIdLqQmnNdCkQOjo&language=bs&region=ba
+[2025-07-28 08:27:40] Reverse geocoding successful: Stjepana Tomaševića 76, Novi Travnik 72290, Bosna i Hercegovina
+[2025-07-28 08:27:40] Updated address with geocoded value: Stjepana Tomaševića 76, Novi Travnik 72290, Bosna i Hercegovina
+[2025-07-28 08:27:40] Customer data: {"adresa":"Stjepana Toma\u0161evi\u0107a 76, Novi Travnik 72290, Bosna i Hercegovina","opstina":"","drzava":"","telefon":"","email":"","naziv":"Maloprodaja (Novi Travnik)","isMaloprodaja":true,"skladisteId":228,"skladisteVrsta":2,"posId":9509,"magId":2,"mag2Id":228,"longitude":17.665001,"latitude":44.177979,"hasCoordinates":true}
+[2025-07-28 08:27:40] Found 0 items for order #2348560
+[2025-07-28 08:27:40] Final items array: []
+[2025-07-28 08:27:42] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"27a204bbc2455fa21753684056","hash2":"c08e2a80416615c543bff43d4d6abcf76692a78e673b"}
+[2025-07-28 08:27:42] API hit
+[2025-07-28 08:27:42] Box: 1, OID: 2355444, Driver: 1
+[2025-07-28 08:27:42] Raw kupac data: {"NazivKupca":"Gorak Brki\u0107","Adresa1":"16 Kraji\u0161ke brigade 63","Opstina":"Bosanska Gradi\u0161ka","ImeDrzave":null,"Telefon1":"065\/531-039","Email":null,"PosId":0,"MagId":310,"Mag2Id":null,"SkladisteId":null,"SkladisteNaziv":null,"SkladisteVrsta":null,"IsMaloprodaja":null,"SkladistePosition":null,"ActualSkladisteId":310}
+[2025-07-28 08:27:42] Warehouse IDs - MagId: 310, Mag2Id: empty, SkladisteId: empty
+[2025-07-28 08:27:42] Order #2355444 is for regular customer
+[2025-07-28 08:27:42] Customer data: {"adresa":"16 Kraji\u0161ke brigade 63","opstina":"Bosanska Gradi\u0161ka","drzava":"","telefon":"065\/531-039","email":"","naziv":"Gorak Brki\u0107","isMaloprodaja":false,"hasCoordinates":false,"skladisteId":0,"skladisteVrsta":"","posId":0,"magId":310,"mag2Id":0}
+[2025-07-28 08:27:42] Found 2 items for order #2355444
+[2025-07-28 08:27:42] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","EAN":"3856001015263","mpc":99.9}
+[2025-07-28 08:27:42] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-28 08:27:42] Final items array: [{"aid":16708,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","kol":2,"ean":"3856001015263","cijena":1776,"mpc":99.9},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
+[2025-07-28 10:32:07] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"27a204bbc2455fa21753684056","hash2":"c08e2a80416615c543bff43d4d6abcf76692a78e673b"}
+[2025-07-28 10:32:07] API hit
+[2025-07-28 10:32:07] Box: 1, OID: 2355444, Driver: 1
+[2025-07-28 10:32:07] Raw kupac data: {"NazivKupca":"Gorak Brki\u0107","Adresa1":"16 Kraji\u0161ke brigade 63","Opstina":"Bosanska Gradi\u0161ka","ImeDrzave":null,"Telefon1":"065\/531-039","Email":null,"PosId":0,"MagId":310,"Mag2Id":null,"SkladisteId":null,"SkladisteNaziv":null,"SkladisteVrsta":null,"IsMaloprodaja":null,"SkladistePosition":null,"ActualSkladisteId":310}
+[2025-07-28 10:32:07] Warehouse IDs - MagId: 310, Mag2Id: empty, SkladisteId: empty
+[2025-07-28 10:32:07] Order #2355444 is for regular customer
+[2025-07-28 10:32:07] Customer data: {"adresa":"16 Kraji\u0161ke brigade 63","opstina":"Bosanska Gradi\u0161ka","drzava":"","telefon":"065\/531-039","email":"","naziv":"Gorak Brki\u0107","isMaloprodaja":false,"hasCoordinates":false,"skladisteId":0,"skladisteVrsta":"","posId":0,"magId":310,"mag2Id":0}
+[2025-07-28 10:32:07] Found 2 items for order #2355444
+[2025-07-28 10:32:07] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","EAN":"3856001015263","mpc":99.9}
+[2025-07-28 10:32:07] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-28 10:32:07] Final items array: [{"aid":16708,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","kol":2,"ean":"3856001015263","cijena":1776,"mpc":99.9},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
+[2025-07-28 10:32:11] OrderData: {"code":"KU1KU2348560","kup_id":"1","pos_id":"0","hash1":"27a204bbc2455fa21753684056","hash2":"c08e2a80416615c543bff43d4d6abcf76692a78e673b"}
+[2025-07-28 10:32:11] API hit
+[2025-07-28 10:32:11] Box: 1, OID: 2348560, Driver: 1
+[2025-07-28 10:32:11] Raw kupac data: {"NazivKupca":null,"Adresa1":null,"Opstina":null,"ImeDrzave":null,"Telefon1":null,"Email":null,"PosId":9509,"MagId":2,"Mag2Id":228,"SkladisteId":228,"SkladisteNaziv":"Maloprodaja (Novi Travnik)","SkladisteVrsta":2,"IsMaloprodaja":1,"SkladistePosition":"44.177979,17.665001","ActualSkladisteId":228}
+[2025-07-28 10:32:11] Warehouse IDs - MagId: 2, Mag2Id: 228, SkladisteId: 228
+[2025-07-28 10:32:11] Order #2348560 is for retail store (IsMaloprodaja=1)
+[2025-07-28 10:32:11] Found position string: 44.177979,17.665001
+[2025-07-28 10:32:11] Parsed coordinates: lat=44.177979, lng=17.665001
+[2025-07-28 10:32:11] Reverse geocoding URL: https://maps.googleapis.com/maps/api/geocode/json?latlng=44.177979,17.665001&key=AIzaSyDfbZ7pns5PGR8YNwWIIdLqQmnNdCkQOjo&language=bs&region=ba
+[2025-07-28 10:32:11] Reverse geocoding successful: Stjepana Tomaševića 76, Novi Travnik 72290, Bosna i Hercegovina
+[2025-07-28 10:32:11] Updated address with geocoded value: Stjepana Tomaševića 76, Novi Travnik 72290, Bosna i Hercegovina
+[2025-07-28 10:32:11] Customer data: {"adresa":"Stjepana Toma\u0161evi\u0107a 76, Novi Travnik 72290, Bosna i Hercegovina","opstina":"","drzava":"","telefon":"","email":"","naziv":"Maloprodaja (Novi Travnik)","isMaloprodaja":true,"skladisteId":228,"skladisteVrsta":2,"posId":9509,"magId":2,"mag2Id":228,"longitude":17.665001,"latitude":44.177979,"hasCoordinates":true}
+[2025-07-28 10:32:11] Found 0 items for order #2348560
+[2025-07-28 10:32:11] Final items array: []
+[2025-07-28 13:14:45] OrderData: {"code":"KU1KU2355444","kup_id":"1","pos_id":"0","hash1":"27a204bbc2455fa21753684056","hash2":"c08e2a80416615c543bff43d4d6abcf76692a78e673b"}
+[2025-07-28 13:14:46] API hit
+[2025-07-28 13:14:46] Box: 1, OID: 2355444, Driver: 1
+[2025-07-28 13:14:46] Raw kupac data: {"NazivKupca":"Gorak Brki\u0107","Adresa1":"16 Kraji\u0161ke brigade 63","Opstina":"Bosanska Gradi\u0161ka","ImeDrzave":null,"Telefon1":"065\/531-039","Email":null,"PosId":0,"MagId":310,"Mag2Id":null,"SkladisteId":null,"SkladisteNaziv":null,"SkladisteVrsta":null,"IsMaloprodaja":null,"SkladistePosition":null,"ActualSkladisteId":310}
+[2025-07-28 13:14:46] Warehouse IDs - MagId: 310, Mag2Id: empty, SkladisteId: empty
+[2025-07-28 13:14:46] Order #2355444 is for regular customer
+[2025-07-28 13:14:46] Customer data: {"adresa":"16 Kraji\u0161ke brigade 63","opstina":"Bosanska Gradi\u0161ka","drzava":"","telefon":"065\/531-039","email":"","naziv":"Gorak Brki\u0107","isMaloprodaja":false,"hasCoordinates":false,"skladisteId":0,"skladisteVrsta":"","posId":0,"magId":310,"mag2Id":0}
+[2025-07-28 13:14:46] Found 2 items for order #2355444
+[2025-07-28 13:14:46] Item: {"aid":16708,"kol":2,"cijena":1776,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","EAN":"3856001015263","mpc":99.9}
+[2025-07-28 13:14:46] Item: {"aid":34356,"kol":1,"cijena":112.96,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","EAN":"5453001045986","mpc":19.9}
+[2025-07-28 13:14:46] Final items array: [{"aid":16708,"naziv":"Sat. Antena 97cm \u0161upljikavi, Triax le\u0111a i pribor, Anthracite","kol":2,"ean":"3856001015263","cijena":1776,"mpc":99.9},{"aid":34356,"naziv":"Nosa\u010d za 5 LNB-ova, metalni","kol":1,"ean":"5453001045986","cijena":112.96,"mpc":19.9}]
