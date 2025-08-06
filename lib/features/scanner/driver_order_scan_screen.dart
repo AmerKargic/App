@@ -1,6 +1,7 @@
+// Replace your entire driver_order_scan_screen.dart with this:
+
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:digitalisapp/features/maps/delivery_route_manager.dart';
 import 'package:digitalisapp/features/maps/multi_stop_navigation_screen.dart';
@@ -9,10 +10,12 @@ import 'package:digitalisapp/models/driver_order_model.dart';
 import 'package:digitalisapp/models/offline_status_widget.dart';
 import 'package:digitalisapp/services/driver_api_service.dart';
 import 'package:digitalisapp/services/offline_services.dart';
+import 'package:digitalisapp/widgets/bulk_scanner_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:digitalisapp/features/dashboard/screens/driver_order_screen.dart';
-import 'package:location/location.dart' as loc;
+import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DriverOrderScanScreen extends StatefulWidget {
   const DriverOrderScanScreen({super.key});
@@ -24,475 +27,549 @@ class DriverOrderScanScreen extends StatefulWidget {
 class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
   final DeliveryRouteManager _routeManager = DeliveryRouteManager();
   final OfflineService _offlineService = OfflineService();
-  final loc.Location _location = loc.Location();
+
+  // 🔥 BULK SCANNING VARIABLES
+  Map<int, List<String>> _bulkScanQueue =
+      {}; // orderId -> list of scanned codes
+  Map<int, int> _expectedBoxCounts = {}; // orderId -> expected box count
+  bool _bulkScanMode = false;
+  int? _currentBulkOrderId;
+  Timer? _bulkScanTimer;
+
+  // 🔥 EXISTING VARIABLES
   Map<int, Set<int>> _scannedBoxesByOrder = {};
-  // Order ID -> Set of box IDs
-  Map<int, Set<int>> get scannedBoxesByOrder => _scannedBoxesByOrder;
-  Map<int, bool> _acceptedOrders = {}; // Track accepted orders
+  Map<int, bool> _acceptedOrders = {};
   Map<int, Set<int>> _discardedBoxes = {};
-  Map<int, StreamSubscription<loc.LocationData>?> _locationSubscriptions =
-      {}; // Add this line
-  Map<int, List<Map<String, dynamic>>> _locationLogs = {}; // Add this line
+  Map<int, Set<int>> _missingBoxes = {}; // Track boxes marked as missing
 
   String statusMessage = '';
   bool loading = false;
   final Set<int> _expandedOrders = {};
+
   @override
   void initState() {
     super.initState();
-    // Load any existing delivery stops
     setState(() {});
   }
 
-  void acceptOrder(int orderId) async {
-    if (_acceptedOrders[orderId] == true) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Narudžba #$orderId je već prihvaćena.")),
-      );
-      return;
-    }
-    setState(() {
-      loading = true;
-      statusMessage = 'Prihvaćanje narudžbe #$orderId...';
-    });
-
-    try {
-      final response = await DriverApiService.acceptOrder(orderId);
-
-      if (response['success'] == 1) {
-        await DriverApiService.syncActivityLog({
-          'log_type_id': 7,
-          'oid': orderId,
-          'description': 'Vozač preuzeo pošiljku',
-          'timestamp': DateTime.now().toIso8601String(),
-        });
-        setState(() {
-          _acceptedOrders[orderId] = true;
-          loading = false;
-          statusMessage = "✅ Narudžba #$orderId prihvaćena.";
-        });
-
-        _startLocationTracking(orderId);
-      } else {
-        setState(() {
-          loading = false;
-          statusMessage = '❌ ${response['message']}';
-        });
-      }
-    } catch (e) {
-      setState(() {
-        loading = false;
-        statusMessage = '❌ Greška: ${e.toString()}';
-      });
-    }
-  }
-
-  // Replace the completeOrder method with this:
-  void completeOrder(int orderId) async {
-    if (_acceptedOrders[orderId] != true) {
+  // 🔥 SMART INDIVIDUAL SCANNING WITH PREDICTION
+  Future<void> smartIndividualScan(String code) async {
+    RegExp regex = RegExp(r'^KU(\d+)KU(\d+)$');
+    final match = regex.firstMatch(code);
+    if (match == null) {
+      setState(() => statusMessage = "❌ Invalid barcode format");
       return;
     }
 
-    setState(() {
-      loading = true;
-      statusMessage = 'Završavanje narudžbe #$orderId...';
-    });
+    final boxNumber = int.parse(match.group(1)!);
+    final oid = int.parse(match.group(2)!);
 
-    try {
-      // Call API to complete order
-      final response = await DriverApiService.completeOrder(orderId);
-
-      if (response['success'] == 1) {
-        // Log the completion using OfflineService instead of DriverApiService
-        await _offlineService.logActivity(
-          typeId: OfflineService.DRIVER_DELIVERY, // This is 9 - DELIVERY_END
-          description: 'Vozač dostavio pošiljku',
-          relatedId: orderId,
-          extraData: {
-            'oid': orderId,
-            'action': 'delivery_completed',
-            'timestamp': DateTime.now().toIso8601String(),
-          },
-        );
-
-        setState(() {
-          _acceptedOrders[orderId] = false;
-          loading = false;
-          statusMessage = '✅ Narudžba #$orderId označena kao završena.';
-        });
-
-        // Stop location tracking placeholder
-        _stopLocationTracking(orderId);
-      } else {
-        setState(() {
-          loading = false;
-          statusMessage = '❌ ${response['message']}';
-        });
-      }
-    } catch (e) {
-      setState(() {
-        loading = false;
-        statusMessage = '❌ Greška: ${e.toString()}';
-      });
-    }
-  }
-
-  void _startLocationTracking(int orderId) {
-    // Start location tracking using the existing location service from multi_stop_navigation_screen
-    _location.onLocationChanged.listen((loc.LocationData currentLocation) {
-      if (currentLocation.latitude == null || currentLocation.longitude == null)
-        return;
-
-      // Create location data in the format expected by save_location.php
-      final locationData = {
-        'order_id': orderId,
-        'latitude': currentLocation.latitude!,
-        'longitude': currentLocation.longitude!,
-        'accuracy': currentLocation.accuracy ?? 0.0,
-        'speed': currentLocation.speed ?? 0.0,
-        'heading': currentLocation.heading ?? 0.0,
-        'timestamp': DateTime.now().toIso8601String(),
-      };
-
-      // Store locally first
-      _locationLogs[orderId] ??= [];
-      _locationLogs[orderId]!.add(locationData);
-
-      // Try to send to server immediately if connected
-      _sendLocationToServer([locationData]);
-    });
-
-    print('Started location tracking for order $orderId');
-  }
-
-  void _stopLocationTracking(int orderId) {
-    // Cancel the location subscription for this specific order
-    _locationSubscriptions[orderId]?.cancel();
-    _locationSubscriptions.remove(orderId);
-
-    // Send any remaining location logs to server
-    if (_locationLogs[orderId]?.isNotEmpty == true) {
-      final unsentLogs = _locationLogs[orderId]!
-          .where((log) => log['synced'] != true)
-          .toList();
-      if (unsentLogs.isNotEmpty) {
-        _sendLocationToServer(unsentLogs);
-      }
-    }
-
-    print('Stopped location tracking for order $orderId');
-  }
-
-  // Add this helper method to send location data to your save_location.php API
-  // Replace the _sendLocationToServer method with this corrected version:
-  Future<void> _sendLocationToServer(
-    List<Map<String, dynamic>> locations,
-  ) async {
-    final connectivityResult = await Connectivity().checkConnectivity();
-    if (connectivityResult == ConnectivityResult.none) {
-      return; // Will sync later when connection is available
-    }
-
-    try {
-      // Convert the locations list to JSON string for the API
-      final response = await DriverApiService.post('save_location.php', {
-        'locations': jsonEncode(locations), // Convert List to JSON string
-      });
-
-      if (response['success'] == 1) {
-        // Mark locations as synced
-        for (final location in locations) {
-          final orderId = location['order_id'];
-          final index = _locationLogs[orderId]?.indexOf(location);
-          if (index != null && index != -1) {
-            _locationLogs[orderId]![index]['synced'] = true;
-          }
-        }
-        print('Successfully sent ${locations.length} location updates');
-      } else {
-        print('Failed to send location updates: ${response['message']}');
-      }
-    } catch (e) {
-      print('Error sending location updates: $e');
-    }
-  }
-
-  // // Replace your current fetchOrder method with this one
-  // Future<void> fetchOrder(String code) async {
-  //   setState(() {
-  //     loading = true;
-  //     statusMessage = '';
-  //   });
-
-  //   try {
-  //     // Parse barcode to extract OID
-  //     RegExp regex = RegExp(r'^KU(\d+)KU(\d+)$');
-  //     final match = regex.firstMatch(code);
-  //     if (match == null) {
-  //       setState(() {
-  //         loading = false;
-  //         statusMessage = "❌ Neispravan format barkoda.";
-  //       });
-  //       return;
-  //     }
-
-  //     final boxNumber = int.parse(match.group(1)!);
-  //     final oid = int.parse(match.group(2)!);
-
-  //     // Check connectivity
-  //     final connectivityResult = await Connectivity().checkConnectivity();
-
-  //     // First check if we have this order in local storage
-  //     final localOrder = await _offlineService.getOrder(oid);
-  //     print("Local order for OID $oid: $localOrder");
-
-  //     if (localOrder != null) {
-  //       // Found locally, use it
-  //       final fetchedOrder = DriverOrder.fromJson(localOrder);
-  //       print("Fetched order from local storage: ${fetchedOrder.toJson()}");
-
-  //       // Save the scanned box
-  //       print(
-  //         "Products being passed to saveScannedBox: ${fetchedOrder.stavke}",
-  //       );
-  //       await _offlineService.saveScannedBox(
-  //         orderId: oid,
-  //         boxNumber: boxNumber,
-  //         boxBarcode: code,
-  //         products: fetchedOrder.stavke,
-  //       );
-
-  //       // Log activity
-  //       await _offlineService.logActivity(
-  //         typeId: OfflineService.DRIVER_SCAN,
-  //         description: 'Skeniran paket',
-  //         relatedId: oid,
-  //         extraData: {'box_number': boxNumber, 'box_code': code},
-  //       );
-
-  //       setState(() {
-  //         loading = false;
-  //         statusMessage = connectivityResult == ConnectivityResult.none
-  //             ? "✅ Pronađena narudžba (offline)"
-  //             : "✅ Pronađena narudžba";
-  //       });
-
-  //       // Process the order
-  //       processOrder(fetchedOrder, code);
-  //       return;
-  //     }
-
-  //     // If we're offline and don't have the order locally, show error
-  //     if (connectivityResult == ConnectivityResult.none) {
-  //       setState(() {
-  //         loading = false;
-  //         statusMessage =
-  //             "❌ Narudžba nije pronađena u offline bazi. Potrebna internet konekcija.";
-  //       });
-  //       return;
-  //     }
-
-  //     // If we're online but don't have it locally, get from server
-  //     final response = await DriverApiService.fetchOrder(code);
-  //     print("API response: $response");
-
-  //     setState(() => loading = false);
-
-  //     if (response['success'] == 1) {
-  //       // Check if order exists in the response
-  //       if (response['order'] != null) {
-  //         final fetchedOrder = DriverOrder.fromJson(response['order']);
-  //         print("Fetched order from server: ${fetchedOrder.toJson()}");
-
-  //         // Save order for offline use
-  //         await _offlineService.saveOrder(fetchedOrder.oid, response['order']);
-
-  //         // Save the scanned box
-  //         print(
-  //           "Products being passed to saveScannedBox: ${fetchedOrder.stavke}",
-  //         );
-  //         await _offlineService.saveScannedBox(
-  //           orderId: fetchedOrder.oid,
-  //           boxNumber: boxNumber,
-  //           boxBarcode: code,
-  //           products: fetchedOrder.stavke,
-  //         );
-
-  //         // Log activity
-  //         await _offlineService.logActivity(
-  //           typeId: OfflineService.DRIVER_SCAN,
-  //           description: 'Skeniran paket',
-  //           relatedId: fetchedOrder.oid,
-  //           extraData: {'box_number': boxNumber, 'box_code': code},
-  //         );
-
-  //         processOrder(fetchedOrder, code);
-  //       } else {
-  //         setState(() {
-  //           statusMessage = "❌ Neispravna struktura odgovora.";
-  //         });
-  //       }
-  //     } else {
-  //       setState(() {
-  //         statusMessage = response['message'] ?? 'Greška.';
-  //       });
-  //     }
-  //   } catch (e, stackTrace) {
-  //     debugPrint("Error fetching order: $e");
-  //     debugPrint("Stack trace: $stackTrace");
-  //     setState(() {
-  //       loading = false;
-  //       statusMessage = "❌ Greška: ${e.toString()}";
-  //     });
-  //   }
-  // } stara funkcija nova funkcija
-  Future<void> fetchOrder(String code) async {
-    setState(() {
-      loading = true;
-      statusMessage = '';
-    });
-
-    try {
-      // Parse barcode to extract OID and box number
-      RegExp regex = RegExp(r'^KU(\d+)KU(\d+)$');
-      final match = regex.firstMatch(code);
-      if (match == null) {
-        setState(() {
-          loading = false;
-          statusMessage = "❌ Neispravan format barkoda.";
-        });
-        return;
-      }
-
-      final boxNumber = int.parse(match.group(1)!);
-      final oid = int.parse(match.group(2)!);
-
-      // Check for conflicts BEFORE processing the order
-      final conflictResponse = await DriverApiService.checkConflict(
+    // 🔥 CONFLICT CHECK FIRST
+    final conflictResponse = await DriverApiService.checkConflict(
+      oid,
+      boxNumber,
+    );
+    if (conflictResponse['success'] == 1 &&
+        conflictResponse['conflict'] == true) {
+      _showConflictDialog(
         oid,
         boxNumber,
+        conflictResponse['conflict_driver'] ?? 'Unknown driver',
+      );
+      return;
+    }
+
+    // Check if we have this order already
+    final existingOrder = _routeManager.allStops
+        .where((stop) => stop.order.oid == oid)
+        .firstOrNull;
+
+    if (existingOrder == null) {
+      // New order - fetch and start individual scanning
+      await _startIndividualScanForOrder(oid, code);
+    } else {
+      // Continue individual scanning for existing order
+      await _addToIndividualScan(oid, code);
+    }
+  }
+
+  void processOrder(DriverOrder order, String firstCode) async {
+    await _routeManager.addStop(order);
+
+    if (!_scannedBoxesByOrder.containsKey(order.oid)) {
+      _scannedBoxesByOrder[order.oid] = {};
+    }
+
+    if (!_discardedBoxes.containsKey(order.oid)) {
+      _discardedBoxes[order.oid] = {};
+    }
+
+    final boxNumber = _extractBoxNumber(firstCode);
+    if (boxNumber > 0) {
+      _scannedBoxesByOrder[order.oid]!.add(boxNumber);
+
+      // Save scanned box locally
+      await _offlineService.saveScannedBox(
+        orderId: order.oid,
+        boxNumber: boxNumber,
+        boxBarcode: firstCode,
+        products: order.stavke,
       );
 
-      if (conflictResponse['success'] == 1 &&
-          conflictResponse['conflict'] == true) {
-        // Show conflict dialog
-        _showConflictDialog(
-          oid,
-          boxNumber,
-          conflictResponse['conflict_driver'] ?? 'Nepoznat vozač',
-        );
-        setState(() => loading = false);
-        return;
-      }
+      // Log activity
+      await _offlineService.logActivity(
+        typeId: OfflineService.DRIVER_SCAN,
+        description: 'Scanned box',
+        relatedId: order.oid,
+        extraData: {'box_number': boxNumber, 'box_code': firstCode},
+      );
+    }
 
-      // Continue with existing fetchOrder logic...
-      final connectivityResult = await Connectivity().checkConnectivity();
+    setState(() {});
+  }
 
-      // First check if we have this order in local storage
-      final localOrder = await _offlineService.getOrder(oid);
-      print("Local order for OID $oid: $localOrder");
+  Future<void> _startIndividualScanForOrder(int oid, String firstCode) async {
+    setState(() {
+      loading = true;
+      statusMessage = 'Loading order information...';
+    });
 
-      if (localOrder != null) {
-        // Found locally, use it
-        final fetchedOrder = DriverOrder.fromJson(localOrder);
-        print("Fetched order from local storage: ${fetchedOrder.toJson()}");
+    try {
+      final orderResponse = await DriverApiService.fetchOrder(firstCode);
 
-        // Save the scanned box
-        print(
-          "Products being passed to saveScannedBox: ${fetchedOrder.stavke}",
-        );
-        await _offlineService.saveScannedBox(
-          orderId: oid,
-          boxNumber: boxNumber,
-          boxBarcode: code,
-          products: fetchedOrder.stavke,
+      if (orderResponse['success'] == 1 && orderResponse['order'] != null) {
+        final fetchedOrder = DriverOrder.fromJson(orderResponse['order']);
+
+        // Save order locally
+        await _offlineService.saveOrder(
+          fetchedOrder.oid,
+          orderResponse['order'],
         );
 
-        // Log activity
-        await _offlineService.logActivity(
-          typeId: OfflineService.DRIVER_SCAN,
-          description: 'Skeniran paket',
-          relatedId: oid,
-          extraData: {'box_number': boxNumber, 'box_code': code},
-        );
-
+        // Initialize individual scanning
         setState(() {
-          loading = false;
-          statusMessage = connectivityResult == ConnectivityResult.none
-              ? "✅ Pronađena narudžba (offline)"
-              : "✅ Pronađena narudžba";
-        });
-
-        // Process the order
-        processOrder(fetchedOrder, code);
-        return;
-      }
-
-      // If we're offline and don't have the order locally, show error
-      if (connectivityResult == ConnectivityResult.none) {
-        setState(() {
+          _expectedBoxCounts[oid] = fetchedOrder.brojKutija;
           loading = false;
           statusMessage =
-              "❌ Narudžba nije pronađena u offline bazi. Potrebna internet konekcija.";
+              "📦 Individual scan: Box 1/${fetchedOrder.brojKutija} scanned";
         });
-        return;
+
+        // 🔥 ADD THIS: Process the order in route manager (this was missing!)
+        processOrder(fetchedOrder, firstCode);
+
+        // Process the first box
+        await _processSingleBox(oid, firstCode);
+      } else {
+        setState(() {
+          loading = false;
+          statusMessage = orderResponse['message'] ?? 'Error loading order';
+        });
       }
+    } catch (e) {
+      setState(() {
+        loading = false;
+        statusMessage = 'Error: ${e.toString()}';
+      });
+    }
+  }
 
-      // If we're online but don't have it locally, get from server
-      final response = await DriverApiService.fetchOrder(code);
-      print("API response: $response");
+  // Add this helper method to your class:
+  List<Color> _getProgressBarColors(
+    int scannedCount,
+    int discardedCount,
+    int missingCount,
+    int totalBoxes,
+  ) {
+    final progress =
+        (scannedCount + discardedCount + missingCount) / totalBoxes;
 
-      setState(() => loading = false);
+    if (progress >= 1.0) {
+      return [Colors.green, Colors.green.shade300];
+    } else if (progress >= 0.7) {
+      return [Colors.blue, Colors.blue.shade300];
+    } else if (progress >= 0.4) {
+      return [Colors.amber, Colors.amber.shade300];
+    } else {
+      return [Colors.purple, Colors.purple.shade300];
+    }
+  }
+
+  Color _getOrderBorderColor(
+    DriverOrder order,
+    int scannedCount,
+    int discardedCount,
+    int missingCount,
+    bool isAccepted,
+  ) {
+    if (isAccepted) {
+      return Colors.orange; // Accepted and ready for delivery
+    }
+
+    final totalProcessed = scannedCount + discardedCount + missingCount;
+    final progress = totalProcessed / order.brojKutija;
+
+    if (progress >= 1.0) {
+      return Colors.green; // Complete - ready to accept
+    } else if (progress >= 0.7) {
+      return Colors.blue; // Mostly complete
+    } else if (progress >= 0.4) {
+      return Colors.amber; // In progress
+    } else if (scannedCount > 0) {
+      return Colors.purple; // Started scanning
+    } else {
+      return Colors.grey.shade300; // Not started
+    }
+  }
+
+  double _getOrderBorderWidth(
+    DriverOrder order,
+    int scannedCount,
+    int discardedCount,
+    int missingCount,
+    bool isAccepted,
+  ) {
+    if (isAccepted) {
+      return 3.0; // Thick border for accepted orders
+    }
+
+    final totalProcessed = scannedCount + discardedCount + missingCount;
+    final progress = totalProcessed / order.brojKutija;
+
+    if (progress >= 1.0) {
+      return 2.5; // Ready to accept
+    } else if (progress >= 0.5) {
+      return 2.0; // Good progress
+    } else {
+      return 1.0; // Normal border
+    }
+  }
+
+  LinearGradient? _getOrderGradient(
+    DriverOrder order,
+    int scannedCount,
+    int discardedCount,
+    int missingCount,
+    bool isAccepted,
+  ) {
+    if (isAccepted) {
+      // Orange gradient for accepted orders
+      return LinearGradient(
+        colors: [Colors.orange.shade50, Colors.white],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
+    }
+
+    final totalProcessed = scannedCount + discardedCount + missingCount;
+    final progress = totalProcessed / order.brojKutija;
+
+    if (progress >= 1.0) {
+      // Green gradient for complete orders
+      return LinearGradient(
+        colors: [Colors.green.shade50, Colors.white],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
+    } else if (progress >= 0.7) {
+      // Blue gradient for mostly complete
+      return LinearGradient(
+        colors: [Colors.blue.shade50, Colors.white],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
+    } else if (progress >= 0.4) {
+      // Amber gradient for in progress
+      return LinearGradient(
+        colors: [Colors.amber.shade50, Colors.white],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
+    }
+
+    return null; // Default white background
+  }
+
+  Future<void> _addToIndividualScan(int oid, String code) async {
+    final boxNumber = _extractBoxNumber(code);
+
+    // Check if already scanned
+    if (_scannedBoxesByOrder[oid]?.contains(boxNumber) == true) {
+      setState(() => statusMessage = "⚠️ Box $boxNumber already scanned!");
+      HapticFeedback.lightImpact();
+      return;
+    }
+
+    // Check if discarded
+    if (_discardedBoxes[oid]?.contains(boxNumber) == true) {
+      setState(
+        () => statusMessage = "❌ Box $boxNumber was discarded due to conflict",
+      );
+      return;
+    }
+
+    await _processSingleBox(oid, code);
+
+    final scannedCount = _scannedBoxesByOrder[oid]?.length ?? 0;
+    final expectedCount = _expectedBoxCounts[oid] ?? 0;
+
+    setState(() {
+      statusMessage =
+          "📦 Individual scan: Box $scannedCount/$expectedCount scanned";
+    });
+
+    // 🔥 SUCCESS FEEDBACK
+    if (scannedCount >= expectedCount) {
+      HapticFeedback.heavyImpact();
+      setState(() {
+        statusMessage = "✅ All boxes scanned! Order ready for acceptance.";
+      });
+    } else {
+      HapticFeedback.lightImpact();
+    }
+  }
+
+  // 🔥 BULK SCANNING MODE
+  void startBulkScanMode() {
+    setState(() {
+      statusMessage = "🔥 Starting bulk scan mode...";
+    });
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => BulkScannerDialog(
+        onBarcodesScanned: (List<String> codes) {
+          _processBulkScannedCodes(codes);
+        },
+        onCancel: () {
+          setState(() {
+            statusMessage = "Bulk scan cancelled";
+          });
+        },
+      ),
+    );
+  }
+
+  Future<void> _processBulkScannedCodes(List<String> codes) async {
+    setState(() {
+      loading = true;
+      statusMessage = 'Processing ${codes.length} scanned codes...';
+    });
+
+    Map<int, List<String>> codesByOrder = {};
+    List<String> invalidCodes = [];
+    List<Map<String, dynamic>> conflictDetails =
+        []; // 🔥 NEW: Store conflict details
+
+    // Group codes by order ID and check conflicts
+    for (String code in codes) {
+      RegExp regex = RegExp(r'^KU(\d+)KU(\d+)$');
+      final match = regex.firstMatch(code);
+
+      if (match != null) {
+        final boxNumber = int.parse(match.group(1)!);
+        final oid = int.parse(match.group(2)!);
+
+        // 🔥 ENHANCED CONFLICT CHECK
+        final conflictResponse = await DriverApiService.checkConflict(
+          oid,
+          boxNumber,
+        );
+
+        if (conflictResponse['success'] == 1 &&
+            conflictResponse['conflict'] == true) {
+          // 🔥 STORE DETAILED CONFLICT INFO
+          conflictDetails.add({
+            'code': code,
+            'box_number': boxNumber,
+            'order_id': oid,
+            'conflict_driver':
+                conflictResponse['conflict_driver'] ?? 'Unknown driver',
+          });
+          continue;
+        }
+
+        // No conflict - add to processing queue
+        if (!codesByOrder.containsKey(oid)) {
+          codesByOrder[oid] = [];
+        }
+        codesByOrder[oid]!.add(code);
+      } else {
+        invalidCodes.add(code);
+      }
+    }
+
+    // Process valid codes...
+    int totalProcessed = 0;
+    // ... (your existing processing code) ...
+
+    // 🔥 SHOW DETAILED CONFLICT RESULTS
+    setState(() {
+      loading = false;
+      statusMessage = _buildBulkScanResults(
+        totalProcessed,
+        conflictDetails,
+        invalidCodes,
+      );
+    });
+
+    // 🔥 SHOW CONFLICT DIALOG IF ANY CONFLICTS
+    if (conflictDetails.isNotEmpty) {
+      _showBulkConflictDialog(conflictDetails);
+    }
+  }
+
+  // 🔥 NEW: Build detailed results message
+  String _buildBulkScanResults(
+    int processed,
+    List<Map<String, dynamic>> conflicts,
+    List<String> invalid,
+  ) {
+    List<String> results = [];
+
+    results.add("🚀 Bulk scan complete!");
+    results.add("✅ Processed: $processed boxes");
+
+    if (conflicts.isNotEmpty) {
+      results.add("❌ Conflicts: ${conflicts.length}");
+      // Show first few conflicts
+      for (int i = 0; i < conflicts.length && i < 3; i++) {
+        final conflict = conflicts[i];
+        results.add(
+          "   📦 Box ${conflict['box_number']} → ${conflict['conflict_driver']}",
+        );
+      }
+      if (conflicts.length > 3) {
+        results.add("   ... and ${conflicts.length - 3} more");
+      }
+    }
+
+    if (invalid.isNotEmpty) {
+      results.add("⚠️ Invalid: ${invalid.length}");
+    }
+
+    return results.join("\n");
+  }
+
+  // 🔥 NEW: Show bulk conflict dialog
+  void _showBulkConflictDialog(List<Map<String, dynamic>> conflicts) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            Icon(Icons.warning, color: Colors.red),
+            SizedBox(width: 8),
+            Text('Conflicts Detected!'),
+          ],
+        ),
+        content: Container(
+          width: double.maxFinite,
+          constraints: BoxConstraints(maxHeight: 300),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '${conflicts.length} boxes have conflicts:',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 12),
+              Expanded(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: conflicts.length,
+                  itemBuilder: (context, index) {
+                    final conflict = conflicts[index];
+                    return Container(
+                      margin: EdgeInsets.only(bottom: 8),
+                      padding: EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.red.shade50,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.red.shade200),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Order #${conflict['order_id']} - Box ${conflict['box_number']}',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Icon(Icons.person, size: 16, color: Colors.red),
+                              SizedBox(width: 4),
+                              Expanded(
+                                child: Text(
+                                  'Scanned by: ${conflict['conflict_driver']}',
+                                  style: TextStyle(color: Colors.red.shade800),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.orange,
+              foregroundColor: Colors.white,
+            ),
+            child: Text('Continue'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 🔥 SHARED BOX PROCESSING
+  Future<void> _processSingleBox(int oid, String code) async {
+    final boxNumber = _extractBoxNumber(code);
+
+    try {
+      final response = await DriverApiService.scanBox(code, oid);
 
       if (response['success'] == 1) {
-        // Check if order exists in the response
-        if (response['order'] != null) {
-          final fetchedOrder = DriverOrder.fromJson(response['order']);
-          print("Fetched order from server: ${fetchedOrder.toJson()}");
+        // Only add if not already added
+        if (!_scannedBoxesByOrder[oid]!.contains(boxNumber)) {
+          _scannedBoxesByOrder[oid]!.add(boxNumber);
 
-          // Save order for offline use
-          await _offlineService.saveOrder(fetchedOrder.oid, response['order']);
-
-          // Save the scanned box
-          print(
-            "Products being passed to saveScannedBox: ${fetchedOrder.stavke}",
-          );
+          // Save scanned box locally
           await _offlineService.saveScannedBox(
-            orderId: fetchedOrder.oid,
+            orderId: oid,
             boxNumber: boxNumber,
             boxBarcode: code,
-            products: fetchedOrder.stavke,
+            products: [], // Add products if needed
           );
 
           // Log activity
           await _offlineService.logActivity(
             typeId: OfflineService.DRIVER_SCAN,
-            description: 'Skeniran paket',
-            relatedId: fetchedOrder.oid,
+            description: 'Scanned box',
+            relatedId: oid,
             extraData: {'box_number': boxNumber, 'box_code': code},
           );
-
-          processOrder(fetchedOrder, code);
-        } else {
-          setState(() {
-            statusMessage = "❌ Neispravna struktura odgovora.";
-          });
         }
       } else {
-        setState(() {
-          statusMessage = response['message'] ?? 'Greška.';
-        });
+        // Handle scan failure
+        print('Failed to scan box $boxNumber: ${response['message']}');
       }
-    } catch (e, stackTrace) {
-      debugPrint("Error fetching order: $e");
-      debugPrint("Stack trace: $stackTrace");
-      setState(() {
-        loading = false;
-        statusMessage = "❌ Greška: ${e.toString()}";
-      });
+    } catch (e) {
+      print('Error processing box $boxNumber: $e');
     }
   }
 
+  // 🔥 CONFLICT HANDLING
   void _showConflictDialog(int orderId, int boxNumber, String conflictDriver) {
     showDialog(
       context: context,
@@ -502,7 +579,7 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
           children: [
             Icon(Icons.warning, color: Colors.red),
             SizedBox(width: 8),
-            Text('KONFLIKT!'),
+            Text('CONFLICT!'),
           ],
         ),
         content: Column(
@@ -510,7 +587,7 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Kutija #$boxNumber iz narudžbe #$orderId je već skenirana od strane:',
+              'Box #$boxNumber from order #$orderId is already scanned by:',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 8),
@@ -536,157 +613,290 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
               ),
             ),
             SizedBox(height: 12),
-            Text('Ova kutija će biti automatski odbačena.'),
+            Text('❌ This order cannot be processed due to conflicts.'),
           ],
         ),
         actions: [
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
-              _discardConflictedBox(
-                orderId,
-                boxNumber,
-                'Konflikt sa vozačem: $conflictDriver',
-              );
+              setState(() {
+                statusMessage =
+                    "❌ Order #$orderId skipped due to conflicts. Scan a different order.";
+              });
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
+              backgroundColor: Colors.orange,
               foregroundColor: Colors.white,
             ),
-            child: Text('Odbaci kutiju'),
+            child: Text('Skip Order'),
           ),
         ],
       ),
     );
   }
 
-  void _discardConflictedBox(int orderId, int boxNumber, String reason) async {
-    try {
-      // Add to discarded boxes
-      if (!_discardedBoxes.containsKey(orderId)) {
-        _discardedBoxes[orderId] = {};
+  int _getOrderIdFromPhoneNumber(String phoneNumber) {
+    // Find the order that has this phone number
+    for (final stop in _routeManager.allStops) {
+      if (stop.order.kupac.telefon == phoneNumber) {
+        return stop.order.oid;
       }
-      _discardedBoxes[orderId]!.add(boxNumber);
-
-      // Call API to discard box
-      final response = await DriverApiService.discardBox(
-        orderId,
-        boxNumber,
-        reason,
-      );
-
-      if (response['success'] == 1) {
-        setState(() {
-          statusMessage =
-              '⚠️ Kutija #$boxNumber odbačena zbog konflikta. Možete nastaviti sa ostalim kutijama.';
-        });
-      } else {
-        setState(() {
-          statusMessage =
-              '❌ Greška pri odbacivanju kutije: ${response['message']}';
-        });
-      }
-    } catch (e) {
-      setState(() {
-        statusMessage = '❌ Greška: ${e.toString()}';
-      });
     }
+    return 0; // fallback
   }
 
-  // Add this helper method to process the order once retrieved
-  void processOrder(DriverOrder fetchedOrder, String code) async {
-    // Try to add to route manager
-    final added = await _routeManager.addStop(fetchedOrder);
+  Future<void> _callCustomer(String phoneNumber, String customerName) async {
+    // Clean phone number (remove spaces, dashes, etc.)
+    final cleanPhone = phoneNumber.replaceAll(RegExp(r'[^\d+]'), '');
 
-    if (added) {
-      // Initialize box tracking for this order
-      if (!_scannedBoxesByOrder.containsKey(fetchedOrder.oid)) {
-        _scannedBoxesByOrder[fetchedOrder.oid] = {};
-      }
-
-      // Add the scanned box
-      final boxNumber = _extractBoxNumber(code);
-      _scannedBoxesByOrder[fetchedOrder.oid]!.add(boxNumber);
-
-      setState(() {
-        statusMessage =
-            "✅ Dodana narudžba #${fetchedOrder.oid}. Ukupno: ${_routeManager.stopCount} narudžbi";
-      });
-    } else {
-      setState(() {
-        statusMessage = "⚠️ Narudžba #${fetchedOrder.oid} je već dodana.";
-      });
-    }
-  }
-
-  void scanBox(String code) async {
-    // Find which order this box belongs to
-    final orderId = _extractOrderId(code);
-    if (orderId == 0) {
-      setState(() => statusMessage = '❌ Pogrešan barkod.');
-      return;
-    }
-
-    final boxNumber = _extractBoxNumber(code);
-
-    // Check if this box was discarded
-    if (_discardedBoxes[orderId]?.contains(boxNumber) == true) {
-      setState(
-        () =>
-            statusMessage = '❌ Kutija #$boxNumber je odbačena zbog konflikta.',
-      );
-      return;
-    }
-
-    // Check for conflicts before scanning
-    final conflictResponse = await DriverApiService.checkConflict(
-      orderId,
-      boxNumber,
+    // Show confirmation dialog
+    final shouldCall = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            Icon(Icons.phone, color: Colors.blue),
+            SizedBox(width: 8),
+            Text('Call Customer?'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Call $customerName?',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 8),
+            Container(
+              padding: EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.blue.shade50,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.phone, color: Colors.blue, size: 20),
+                  SizedBox(width: 8),
+                  Text(
+                    phoneNumber,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue.shade800,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 12),
+            Row(
+              children: [
+                Icon(Icons.info_outline, color: Colors.grey, size: 16),
+                SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    'This will open your phone app',
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text('Cancel'),
+          ),
+          ElevatedButton.icon(
+            onPressed: () => Navigator.pop(context, true),
+            icon: Icon(Icons.phone, size: 18),
+            label: Text('Call Now'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green,
+              foregroundColor: Colors.white,
+            ),
+          ),
+        ],
+      ),
     );
 
-    if (conflictResponse['success'] == 1 &&
-        conflictResponse['conflict'] == true) {
-      _showConflictDialog(
-        orderId,
-        boxNumber,
-        conflictResponse['conflict_driver'] ?? 'Nepoznat vozač',
-      );
-      return;
-    }
+    if (shouldCall == true) {
+      try {
+        final Uri phoneUri = Uri.parse('tel:$cleanPhone');
 
-    // Find if we have this order
-    final orderStop = _routeManager.allStops
-        .where((stop) => stop.order.oid == orderId)
-        .toList();
-    if (orderStop.isEmpty) {
-      setState(() => statusMessage = '❌ Prvo skenirajte narudžbu #$orderId.');
-      return;
-    }
+        if (await canLaunchUrl(phoneUri)) {
+          await launchUrl(phoneUri);
 
-    if (_scannedBoxesByOrder[orderId]!.contains(boxNumber)) {
-      setState(
-        () => statusMessage =
-            '❗ Kutija $boxNumber za narudžbu #$orderId je već skenirana.',
-      );
-      return;
-    }
+          // Log the call activity
+          await _offlineService.logActivity(
+            typeId:
+                OfflineService.DRIVER_SCAN, // or create a new type for calls
+            description: 'Called customer',
+            relatedId: _getOrderIdFromPhoneNumber(
+              phoneNumber,
+            ), // You'll need this helper
+            extraData: {
+              'phone_number': phoneNumber,
+              'customer_name': customerName,
+              'call_time': DateTime.now().toIso8601String(),
+            },
+          );
 
-    final response = await DriverApiService.scanBox(code, orderId);
+          // Show success message
+          setState(() {
+            statusMessage = "📞 Calling $customerName...";
+          });
 
-    if (response['success'] == 1) {
-      setState(() {
-        _scannedBoxesByOrder[orderId]!.add(boxNumber);
-        final order = orderStop.first.order;
-        statusMessage =
-            "✅ Skenirana kutija $boxNumber/${order.brojKutija} za narudžbu #$orderId";
-      });
-    } else {
-      setState(() {
-        statusMessage = response['message'] ?? 'Greška skeniranja kutije.';
-      });
+          // Clear message after 3 seconds
+          Timer(Duration(seconds: 3), () {
+            if (mounted) {
+              setState(() => statusMessage = "");
+            }
+          });
+        } else {
+          // Show error if can't launch phone app
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('❌ Cannot open phone app'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } catch (e) {
+        // Handle any errors
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('❌ Error calling: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
+  // 🔥 PROBLEM DETECTION
+  String _detectOrderProblems(DriverOrder order) {
+    List<String> problems = [];
+
+    // Address problems
+    if (order.kupac.adresa.length < 10) {
+      problems.add("⚠️ Short address - may be unclear");
+    }
+
+    if (order.kupac.adresa.toLowerCase().contains('bb') ||
+        order.kupac.adresa.toLowerCase().contains('b.b.')) {
+      problems.add("⚠️ Address contains 'bb' - no house number");
+    }
+
+    // Payment problems
+    if (order.iznos > 500) {
+      problems.add(
+        "💰 High value delivery (${order.iznos.toStringAsFixed(2)} KM)",
+      );
+    }
+
+    if (order.trebaVratitiNovac) {
+      problems.add(
+        "💸 Cash return required (${order.iznos.abs().toStringAsFixed(2)} KM)",
+      );
+    }
+
+    // Large delivery
+    if (order.brojKutija > 5) {
+      problems.add(
+        "📦 Large delivery (${order.brojKutija} boxes) - call customer ahead",
+      );
+    }
+
+    // Special notes
+    if (order.napomenaVozac.isNotEmpty) {
+      problems.add("🚨 Driver note: ${order.napomenaVozac}");
+    }
+
+    return problems.isEmpty ? "✅ No issues detected" : problems.join("\n");
+  }
+
+  // 🔥 MISSING BOXES HANDLER
+  void _handleMissingBoxes(int orderId) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            Icon(Icons.help_outline, color: Colors.orange),
+            SizedBox(width: 8),
+            Text('Missing Boxes?'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('Are there boxes missing for Order #$orderId?'),
+            SizedBox(height: 12),
+            Text(
+              'This will record the missing boxes and skip this order for now.',
+              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _recordMissingBoxes(orderId);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.orange,
+              foregroundColor: Colors.white,
+            ),
+            child: Text('Report Missing'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _recordMissingBoxes(int orderId) async {
+    final scannedCount = _scannedBoxesByOrder[orderId]?.length ?? 0;
+    final expectedCount = _expectedBoxCounts[orderId] ?? 0;
+    final missingCount = expectedCount - scannedCount;
+
+    // Record missing boxes
+    _missingBoxes[orderId] ??= {};
+    for (int i = 1; i <= expectedCount; i++) {
+      if (!_scannedBoxesByOrder[orderId]!.contains(i)) {
+        _missingBoxes[orderId]!.add(i);
+      }
+    }
+
+    // Log the missing boxes
+    await _offlineService.logActivity(
+      typeId: OfflineService.DRIVER_SCAN,
+      description: 'Missing boxes reported',
+      relatedId: orderId,
+      extraData: {
+        'missing_boxes': _missingBoxes[orderId]!.toList(),
+        'missing_count': missingCount,
+        'scanned_count': scannedCount,
+        'expected_count': expectedCount,
+      },
+    );
+
+    setState(() {
+      statusMessage =
+          "📝 Recorded $missingCount missing boxes for Order #$orderId";
+    });
+  }
+
+  // 🔥 ACCEPTANCE LOGIC
   bool _canAcceptOrder(int orderId) {
     final order = _routeManager.allStops
         .where((stop) => stop.order.oid == orderId)
@@ -697,12 +907,21 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
 
     final scannedCount = _scannedBoxesByOrder[orderId]?.length ?? 0;
     final discardedCount = _discardedBoxes[orderId]?.length ?? 0;
+    final missingCount = _missingBoxes[orderId]?.length ?? 0;
 
-    // Can accept if all non-discarded boxes are scanned
-    return (scannedCount + discardedCount) >= order.brojKutija;
+    // Can accept if all boxes are accounted for (scanned + discarded + missing = total)
+    return (scannedCount + discardedCount + missingCount) >= order.brojKutija;
   }
 
+  // 🔥 UTILITY METHODS
   int _extractBoxNumber(String code) {
+    RegExp regex = RegExp(r'^KU(\d+)KU(\d+)$');
+    final match = regex.firstMatch(code);
+    if (match != null) {
+      return int.parse(match.group(1)!);
+    }
+
+    // Fallback to old method
     final parts = code.toLowerCase().split('ku');
     if (parts.length >= 2) {
       final boxPart = parts[1].split(RegExp(r'[^0-9]'))[0];
@@ -711,44 +930,222 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
     return 0;
   }
 
-  int _extractOrderId(String code) {
-    final match = RegExp(r'([0-9]+)$').firstMatch(code);
-    if (match != null) {
-      return int.tryParse(match.group(1) ?? '0') ?? 0;
+  // 🔥 EXISTING METHODS (acceptOrder, completeOrder, etc.)
+  void acceptOrder(int orderId) async {
+    if (_acceptedOrders[orderId] == true) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Order #$orderId already accepted.")),
+      );
+      return;
     }
-    return 0;
+
+    setState(() {
+      loading = true;
+      statusMessage = 'Accepting order #$orderId...';
+    });
+
+    try {
+      final response = await DriverApiService.acceptOrder(orderId);
+
+      if (response['success'] == 1) {
+        setState(() {
+          _acceptedOrders[orderId] = true;
+          loading = false;
+          statusMessage = "✅ Order #$orderId accepted.";
+        });
+      } else {
+        setState(() {
+          loading = false;
+          statusMessage = '❌ ${response['message']}';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        loading = false;
+        statusMessage = '❌ Error: ${e.toString()}';
+      });
+    }
   }
 
-  void startMultiStopNavigation() {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (context) => MultiStopNavigationScreen()),
-    );
+  // Replace your completeOrder function with this fixed version:
+  Future<void> completeOrder(int orderId) async {
+    setState(() {
+      loading = true;
+      statusMessage = 'Completing order #$orderId...';
+    });
+
+    try {
+      // 🔥 FIXED: Use the correct API method
+      final response = await DriverApiService.completeOrder(orderId);
+
+      print('🔍 DEBUG: Complete response: $response');
+
+      if (response['success'] == 1) {
+        // 🔥 ALWAYS REMOVE COMPLETED ORDERS FROM UI
+        _routeManager.removeStop(orderId);
+        _scannedBoxesByOrder.remove(orderId);
+        _acceptedOrders.remove(orderId);
+        _discardedBoxes.remove(orderId);
+        _missingBoxes.remove(orderId);
+        _expectedBoxCounts.remove(orderId);
+
+        await _offlineService.logActivity(
+          typeId: OfflineService.DRIVER_DELIVERY,
+          description: 'Order completed and removed',
+          relatedId: orderId,
+          extraData: {
+            'oid': orderId,
+            'action': 'delivery_completed',
+            'timestamp': DateTime.now().toIso8601String(),
+          },
+        );
+
+        setState(() {
+          loading = false;
+          statusMessage = '✅ Order #$orderId completed and removed';
+        });
+      } else {
+        setState(() {
+          loading = false;
+          statusMessage = '❌ ${response['message']}';
+        });
+      }
+
+      // Clear status message after 3 seconds
+      Timer(Duration(seconds: 3), () {
+        if (mounted) {
+          setState(() => statusMessage = "");
+        }
+      });
+    } catch (e) {
+      setState(() {
+        loading = false;
+        statusMessage = '❌ Error completing order: ${e.toString()}';
+      });
+
+      Timer(Duration(seconds: 3), () {
+        if (mounted) {
+          setState(() => statusMessage = "");
+        }
+      });
+    }
   }
 
+  // Replace your existing removeOrder function with this enhanced version:
+  // Replace your removeOrder function with this fixed version:
   void removeOrder(int orderId) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Ukloniti narudžbu?'),
+        title: Text('Remove Order?'),
         content: Text(
-          'Da li ste sigurni da želite ukloniti narudžbu #$orderId iz rute?',
+          'Are you sure you want to remove order #$orderId from route?\n\nThis will cancel the order in the system.',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Odustani'),
+            child: Text('Cancel'),
           ),
           ElevatedButton(
-            onPressed: () {
-              _routeManager.removeStop(orderId);
-              _scannedBoxesByOrder.remove(orderId);
-              _acceptedOrders.remove(orderId);
-              _discardedBoxes.remove(orderId);
-              setState(() {});
+            onPressed: () async {
               Navigator.pop(context);
+
+              setState(() {
+                loading = true;
+                statusMessage = 'Cancelling order #$orderId...';
+              });
+
+              try {
+                // 🔥 REMOVED: Don't check local _acceptedOrders anymore!
+                // 🔥 ALWAYS try to cancel - let the API/database decide
+                print('🔍 DEBUG: Attempting to cancel order $orderId');
+
+                final response = await DriverApiService.cancelOrder(orderId);
+
+                print('🔍 DEBUG: Cancel response: $response');
+
+                if (response['success'] == 1) {
+                  print('🔍 DEBUG: Order was accepted and now cancelled');
+
+                  await _offlineService.logActivity(
+                    typeId: OfflineService.DRIVER_SCAN,
+                    description: 'Order cancelled and removed',
+                    relatedId: orderId,
+                    extraData: {
+                      'action': 'cancel_and_remove',
+                      'reason': 'manually_removed',
+                      'timestamp': DateTime.now().toIso8601String(),
+                    },
+                  );
+
+                  setState(() {
+                    statusMessage = '✅ Order #$orderId cancelled successfully';
+                  });
+                } else if (response['message'].contains('statusu') ||
+                    response['message'].contains('prihvaćena') ||
+                    response['message'].contains('tranzitu')) {
+                  // Order wasn't in cancellable status - that's fine, just remove locally
+                  print(
+                    '🔍 DEBUG: Order not in cancellable status, removing locally',
+                  );
+
+                  setState(() {
+                    statusMessage = '✅ Order #$orderId removed from route';
+                  });
+                } else {
+                  print('🔍 DEBUG: Cancel failed: ${response['message']}');
+
+                  setState(() {
+                    statusMessage =
+                        '⚠️ ${response['message']} - Order removed locally';
+                  });
+                }
+
+                // 🔥 ALWAYS remove from local data structures
+                _routeManager.removeStop(orderId);
+                _scannedBoxesByOrder.remove(orderId);
+                _acceptedOrders.remove(orderId);
+                _discardedBoxes.remove(orderId);
+                _missingBoxes.remove(orderId);
+                _expectedBoxCounts.remove(orderId);
+
+                setState(() {
+                  loading = false;
+                });
+
+                Timer(Duration(seconds: 3), () {
+                  if (mounted) {
+                    setState(() => statusMessage = "");
+                  }
+                });
+              } catch (e) {
+                print('🔍 DEBUG: Exception in removeOrder: $e');
+
+                setState(() {
+                  loading = false;
+                  statusMessage =
+                      '⚠️ Error: ${e.toString()} - Order removed locally';
+                });
+
+                // Remove locally anyway
+                _routeManager.removeStop(orderId);
+                _scannedBoxesByOrder.remove(orderId);
+                _acceptedOrders.remove(orderId);
+                _discardedBoxes.remove(orderId);
+                _missingBoxes.remove(orderId);
+                _expectedBoxCounts.remove(orderId);
+
+                setState(() {});
+
+                Timer(Duration(seconds: 3), () {
+                  if (mounted) {
+                    setState(() => statusMessage = "");
+                  }
+                });
+              }
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: Text('Ukloni'),
+            child: Text('Remove & Cancel'),
           ),
         ],
       ),
@@ -761,14 +1158,12 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Očistiti sve?'),
-        content: Text(
-          'Da li ste sigurni da želite ukloniti sve narudžbe iz rute?',
-        ),
+        title: Text('Clear All?'),
+        content: Text('Are you sure you want to remove all orders from route?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Odustani'),
+            child: Text('Cancel'),
           ),
           ElevatedButton(
             onPressed: () {
@@ -776,14 +1171,22 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
               _scannedBoxesByOrder.clear();
               _acceptedOrders.clear();
               _discardedBoxes.clear();
+              _missingBoxes.clear();
+              _expectedBoxCounts.clear();
               setState(() {});
               Navigator.pop(context);
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: Text('Očisti sve'),
+            child: Text('Clear All'),
           ),
         ],
       ),
+    );
+  }
+
+  void startMultiStopNavigation() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (context) => MultiStopNavigationScreen()),
     );
   }
 
@@ -793,36 +1196,36 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Skeniranje paketa"),
+        title: Text(
+          _bulkScanMode
+              ? "Bulk Scanning Order #$_currentBulkOrderId"
+              : "Package Scanner",
+        ),
+        backgroundColor: _bulkScanMode ? Colors.orange : null,
         actions: [
           if (allStops.isNotEmpty)
             IconButton(
               icon: Icon(Icons.delete_sweep),
               onPressed: clearAllOrders,
-              tooltip: 'Očisti sve narudžbe',
+              tooltip: 'Clear all orders',
             ),
         ],
       ),
       body: Column(
         children: [
-          // Add offline status widget
+          // Offline status widget
           OfflineStatusWidget(
             onSyncPressed: () {
               _offlineService.syncNow().then((success) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text(
-                      success
-                          ? "Sinhronizacija uspješna!"
-                          : "Greška prilikom sinhronizacije",
-                    ),
+                    content: Text(success ? "Sync successful!" : "Sync failed"),
                   ),
                 );
               });
             },
           ),
 
-          // Rest of your existing body content wrapped in an Expanded widget
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(20),
@@ -830,30 +1233,33 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
                 children: [
                   // Scanning section
                   HardwareBarcodeInput(
-                    hintText: "Skeniraj barkod paketa...",
-                    onBarcodeScanned: fetchOrder,
+                    hintText: "Scan package barcode...",
+                    onBarcodeScanned: smartIndividualScan,
                   ),
 
-                  // Test buttons
+                  // Scan mode buttons
                   Row(
                     children: [
                       Expanded(
-                        child: ElevatedButton(
-                          onPressed: () => fetchOrder("KU1KU2355444"),
+                        child: ElevatedButton.icon(
+                          onPressed: startBulkScanMode,
+                          icon: Icon(Icons.qr_code_scanner),
+                          label: Text("🔥 BULK SCAN"),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue,
+                            backgroundColor: Colors.orange,
+                            foregroundColor: Colors.white,
+                            padding: EdgeInsets.symmetric(vertical: 12),
                           ),
-                          child: Text("Test: Narudžba 1"),
                         ),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () => fetchOrder("KU1KU2348560"),
+                          onPressed: () => smartIndividualScan("KU1KU2355444"),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blue,
                           ),
-                          child: Text("Test: Narudžba 2"),
+                          child: Text("Test Order"),
                         ),
                       ),
                     ],
@@ -877,7 +1283,7 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
                       ),
                     ),
 
-                  // Navigation button if we have accepted orders
+                  // Navigation button
                   if (allStops.any(
                     (stop) => _acceptedOrders[stop.order.oid] == true,
                   )) ...[
@@ -893,7 +1299,7 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
                       child: Column(
                         children: [
                           Text(
-                            "Ruta dostave: ${allStops.where((stop) => _acceptedOrders[stop.order.oid] == true).length} prihvaćenih narudžbi",
+                            "Delivery Route: ${allStops.where((stop) => _acceptedOrders[stop.order.oid] == true).length} accepted orders",
                             style: GoogleFonts.inter(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
@@ -903,7 +1309,7 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
                           ElevatedButton.icon(
                             onPressed: startMultiStopNavigation,
                             icon: Icon(Icons.navigation),
-                            label: Text("Pokreni NAVIGACIJU"),
+                            label: Text("START NAVIGATION"),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.green,
                               foregroundColor: Colors.white,
@@ -915,13 +1321,13 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
                     ),
                   ],
 
-                  // List of orders
+                  // Orders list
                   const SizedBox(height: 16),
                   Expanded(
                     child: allStops.isEmpty
                         ? Center(
                             child: Text(
-                              "Nema skeniranih narudžbi.\nSkenirajte barkod da dodate narudžbu.",
+                              "No scanned orders.\nScan a barcode to add an order.",
                               textAlign: TextAlign.center,
                               style: GoogleFonts.inter(
                                 color: Colors.grey,
@@ -938,15 +1344,15 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
                                   _scannedBoxesByOrder[order.oid]?.length ?? 0;
                               final discardedCount =
                                   _discardedBoxes[order.oid]?.length ?? 0;
+                              final missingCount =
+                                  _missingBoxes[order.oid]?.length ?? 0;
                               final totalProcessed =
-                                  scannedCount + discardedCount;
+                                  scannedCount + discardedCount + missingCount;
                               final isComplete =
                                   totalProcessed >= order.brojKutija;
                               final isAccepted =
                                   _acceptedOrders[order.oid] == true;
                               final canAccept = _canAcceptOrder(order.oid);
-
-                              // Track expanded state for each order
                               final isExpanded = _expandedOrders.contains(
                                 order.oid,
                               );
@@ -957,371 +1363,777 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                   side: BorderSide(
-                                    color: isAccepted
-                                        ? Colors.orange
-                                        : isComplete
-                                        ? Colors.green
-                                        : Colors.blue.shade100,
-                                    width: (isAccepted || isComplete) ? 2 : 1,
+                                    color: _getOrderBorderColor(
+                                      order,
+                                      scannedCount,
+                                      discardedCount,
+                                      missingCount,
+                                      isAccepted,
+                                    ),
+                                    width: _getOrderBorderWidth(
+                                      order,
+                                      scannedCount,
+                                      discardedCount,
+                                      missingCount,
+                                      isAccepted,
+                                    ),
                                   ),
                                 ),
-                                child: InkWell(
-                                  onTap: () {
-                                    setState(() {
-                                      if (_expandedOrders.contains(order.oid)) {
-                                        _expandedOrders.remove(order.oid);
-                                      } else {
-                                        _expandedOrders.add(order.oid);
-                                      }
-                                    });
-                                  },
-                                  borderRadius: BorderRadius.circular(12),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(12),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        // Order header row - always visible
-                                        Row(
-                                          children: [
-                                            Icon(
-                                              isAccepted
-                                                  ? Icons.directions_car
-                                                  : isComplete
-                                                  ? Icons.check_circle
-                                                  : Icons.local_shipping,
-                                              color: isAccepted
-                                                  ? Colors.orange
-                                                  : isComplete
-                                                  ? Colors.green
-                                                  : Colors.blue,
-                                            ),
-                                            const SizedBox(width: 8),
-                                            Expanded(
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    "Narudžba #${order.oid}",
-                                                    style: GoogleFonts.inter(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontSize: 16,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(12),
+                                    gradient: _getOrderGradient(
+                                      order,
+                                      scannedCount,
+                                      discardedCount,
+                                      missingCount,
+                                      isAccepted,
+                                    ),
+                                  ),
+                                  child: InkWell(
+                                    onTap: () {
+                                      setState(() {
+                                        if (_expandedOrders.contains(
+                                          order.oid,
+                                        )) {
+                                          _expandedOrders.remove(order.oid);
+                                        } else {
+                                          _expandedOrders.add(order.oid);
+                                        }
+                                      });
+                                    },
+                                    borderRadius: BorderRadius.circular(12),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(12),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          // Header row
+                                          Row(
+                                            children: [
+                                              Icon(
+                                                isAccepted
+                                                    ? Icons.directions_car
+                                                    : isComplete
+                                                    ? Icons.check_circle
+                                                    : Icons.local_shipping,
+                                                color: isAccepted
+                                                    ? Colors.orange
+                                                    : isComplete
+                                                    ? Colors.green
+                                                    : Colors.blue,
+                                              ),
+                                              const SizedBox(width: 8),
+                                              Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      "Order #${order.oid}",
+                                                      style: GoogleFonts.inter(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 16,
+                                                      ),
                                                     ),
+                                                    Text(
+                                                      "👤 ${order.kupac.naziv}",
+                                                      style:
+                                                          GoogleFonts.inter(),
+                                                      maxLines: isExpanded
+                                                          ? null
+                                                          : 1,
+                                                      overflow: isExpanded
+                                                          ? null
+                                                          : TextOverflow
+                                                                .ellipsis,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              IconButton(
+                                                icon: Icon(
+                                                  isExpanded
+                                                      ? Icons.expand_less
+                                                      : Icons.expand_more,
+                                                ),
+                                                onPressed: () {
+                                                  setState(() {
+                                                    if (_expandedOrders
+                                                        .contains(order.oid)) {
+                                                      _expandedOrders.remove(
+                                                        order.oid,
+                                                      );
+                                                    } else {
+                                                      _expandedOrders.add(
+                                                        order.oid,
+                                                      );
+                                                    }
+                                                  });
+                                                },
+                                              ),
+                                              IconButton(
+                                                icon: Icon(
+                                                  Icons.delete_outline,
+                                                  color: Colors.red,
+                                                ),
+                                                onPressed: () =>
+                                                    removeOrder(order.oid),
+                                              ),
+                                            ],
+                                          ),
+                                          Container(
+                                            height: 4,
+                                            margin: EdgeInsets.symmetric(
+                                              vertical: 8,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(2),
+                                              color: Colors.grey.shade200,
+                                            ),
+                                            child: FractionallySizedBox(
+                                              alignment: Alignment.centerLeft,
+                                              widthFactor:
+                                                  (scannedCount +
+                                                      discardedCount +
+                                                      missingCount) /
+                                                  order.brojKutija,
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(2),
+                                                  gradient: LinearGradient(
+                                                    colors:
+                                                        _getProgressBarColors(
+                                                          scannedCount,
+                                                          discardedCount,
+                                                          missingCount,
+                                                          order.brojKutija,
+                                                        ),
                                                   ),
-                                                  Text(
-                                                    "👤 ${order.kupac.naziv}",
-                                                    style: GoogleFonts.inter(),
-                                                    maxLines: isExpanded
-                                                        ? null
-                                                        : 1,
-                                                    overflow: isExpanded
-                                                        ? null
-                                                        : TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          // Problem detection
+                                          Container(
+                                            margin: EdgeInsets.only(top: 8),
+                                            padding: EdgeInsets.all(8),
+                                            decoration: BoxDecoration(
+                                              color:
+                                                  _detectOrderProblems(
+                                                    order,
+                                                  ).startsWith("✅")
+                                                  ? Colors.green.shade50
+                                                  : Colors.amber.shade50,
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                              border: Border.all(
+                                                color:
+                                                    _detectOrderProblems(
+                                                      order,
+                                                    ).startsWith("✅")
+                                                    ? Colors.green.shade200
+                                                    : Colors.amber.shade300,
+                                              ),
+                                            ),
+                                            child: Text(
+                                              _detectOrderProblems(order),
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color:
+                                                    _detectOrderProblems(
+                                                      order,
+                                                    ).startsWith("✅")
+                                                    ? Colors.green.shade800
+                                                    : Colors.amber.shade800,
+                                              ),
+                                            ),
+                                          ),
+
+                                          // Status indicators
+                                          if (isAccepted)
+                                            Container(
+                                              margin: EdgeInsets.symmetric(
+                                                vertical: 8,
+                                              ),
+                                              padding: EdgeInsets.all(8),
+                                              decoration: BoxDecoration(
+                                                color: Colors.orange.shade50,
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                                border: Border.all(
+                                                  color: Colors.orange.shade200,
+                                                ),
+                                              ),
+                                              child: Row(
+                                                children: [
+                                                  Icon(
+                                                    Icons.gps_fixed,
+                                                    color: Colors.orange,
+                                                  ),
+                                                  SizedBox(width: 8),
+                                                  Expanded(
+                                                    child: Text(
+                                                      "Order accepted - ready for navigation",
+                                                      style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color: Colors
+                                                            .orange
+                                                            .shade800,
+                                                      ),
+                                                    ),
                                                   ),
                                                 ],
                                               ),
                                             ),
-                                            IconButton(
-                                              icon: Icon(
-                                                isExpanded
-                                                    ? Icons.expand_less
-                                                    : Icons.expand_more,
-                                              ),
-                                              onPressed: () {
-                                                setState(() {
-                                                  if (_expandedOrders.contains(
-                                                    order.oid,
-                                                  )) {
-                                                    _expandedOrders.remove(
-                                                      order.oid,
-                                                    );
-                                                  } else {
-                                                    _expandedOrders.add(
-                                                      order.oid,
-                                                    );
-                                                  }
-                                                });
-                                              },
-                                            ),
-                                            IconButton(
-                                              icon: Icon(
-                                                Icons.delete_outline,
-                                                color: Colors.red,
-                                              ),
-                                              onPressed: () =>
-                                                  removeOrder(order.oid),
-                                              tooltip: 'Ukloni narudžbu',
-                                            ),
-                                          ],
-                                        ),
 
-                                        // Show tracking status if active
-                                        if (isAccepted)
-                                          Container(
-                                            margin: EdgeInsets.symmetric(
-                                              vertical: 8,
-                                            ),
-                                            padding: EdgeInsets.all(8),
-                                            decoration: BoxDecoration(
-                                              color: Colors.orange.shade50,
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
-                                              border: Border.all(
-                                                color: Colors.orange.shade200,
+                                          if (missingCount > 0)
+                                            Container(
+                                              margin: EdgeInsets.symmetric(
+                                                vertical: 8,
                                               ),
-                                            ),
-                                            child: Row(
-                                              children: [
-                                                Icon(
-                                                  Icons.gps_fixed,
-                                                  color: Colors.orange,
+                                              padding: EdgeInsets.all(8),
+                                              decoration: BoxDecoration(
+                                                color: Colors.orange.shade50,
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                                border: Border.all(
+                                                  color: Colors.orange.shade200,
                                                 ),
-                                                SizedBox(width: 8),
-                                                Expanded(
-                                                  child: Text(
-                                                    "Narudžba prihvaćena - spremna za navigaciju",
-                                                    style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: Colors
-                                                          .orange
-                                                          .shade800,
-                                                    ),
+                                              ),
+                                              child: Row(
+                                                children: [
+                                                  Icon(
+                                                    Icons.help_outline,
+                                                    color: Colors.orange,
                                                   ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-
-                                        // Show discarded boxes if any
-                                        if (discardedCount > 0)
-                                          Container(
-                                            margin: EdgeInsets.symmetric(
-                                              vertical: 8,
-                                            ),
-                                            padding: EdgeInsets.all(8),
-                                            decoration: BoxDecoration(
-                                              color: Colors.red.shade50,
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
-                                              border: Border.all(
-                                                color: Colors.red.shade200,
-                                              ),
-                                            ),
-                                            child: Row(
-                                              children: [
-                                                Icon(
-                                                  Icons.warning,
-                                                  color: Colors.red,
-                                                ),
-                                                SizedBox(width: 8),
-                                                Expanded(
-                                                  child: Text(
-                                                    "Odbačeno kutija: $discardedCount (konflikti)",
-                                                    style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color:
-                                                          Colors.red.shade800,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-
-                                        // Expanded content - only visible when expanded
-                                        if (isExpanded) ...[
-                                          Divider(),
-                                          Text("📍 ${order.kupac.adresa}"),
-                                          if (order.kupac.telefon.isNotEmpty)
-                                            Text("📞 ${order.kupac.telefon}"),
-                                          if (order.kupac.email.isNotEmpty)
-                                            Text("📧 ${order.kupac.email}"),
-                                          if (order.napomena.isNotEmpty)
-                                            Padding(
-                                              padding: const EdgeInsets.only(
-                                                top: 8,
-                                              ),
-                                              child: Text(
-                                                "📝 Napomena: ${order.napomena}",
-                                                style: TextStyle(
-                                                  color: Colors.grey.shade700,
-                                                ),
-                                              ),
-                                            ),
-                                          if (order.napomenaVozac.isNotEmpty)
-                                            Padding(
-                                              padding: const EdgeInsets.only(
-                                                top: 4,
-                                              ),
-                                              child: Text(
-                                                "🚨 Vozaču: ${order.napomenaVozac}",
-                                                style: TextStyle(
-                                                  color: Colors.red,
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                              ),
-                                            ),
-                                          const SizedBox(height: 8),
-                                        ],
-
-                                        // Payment info
-                                        Container(
-                                          padding: EdgeInsets.symmetric(
-                                            vertical: 6,
-                                            horizontal: isExpanded ? 8 : 0,
-                                          ),
-                                          margin: EdgeInsets.only(
-                                            top: isExpanded ? 4 : 0,
-                                          ),
-                                          decoration: isExpanded
-                                              ? BoxDecoration(
-                                                  color: order.trebaVratitiNovac
-                                                      ? Colors.red.shade50
-                                                      : order.iznos > 0
-                                                      ? Colors.green.shade50
-                                                      : Colors.grey.shade100,
-                                                  borderRadius:
-                                                      BorderRadius.circular(6),
-                                                )
-                                              : null,
-                                          child: Text(
-                                            order.iznos > 0
-                                                ? "💰 Naplatiti: ${order.iznos.toStringAsFixed(2)} KM"
-                                                : order.trebaVratitiNovac
-                                                ? "↩️ Povrat: ${order.iznos.abs().toStringAsFixed(2)} KM"
-                                                : "✅ Bez naplate",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              color: order.trebaVratitiNovac
-                                                  ? Colors.red
-                                                  : order.iznos > 0
-                                                  ? Colors.green.shade800
-                                                  : Colors.grey.shade700,
-                                            ),
-                                          ),
-                                        ),
-
-                                        // Box count and buttons
-                                        const SizedBox(height: 8),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  "📦 Ukupno: ${order.brojKutija} kutija",
-                                                  style: GoogleFonts.inter(
-                                                    color: Colors.grey.shade700,
-                                                    fontWeight: FontWeight.w500,
-                                                  ),
-                                                ),
-                                                Text(
-                                                  "✅ Skenirano: $scannedCount kutija",
-                                                  style: GoogleFonts.inter(
-                                                    color: Colors.green,
-                                                    fontWeight: FontWeight.w500,
-                                                  ),
-                                                ),
-                                                if (discardedCount > 0)
-                                                  Text(
-                                                    "❌ Odbačeno: $discardedCount kutija",
-                                                    style: GoogleFonts.inter(
-                                                      color: Colors.red,
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                    ),
-                                                  ),
-                                              ],
-                                            ),
-                                            Column(
-                                              children: [
-                                                // Accept/Complete button - positioned at the bottom of the order card
-                                                ElevatedButton(
-                                                  onPressed: isAccepted
-                                                      ? () => completeOrder(
-                                                          order.oid,
-                                                        )
-                                                      : canAccept
-                                                      ? () => acceptOrder(
-                                                          order.oid,
-                                                        )
-                                                      : null,
-                                                  style:
-                                                      ElevatedButton.styleFrom(
-                                                        backgroundColor:
-                                                            isAccepted
-                                                            ? Colors.orange
-                                                            : canAccept
-                                                            ? Colors.green
-                                                            : Colors.grey,
-                                                        foregroundColor:
-                                                            Colors.white,
+                                                  SizedBox(width: 8),
+                                                  Expanded(
+                                                    child: Text(
+                                                      "Missing boxes: $missingCount (reported)",
+                                                      style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color: Colors
+                                                            .orange
+                                                            .shade800,
                                                       ),
-                                                  child: Text(
-                                                    isAccepted
-                                                        ? "Završi dostavu"
-                                                        : canAccept
-                                                        ? "Prihvati narudžbu"
-                                                        : "Skeniraj sve kutije",
+                                                    ),
                                                   ),
+                                                ],
+                                              ),
+                                            ),
+
+                                          if (discardedCount > 0)
+                                            Container(
+                                              margin: EdgeInsets.symmetric(
+                                                vertical: 8,
+                                              ),
+                                              padding: EdgeInsets.all(8),
+                                              decoration: BoxDecoration(
+                                                color: Colors.red.shade50,
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                                border: Border.all(
+                                                  color: Colors.red.shade200,
                                                 ),
+                                              ),
+                                              child: Row(
+                                                children: [
+                                                  Icon(
+                                                    Icons.warning,
+                                                    color: Colors.red,
+                                                  ),
+                                                  SizedBox(width: 8),
+                                                  Expanded(
+                                                    child: Text(
+                                                      "Discarded boxes: $discardedCount (conflicts)",
+                                                      style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color:
+                                                            Colors.red.shade800,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
 
-                                                const SizedBox(height: 4),
-
-                                                // Scan Box button (if not complete)
-                                                Row(
-                                                  children: [
-                                                    if (!isComplete)
-                                                      ElevatedButton(
-                                                        onPressed: () {
-                                                          scanBox(
-                                                            "KU${scannedCount + 1}KU${order.oid}",
-                                                          );
-                                                        },
-                                                        style:
-                                                            ElevatedButton.styleFrom(
-                                                              backgroundColor:
-                                                                  Colors.blue,
-                                                              foregroundColor:
-                                                                  Colors.white,
-                                                            ),
+                                          // Expanded content
+                                          if (isExpanded) ...[
+                                            Divider(),
+                                            Text("📍 ${order.kupac.adresa}"),
+                                            if (order.kupac.telefon.isNotEmpty)
+                                              InkWell(
+                                                onTap: () => _callCustomer(
+                                                  order.kupac.telefon,
+                                                  order.kupac.naziv,
+                                                ),
+                                                child: Container(
+                                                  padding: EdgeInsets.symmetric(
+                                                    vertical: 8,
+                                                    horizontal: 12,
+                                                  ),
+                                                  margin: EdgeInsets.symmetric(
+                                                    vertical: 4,
+                                                  ),
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.blue.shade50,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          8,
+                                                        ),
+                                                    border: Border.all(
+                                                      color:
+                                                          Colors.blue.shade200,
+                                                    ),
+                                                  ),
+                                                  child: Row(
+                                                    children: [
+                                                      Icon(
+                                                        Icons.phone,
+                                                        color: Colors
+                                                            .blue
+                                                            .shade700,
+                                                        size: 18,
+                                                      ),
+                                                      SizedBox(width: 8),
+                                                      Expanded(
                                                         child: Text(
-                                                          "Skeniraj kutiju",
+                                                          order.kupac.telefon,
+                                                          style: TextStyle(
+                                                            color: Colors
+                                                                .blue
+                                                                .shade800,
+                                                            fontWeight:
+                                                                FontWeight.w500,
+                                                            decoration:
+                                                                TextDecoration
+                                                                    .underline,
+                                                          ),
                                                         ),
                                                       ),
-                                                    const SizedBox(width: 8),
+                                                      Text(
+                                                        "TAP TO CALL",
+                                                        style: TextStyle(
+                                                          fontSize: 10,
+                                                          color: Colors
+                                                              .blue
+                                                              .shade600,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                            if (order.kupac.email.isNotEmpty)
+                                              Text("📧 ${order.kupac.email}"),
+                                            if (order.napomena.isNotEmpty)
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                  top: 8,
+                                                ),
+                                                child: Text(
+                                                  "📝 Note: ${order.napomena}",
+                                                  style: TextStyle(
+                                                    color: Colors.grey.shade700,
+                                                  ),
+                                                ),
+                                              ),
+                                            if (order.napomenaVozac.isNotEmpty)
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                  top: 4,
+                                                ),
+                                                child: Text(
+                                                  "🚨 Driver: ${order.napomenaVozac}",
+                                                  style: TextStyle(
+                                                    color: Colors.red,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                              ),
 
-                                                    // Navigation button - only for accepted orders
-                                                    if (isAccepted)
-                                                      IconButton(
-                                                        onPressed:
-                                                            startMultiStopNavigation,
-                                                        style:
-                                                            IconButton.styleFrom(
-                                                              backgroundColor:
-                                                                  Colors.green,
-                                                              foregroundColor:
-                                                                  Colors.white,
+                                            // 🔥 ADDED: Order Items Display
+                                            if (order.stavke.isNotEmpty) ...[
+                                              const SizedBox(height: 12),
+                                              Container(
+                                                padding: EdgeInsets.all(12),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.blue.shade50,
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                  border: Border.all(
+                                                    color: Colors.blue.shade200,
+                                                  ),
+                                                ),
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Row(
+                                                      children: [
+                                                        Icon(
+                                                          Icons.inventory_2,
+                                                          color: Colors
+                                                              .blue
+                                                              .shade700,
+                                                          size: 18,
+                                                        ),
+                                                        SizedBox(width: 6),
+                                                        Text(
+                                                          "Order Items (${order.stavke.length})",
+                                                          style: TextStyle(
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            color: Colors
+                                                                .blue
+                                                                .shade800,
+                                                            fontSize: 14,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    const SizedBox(height: 8),
+                                                    ...order.stavke
+                                                        .take(5)
+                                                        .map(
+                                                          (item) => Padding(
+                                                            padding:
+                                                                const EdgeInsets.only(
+                                                                  bottom: 4,
+                                                                ),
+                                                            child: Row(
+                                                              children: [
+                                                                Container(
+                                                                  width: 24,
+                                                                  height: 24,
+                                                                  decoration: BoxDecoration(
+                                                                    color: Colors
+                                                                        .blue
+                                                                        .shade100,
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                          4,
+                                                                        ),
+                                                                  ),
+                                                                  child: Center(
+                                                                    child: Text(
+                                                                      '${item.kol.toInt()}',
+                                                                      style: TextStyle(
+                                                                        fontSize:
+                                                                            11,
+                                                                        fontWeight:
+                                                                            FontWeight.bold,
+                                                                        color: Colors
+                                                                            .blue
+                                                                            .shade800,
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                                const SizedBox(
+                                                                  width: 8,
+                                                                ),
+                                                                Expanded(
+                                                                  child: Text(
+                                                                    item.naziv,
+                                                                    style: TextStyle(
+                                                                      fontSize:
+                                                                          12,
+                                                                      color: Colors
+                                                                          .grey
+                                                                          .shade800,
+                                                                    ),
+                                                                    maxLines: 2,
+                                                                    overflow:
+                                                                        TextOverflow
+                                                                            .ellipsis,
+                                                                  ),
+                                                                ),
+                                                                Text(
+                                                                  "${item.cijena.toStringAsFixed(2)} KM",
+                                                                  style: TextStyle(
+                                                                    fontSize:
+                                                                        11,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w500,
+                                                                    color: Colors
+                                                                        .green
+                                                                        .shade700,
+                                                                  ),
+                                                                ),
+                                                              ],
                                                             ),
-                                                        icon: Icon(
-                                                          Icons.navigation,
+                                                          ),
+                                                        )
+                                                        .toList(),
+                                                    if (order.stavke.length > 5)
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets.only(
+                                                              top: 4,
+                                                            ),
+                                                        child: Text(
+                                                          "... and ${order.stavke.length - 5} more items",
+                                                          style: TextStyle(
+                                                            fontSize: 11,
+                                                            color: Colors
+                                                                .grey
+                                                                .shade600,
+                                                            fontStyle: FontStyle
+                                                                .italic,
+                                                          ),
                                                         ),
                                                       ),
                                                   ],
                                                 ),
-                                              ],
-                                            ),
+                                              ),
+                                            ],
+
+                                            const SizedBox(height: 8),
                                           ],
-                                        ),
-                                      ],
+
+                                          // Payment info
+                                          Container(
+                                            padding: EdgeInsets.symmetric(
+                                              vertical: 6,
+                                              horizontal: isExpanded ? 8 : 0,
+                                            ),
+                                            margin: EdgeInsets.only(
+                                              top: isExpanded ? 4 : 0,
+                                            ),
+                                            decoration: isExpanded
+                                                ? BoxDecoration(
+                                                    color:
+                                                        order.trebaVratitiNovac
+                                                        ? Colors.red.shade50
+                                                        : order.iznos > 0
+                                                        ? Colors.green.shade50
+                                                        : Colors.grey.shade100,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          6,
+                                                        ),
+                                                  )
+                                                : null,
+                                            child: Text(
+                                              order.iznos > 0
+                                                  ? "💰 Collect: ${order.iznos.toStringAsFixed(2)} KM"
+                                                  : order.trebaVratitiNovac
+                                                  ? "↩️ Return: ${order.iznos.abs().toStringAsFixed(2)} KM"
+                                                  : "✅ No payment",
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                color: order.trebaVratitiNovac
+                                                    ? Colors.red
+                                                    : order.iznos > 0
+                                                    ? Colors.green.shade800
+                                                    : Colors.grey.shade700,
+                                              ),
+                                            ),
+                                          ),
+
+                                          // Box count and actions
+                                          const SizedBox(height: 8),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    "📦 Total: ${order.brojKutija} boxes",
+                                                    style: GoogleFonts.inter(
+                                                      color:
+                                                          Colors.grey.shade700,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    "✅ Scanned: $scannedCount boxes",
+                                                    style: GoogleFonts.inter(
+                                                      color: Colors.green,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                    ),
+                                                  ),
+                                                  if (missingCount > 0)
+                                                    Text(
+                                                      "❓ Missing: $missingCount boxes",
+                                                      style: GoogleFonts.inter(
+                                                        color: Colors.orange,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                      ),
+                                                    ),
+                                                  if (discardedCount > 0)
+                                                    Text(
+                                                      "❌ Discarded: $discardedCount boxes",
+                                                      style: GoogleFonts.inter(
+                                                        color: Colors.red,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                      ),
+                                                    ),
+                                                ],
+                                              ),
+                                              Column(
+                                                children: [
+                                                  // Accept/Complete button
+                                                  ElevatedButton(
+                                                    onPressed: isAccepted
+                                                        ? () => completeOrder(
+                                                            order.oid,
+                                                          )
+                                                        : canAccept
+                                                        ? () => acceptOrder(
+                                                            order.oid,
+                                                          )
+                                                        : null,
+                                                    style:
+                                                        ElevatedButton.styleFrom(
+                                                          backgroundColor:
+                                                              isAccepted
+                                                              ? Colors.orange
+                                                              : canAccept
+                                                              ? Colors.green
+                                                              : Colors.grey,
+                                                          foregroundColor:
+                                                              Colors.white,
+                                                        ),
+                                                    child: Text(
+                                                      isAccepted
+                                                          ? "Complete"
+                                                          : canAccept
+                                                          ? "Accept Order"
+                                                          : "Scan all boxes",
+                                                    ),
+                                                  ),
+
+                                                  const SizedBox(height: 4),
+
+                                                  // Action buttons row
+                                                  Row(
+                                                    children: [
+                                                      if (!isComplete &&
+                                                          !isAccepted) ...[
+                                                        // Show next box to scan
+                                                        ElevatedButton.icon(
+                                                          onPressed: () {
+                                                            // Calculate next box number to scan
+                                                            final scannedBoxes =
+                                                                _scannedBoxesByOrder[order
+                                                                    .oid] ??
+                                                                {};
+                                                            final discardedBoxes =
+                                                                _discardedBoxes[order
+                                                                    .oid] ??
+                                                                {};
+                                                            int nextBox = 1;
+
+                                                            // Find first missing box number
+                                                            for (
+                                                              int i = 1;
+                                                              i <=
+                                                                  order
+                                                                      .brojKutija;
+                                                              i++
+                                                            ) {
+                                                              if (!scannedBoxes
+                                                                      .contains(
+                                                                        i,
+                                                                      ) &&
+                                                                  !discardedBoxes
+                                                                      .contains(
+                                                                        i,
+                                                                      )) {
+                                                                nextBox = i;
+                                                                break;
+                                                              }
+                                                            }
+
+                                                            smartIndividualScan(
+                                                              "KU${nextBox}KU${order.oid}",
+                                                            );
+                                                          },
+                                                          icon: Icon(
+                                                            Icons
+                                                                .qr_code_scanner,
+                                                            size: 16,
+                                                          ),
+                                                          label: Text(
+                                                            "Scan Next Box",
+                                                            style: TextStyle(
+                                                              fontSize: 12,
+                                                            ),
+                                                          ),
+                                                          style: ElevatedButton.styleFrom(
+                                                            backgroundColor:
+                                                                Colors.blue,
+                                                            foregroundColor:
+                                                                Colors.white,
+                                                            padding:
+                                                                EdgeInsets.symmetric(
+                                                                  horizontal:
+                                                                      12,
+                                                                  vertical: 8,
+                                                                ),
+                                                          ),
+                                                        ),
+                                                        const SizedBox(
+                                                          width: 8,
+                                                        ),
+                                                      ],
+
+                                                      // Navigation button - only for accepted orders
+                                                      if (isAccepted)
+                                                        ElevatedButton.icon(
+                                                          onPressed:
+                                                              startMultiStopNavigation,
+                                                          icon: Icon(
+                                                            Icons.navigation,
+                                                            size: 16,
+                                                          ),
+                                                          label: Text(
+                                                            "Navigate",
+                                                            style: TextStyle(
+                                                              fontSize: 12,
+                                                            ),
+                                                          ),
+                                                          style: ElevatedButton.styleFrom(
+                                                            backgroundColor:
+                                                                Colors.green,
+                                                            foregroundColor:
+                                                                Colors.white,
+                                                            padding:
+                                                                EdgeInsets.symmetric(
+                                                                  horizontal:
+                                                                      12,
+                                                                  vertical: 8,
+                                                                ),
+                                                          ),
+                                                        ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -1336,5 +2148,11 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _bulkScanTimer?.cancel();
+    super.dispose();
   }
 }

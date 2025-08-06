@@ -1,11 +1,14 @@
 import 'dart:convert';
 import 'package:digitalisapp/core/utils/session_manager.dart';
+import 'package:digitalisapp/models/user_model.dart';
 import 'package:digitalisapp/services/offline_services.dart';
 import 'package:http/http.dart' as http;
 import 'package:connectivity_plus/connectivity_plus.dart';
 
 class DriverApiService {
-  static const String baseUrl = "http://10.0.2.2/appinternal/api";
+  static const String baseUrl =
+      //"https://www.digitalis.ba/webshop/appinternal/api";
+      "http://10.0.2.2/appinternal/api";
   // Add these methods to your existing driver_api_service.dart
 
   // Accept order and start tracking
@@ -17,11 +20,42 @@ class DriverApiService {
   }
 
   // Complete order
+  // Replace your existing completeOrder method with this:
   static Future<Map<String, dynamic>> completeOrder(int orderId) async {
-    return await post('driver_confirm_order.php', {
-      'oid': orderId.toString(),
-      'action': 'complete',
-    });
+    print('🔍 DEBUG: completeOrder called with orderId: $orderId');
+
+    try {
+      // Get session data using the existing SessionManager
+      final SessionManager sessionManager = SessionManager();
+      final userData = await sessionManager.getUser();
+
+      print('🔍 DEBUG: userData: $userData');
+
+      if (userData == null) {
+        print('🔍 DEBUG: No user data found');
+        return {'success': 0, 'message': 'User session not found.'};
+      }
+
+      // 🔥 FIXED: Use the existing post method with proper data structure
+      final requestData = {
+        'oid': orderId.toString(), // Convert to string for consistency
+        'action': 'complete',
+        // Authentication data will be added automatically by the post() method
+      };
+
+      print('🔍 DEBUG: Calling post method with data: $requestData');
+
+      // 🔥 FIXED: Use the existing post() method that handles authentication
+      final response = await post('driver_confirm_order.php', requestData);
+
+      print('🔍 DEBUG: Complete response: $response');
+
+      // Return the response as-is since post() already handles JSON parsing
+      return response;
+    } catch (e) {
+      print('🔍 DEBUG: Exception in completeOrder: $e');
+      return {'success': 0, 'message': 'Network error: ${e.toString()}'};
+    }
   }
 
   // Check for box conflicts
@@ -89,9 +123,11 @@ class DriverApiService {
       final response = await http.post(
         url,
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        }, // Changed this
-        body: data, // Changed to send as form data, not JSON
+          'Content-Type':
+              'application/json', // 🔥 CRUCIAL: Set JSON content type
+          'Accept': 'application/json',
+        },
+        body: jsonEncode(data), // Changed to send as JSON
       );
 
       print('Response from $endpoint: ${response.body}');
@@ -150,6 +186,45 @@ class DriverApiService {
 
   static Future<Map<String, dynamic>> scanBox(String code, int oid) async {
     return await post('driver_scan_box.php', {'code': code, 'oid': oid});
+  }
+
+  // Replace your existing cancelOrder method in DriverApiService with this:
+
+  static Future<Map<String, dynamic>> cancelOrder(int orderId) async {
+    print('🔍 DEBUG: cancelOrder called with orderId: $orderId');
+
+    try {
+      // Get session data using the existing SessionManager
+      final SessionManager sessionManager = SessionManager();
+      final userData = await sessionManager.getUser();
+
+      print('🔍 DEBUG: userData: $userData');
+
+      if (userData == null) {
+        print('🔍 DEBUG: No user data found');
+        return {'success': 0, 'message': 'User session not found.'};
+      }
+
+      // 🔥 FIXED: Use the existing post method with proper data structure
+      final requestData = {
+        'oid': orderId.toString(), // Convert to string for consistency
+        'action': 'cancel',
+        // Authentication data will be added automatically by the post() method
+      };
+
+      print('🔍 DEBUG: Calling post method with data: $requestData');
+
+      // 🔥 FIXED: Use the existing post() method that handles authentication
+      final response = await post('driver_confirm_order.php', requestData);
+
+      print('🔍 DEBUG: Cancel response: $response');
+
+      // Return the response as-is since post() already handles JSON parsing
+      return response;
+    } catch (e) {
+      print('🔍 DEBUG: Exception in cancelOrder: $e');
+      return {'success': 0, 'message': 'Network error: ${e.toString()}'};
+    }
   }
 
   static Future<Map<String, dynamic>> confirmDelivery(int oid) async {

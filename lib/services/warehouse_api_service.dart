@@ -5,7 +5,9 @@ import '../models/product.dart';
 
 class WarehouseApiService {
   //final String baseUrl; // e.g. "https://10.0.2.2/appinternal/"
-  static const String baseUrl = "http://10.0.2.2/appinternal/api/";
+  static const String baseUrl =
+      //"https://www.digitalis.ba/webshop/appinternal/api/";
+      "http://10.0.2.2/appinternal/api/";
   WarehouseApiService();
   Future<Shelf?> createShelf(String name) async {
     final url = Uri.parse('$baseUrl/add_shelf.php');

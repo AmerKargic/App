@@ -3,7 +3,9 @@ import 'package:digitalisapp/core/utils/session_manager.dart';
 import 'package:http/http.dart' as http;
 
 class AnalyticsApiService {
-  static const String baseUrl = "http://10.0.2.2/appinternal/api";
+  static const String baseUrl =
+      //  "https://www.digitalis.ba/webshop/appinternal/api";
+      "http://10.0.2.2/appinternal/api";
 
   /// Get real-time dashboard statistics
   Future<Map<String, dynamic>> getRealtimeStats() async {

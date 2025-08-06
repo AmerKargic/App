@@ -27,6 +27,7 @@ class SessionManager {
 
       final response = await http.post(
         Uri.parse(
+          // 'https://www.digitalis.ba/webshop/appinternal/api/analytics/realtime_stats.php',
           'http://10.0.2.2/appinternal/api/analytics/realtime_stats.php',
         ),
         headers: {'Content-Type': 'application/json'},
@@ -72,7 +73,8 @@ Future<bool> isLoggedIn() async {
   try {
     final response = await http.post(
       Uri.parse(
-        "https://10.0.2.2/appinternal/api/check_session.php",
+        // "https://www.digitalis.ba/webshop/appinternal/api/check_session.php",
+        "http://10.0.2.2/appinternal/api/check_session.php",
       ), // <-- update to real URL
       body: {
         "kup_id": user["kup_id"].toString(),

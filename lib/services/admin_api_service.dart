@@ -2,7 +2,9 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class AdminApiService {
-  static const String baseUrl = 'http://10.0.2.2/appinternal/api/';
+  static const String baseUrl =
+      //'https://www.digitalis.ba/webshop/appinternal/api/';
+      'http://10.0.2.2/appinternal/api/';
 
   /// Fetch combined data for the admin dashboard
   Future<List<Map<String, dynamic>>> fetchAdminDashboardData() async {

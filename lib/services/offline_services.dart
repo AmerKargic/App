@@ -405,6 +405,11 @@ class OfflineService extends ChangeNotifier {
   Future<void> syncLocations(
     List<Map<String, dynamic>> unsyncedLocations,
   ) async {
+    print(' syncLocations CALLED FROM:');
+    print(StackTrace.current.toString().split('\n').take(15).join('\n'));
+    print('🔥🔥🔥 END STACK TRACE');
+    print('🔄 syncLocations called with ${unsyncedLocations.length} locations');
+
     print('🔄 syncLocations called with ${unsyncedLocations.length} locations');
 
     final session = SessionManager();
@@ -426,11 +431,14 @@ class OfflineService extends ChangeNotifier {
       final requestBody = jsonEncode(data);
       print('📦 Request bwdy: $requestBody'); // Log the request body
       print(
-        '📤 Sending request to: https://10.0.2.2/appinternal/api/save_location.php',
+        '📤 Sending request to: https://www.digitalis.ba/webshop/appinternal/api/save_location.php',
       );
 
       final response = await http.post(
-        Uri.parse('http://10.0.2.2/appinternal/api/save_location.php'),
+        Uri.parse(
+          // 'https://www.digitalis.ba/webshop/appinternal/api/save_location.php',
+          'http://10.0.2.2/appinternal/api/save_location.php',
+        ),
         headers: {'Content-Type': 'application/json'},
         body: requestBody,
       );
@@ -655,7 +663,9 @@ class OfflineService extends ChangeNotifier {
       }).toList();
 
       print('📤 Sending ${logsForSync.length} logs to server');
-      print('📍 Server URL: http://10.0.2.2/appinternal/api/sync_logs.php');
+      print(
+        '📍 Server URL: https://www.digitalis.ba/webshop/appinternal/api/sync_logs.php',
+      );
 
       final requestBody = jsonEncode({
         'kup_id': user['kup_id'].toString(),
@@ -671,7 +681,10 @@ class OfflineService extends ChangeNotifier {
 
       // Send to server
       final response = await http.post(
-        Uri.parse('http://10.0.2.2/appinternal/api/sync_logs.php'),
+        Uri.parse(
+          // 'https://www.digitalis.ba/webshop/appinternal/api/sync_logs.php',
+          'http://10.0.2.2/appinternal/api/sync_logs.php',
+        ),
         headers: {'Content-Type': 'application/json'},
         body: requestBody,
       );
@@ -789,7 +802,10 @@ class OfflineService extends ChangeNotifier {
       // Send to server - use driver_scan_box.php endpoint
       for (final box in boxesForSync) {
         final response = await http.post(
-          Uri.parse('http://10.0.2.2/appinternal/api/driver_scan_box.php'),
+          Uri.parse(
+            //  'https://www.digitalis.ba/webshop/appinternal/api/driver_scan_box.php',
+            'http://10.0.2.2/appinternal/api/driver_scan_box.php',
+          ),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({
             'code': box['box_barcode'],
@@ -827,7 +843,10 @@ class OfflineService extends ChangeNotifier {
       final labels = await db.query('shelf_labels', where: 'synced = 0');
       for (final label in labels) {
         final response = await http.post(
-          Uri.parse('http://10.0.2.2/appinternal/api/add_shelf.php'),
+          Uri.parse(
+            // 'https://www.digitalis.ba/webshop/appinternal/api/add_shelf.php',
+            'http://10.0.2.2/appinternal/api/add_shelf.php',
+          ),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({
             'shelf_name': label['name'].toString(),
@@ -856,6 +875,7 @@ class OfflineService extends ChangeNotifier {
       for (final product in products) {
         final response = await http.post(
           Uri.parse(
+            //'https://www.digitalis.ba/webshop/appinternal/api/add_products_to_shelf.php',
             'http://10.0.2.2/appinternal/api/add_products_to_shelf.php',
           ),
           headers: {'Content-Type': 'application/json'},
@@ -893,7 +913,10 @@ class OfflineService extends ChangeNotifier {
 
       for (final change in changes) {
         final response = await http.post(
-          Uri.parse('http://10.0.2.2/appinternal/api/save_wishstock.php'),
+          Uri.parse(
+            // 'https://www.digitalis.ba/webshop/appinternal/api/save_wishstock.php',
+            'http://10.0.2.2/appinternal/api/save_wishstock.php',
+          ),
           body: {
             'aid': change['aid'].toString(),
             'kup_id': change['kup_id'].toString(),
@@ -1082,7 +1105,10 @@ class OfflineService extends ChangeNotifier {
 
       // Send to server
       final response = await http.post(
-        Uri.parse('http://10.0.2.2/appinternal/api/sync_boxes.php'),
+        Uri.parse(
+          //'https://www.digitalis.ba/webshop/appinternal/api/sync_boxes.php',
+          'http://10.0.2.2/appinternal/api/sync_boxes.php',
+        ),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'kup_id': user['kup_id'].toString(),

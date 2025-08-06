@@ -18,8 +18,9 @@ import 'services/warehouse_api_service.dart';
 import 'services/offline_services.dart'; // Add this import
 
 // Set your API base URL here:
-const String warehouseApiBaseUrl = "https://10.0.2.2/appinternal/api/";
-
+const String warehouseApiBaseUrl =
+    //"https://www.digitalis.ba/webshop/appinternal/api/";
+    "http://10.0.2.2/appinternal/api/";
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
