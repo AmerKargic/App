@@ -1,11 +1,13 @@
 // import 'dart:async';
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:digitalisapp/features/dashboard/screens/driver_dashboard.dart';
 import 'package:digitalisapp/features/dashboard/screens/warehouse_dashboard.dart';
 import 'package:digitalisapp/features/scanner/warehouse_scanner_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'app_theme.dart';
 import 'core/utils/session_manager.dart';
@@ -17,10 +19,22 @@ import 'features/scanner/warehouse_scanner_screen.dart';
 import 'services/warehouse_api_service.dart';
 import 'services/offline_services.dart'; // Add this import
 
+// 🔥 GLOBALNI EVENT STREAM
+class ForceLogoutEvent {}
+
+final StreamController<ForceLogoutEvent> _forceLogoutController =
+    StreamController<ForceLogoutEvent>.broadcast();
+
+Stream<ForceLogoutEvent> get forceLogoutStream => _forceLogoutController.stream;
+
+void triggerForceLogout() {
+  _forceLogoutController.add(ForceLogoutEvent());
+}
+
 // Set your API base URL here:
 const String warehouseApiBaseUrl =
-    //"https://www.digitalis.ba/webshop/appinternal/api/";
-    "http://10.0.2.2/appinternal/api/";
+    "https://www.digitalis.ba/webshop/appinternal/api/";
+//"http://10.0.2.2/webshop/appinternal/api/";
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 

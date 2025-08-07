@@ -7,8 +7,8 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 
 class DriverApiService {
   static const String baseUrl =
-      //"https://www.digitalis.ba/webshop/appinternal/api";
-      "http://10.0.2.2/appinternal/api";
+      "https://www.digitalis.ba/webshop/appinternal/api";
+  // "http://10.0.2.2/webshop/appinternal/api";
   // Add these methods to your existing driver_api_service.dart
 
   // Accept order and start tracking

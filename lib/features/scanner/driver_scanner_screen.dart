@@ -122,8 +122,8 @@ class _VozacScannerScreenState extends State<VozacScannerScreen> {
       // Real API call to your backend
       final response = await http.post(
         Uri.parse(
-          //'https://www.digitalis.ba/webshop/appinternal/api/driver_order.php',
-          'http://10.0.2.2/appinternal/api/driver_order.php',
+          'https://www.digitalis.ba/webshop/appinternal/api/driver_order.php',
+          // 'http://10.0.2.2/webshop/appinternal/api/driver_order.php',
         ),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'code': barcode}),
@@ -237,8 +237,8 @@ class _VozacScannerScreenState extends State<VozacScannerScreen> {
         // Send to server
         final response = await http.post(
           Uri.parse(
-            //'https://www.digitalis.ba/webshop/appinternal/api/driver_scan_box.php',
-            'http://10.0.2.2/appinternal/api/driver_scan_box.php',
+            'https://www.digitalis.ba/webshop/appinternal/api/driver_scan_box.php',
+            //'http://10.0.2.2/webshop/appinternal/api/driver_scan_box.php',
           ),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({'code': shipmentData['barcode']}),

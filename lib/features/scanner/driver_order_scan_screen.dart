@@ -11,6 +11,7 @@ import 'package:digitalisapp/models/offline_status_widget.dart';
 import 'package:digitalisapp/services/driver_api_service.dart';
 import 'package:digitalisapp/services/offline_services.dart';
 import 'package:digitalisapp/widgets/bulk_scanner_dialog.dart';
+import 'package:digitalisapp/widgets/phone_call_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -292,6 +293,8 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
   Future<void> _addToIndividualScan(int oid, String code) async {
     final boxNumber = _extractBoxNumber(code);
 
+    print('🔍 DEBUG: Adding box $boxNumber to order $oid'); // DEBUG
+
     // Check if already scanned
     if (_scannedBoxesByOrder[oid]?.contains(boxNumber) == true) {
       setState(() => statusMessage = "⚠️ Box $boxNumber already scanned!");
@@ -307,7 +310,20 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
       return;
     }
 
+    // 🔥 DODAJ OVU PROVJERU - možda se boxovi ne dodaju u mapu
+    if (!_scannedBoxesByOrder.containsKey(oid)) {
+      _scannedBoxesByOrder[oid] = <int>{}; // Ensure the set exists
+    }
+
+    print(
+      '🔍 DEBUG: Before scanning - scanned boxes for $oid: ${_scannedBoxesByOrder[oid]}',
+    ); // DEBUG
+
     await _processSingleBox(oid, code);
+
+    print(
+      '🔍 DEBUG: After _processSingleBox - scanned boxes for $oid: ${_scannedBoxesByOrder[oid]}',
+    ); // DEBUG
 
     final scannedCount = _scannedBoxesByOrder[oid]?.length ?? 0;
     final expectedCount = _expectedBoxCounts[oid] ?? 0;
@@ -358,8 +374,7 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
 
     Map<int, List<String>> codesByOrder = {};
     List<String> invalidCodes = [];
-    List<Map<String, dynamic>> conflictDetails =
-        []; // 🔥 NEW: Store conflict details
+    List<Map<String, dynamic>> conflictDetails = [];
 
     // Group codes by order ID and check conflicts
     for (String code in codes) {
@@ -378,7 +393,6 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
 
         if (conflictResponse['success'] == 1 &&
             conflictResponse['conflict'] == true) {
-          // 🔥 STORE DETAILED CONFLICT INFO
           conflictDetails.add({
             'code': code,
             'box_number': boxNumber,
@@ -399,11 +413,82 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
       }
     }
 
-    // Process valid codes...
+    // 🔥 PROCES VALID CODES - OVO JE NEDOSTAJALO!
     int totalProcessed = 0;
-    // ... (your existing processing code) ...
 
-    // 🔥 SHOW DETAILED CONFLICT RESULTS
+    for (int orderId in codesByOrder.keys) {
+      final orderCodes = codesByOrder[orderId]!;
+
+      print(
+        '🔍 BULK DEBUG: Processing ${orderCodes.length} codes for order $orderId',
+      );
+
+      // Check if we have this order already
+      final existingOrder = _routeManager.allStops
+          .where((stop) => stop.order.oid == orderId)
+          .firstOrNull;
+
+      if (existingOrder == null) {
+        // 🔥 NEW ORDER - fetch it first using the first code
+        print('🔍 BULK DEBUG: Fetching new order $orderId');
+
+        try {
+          final orderResponse = await DriverApiService.fetchOrder(
+            orderCodes[0],
+          );
+
+          if (orderResponse['success'] == 1 && orderResponse['order'] != null) {
+            final fetchedOrder = DriverOrder.fromJson(orderResponse['order']);
+
+            // Save order locally
+            await _offlineService.saveOrder(
+              fetchedOrder.oid,
+              orderResponse['order'],
+            );
+
+            // Initialize tracking
+            setState(() {
+              _expectedBoxCounts[orderId] = fetchedOrder.brojKutija;
+            });
+
+            // Add to route manager
+            processOrder(fetchedOrder, orderCodes[0]);
+
+            print('🔍 BULK DEBUG: Order $orderId fetched and added');
+          }
+        } catch (e) {
+          print('🔥 BULK DEBUG: Error fetching order $orderId: $e');
+          continue; // Skip this order if can't fetch
+        }
+      }
+
+      // 🔥 PROCESS ALL CODES FOR THIS ORDER
+      for (String code in orderCodes) {
+        try {
+          print('🔍 BULK DEBUG: Processing code $code for order $orderId');
+
+          final boxNumber = _extractBoxNumber(code);
+
+          // Check if already scanned
+          if (_scannedBoxesByOrder[orderId]?.contains(boxNumber) == true) {
+            print('🔍 BULK DEBUG: Box $boxNumber already scanned, skipping');
+            continue;
+          }
+
+          // 🔥 PROCESS THE BOX - OVO JE KLJUČNO!
+          await _processSingleBox(orderId, code);
+          totalProcessed++;
+
+          print(
+            '🔍 BULK DEBUG: Processed box $boxNumber for order $orderId. Total processed: $totalProcessed',
+          );
+        } catch (e) {
+          print('🔥 BULK DEBUG: Error processing code $code: $e');
+        }
+      }
+    }
+
+    // 🔥 SHOW DETAILED RESULTS
     setState(() {
       loading = false;
       statusMessage = _buildBulkScanResults(
@@ -536,13 +621,26 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
   Future<void> _processSingleBox(int oid, String code) async {
     final boxNumber = _extractBoxNumber(code);
 
+    print('🔍 DEBUG: Processing single box $boxNumber for order $oid'); // DEBUG
+
     try {
       final response = await DriverApiService.scanBox(code, oid);
 
+      print('🔍 DEBUG: Scan response: $response'); // DEBUG
+
       if (response['success'] == 1) {
+        // 🔥 ENSURE THE SET EXISTS
+        if (!_scannedBoxesByOrder.containsKey(oid)) {
+          _scannedBoxesByOrder[oid] = <int>{};
+        }
+
         // Only add if not already added
         if (!_scannedBoxesByOrder[oid]!.contains(boxNumber)) {
           _scannedBoxesByOrder[oid]!.add(boxNumber);
+
+          print(
+            '🔍 DEBUG: Added box $boxNumber to scanned list. Total: ${_scannedBoxesByOrder[oid]?.length}',
+          ); // DEBUG
 
           // Save scanned box locally
           await _offlineService.saveScannedBox(
@@ -559,13 +657,28 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
             relatedId: oid,
             extraData: {'box_number': boxNumber, 'box_code': code},
           );
+
+          // 🔥 FORCE UI UPDATE
+          setState(() {});
+        } else {
+          print(
+            '🔍 DEBUG: Box $boxNumber already exists in scanned list',
+          ); // DEBUG
         }
       } else {
-        // Handle scan failure
-        print('Failed to scan box $boxNumber: ${response['message']}');
+        print(
+          '🔥 DEBUG: Failed to scan box $boxNumber: ${response['message']}',
+        ); // DEBUG
+        setState(() {
+          statusMessage =
+              "❌ Failed to scan box $boxNumber: ${response['message']}";
+        });
       }
     } catch (e) {
-      print('Error processing box $boxNumber: $e');
+      print('🔥 DEBUG: Error processing box $boxNumber: $e'); // DEBUG
+      setState(() {
+        statusMessage = "❌ Error scanning box $boxNumber: $e";
+      });
     }
   }
 
@@ -1255,12 +1368,14 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
                       const SizedBox(width: 8),
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () => smartIndividualScan("KU1KU2355444"),
+                          onPressed: () => smartIndividualScan("KU1KU2352418"),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blue,
                           ),
                           child: Text("Test Order"),
                         ),
+
+                        //can you add one more button here?
                       ),
                     ],
                   ),
@@ -1439,7 +1554,7 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
                                                       ),
                                                     ),
                                                     Text(
-                                                      "👤 ${order.kupac.naziv}",
+                                                      "👤 ${order.broj.toString()} \n${order.kupac.naziv}",
                                                       style:
                                                           GoogleFonts.inter(),
                                                       maxLines: isExpanded
@@ -1669,71 +1784,54 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
                                           if (isExpanded) ...[
                                             Divider(),
                                             Text("📍 ${order.kupac.adresa}"),
-                                            if (order.kupac.telefon.isNotEmpty)
-                                              InkWell(
-                                                onTap: () => _callCustomer(
-                                                  order.kupac.telefon,
-                                                  order.kupac.naziv,
+                                            if (order
+                                                .kupac
+                                                .phoneNumbers
+                                                .isNotEmpty) ...[
+                                              const SizedBox(height: 8),
+                                              PhoneCallWidget(
+                                                kupac: order.kupac,
+                                              ),
+                                            ] else ...[
+                                              // Show no phone available message
+                                              Container(
+                                                padding: EdgeInsets.symmetric(
+                                                  vertical: 8,
+                                                  horizontal: 12,
                                                 ),
-                                                child: Container(
-                                                  padding: EdgeInsets.symmetric(
-                                                    vertical: 8,
-                                                    horizontal: 12,
+                                                margin: EdgeInsets.symmetric(
+                                                  vertical: 4,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.grey.shade100,
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                  border: Border.all(
+                                                    color: Colors.grey.shade300,
                                                   ),
-                                                  margin: EdgeInsets.symmetric(
-                                                    vertical: 4,
-                                                  ),
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.blue.shade50,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          8,
-                                                        ),
-                                                    border: Border.all(
-                                                      color:
-                                                          Colors.blue.shade200,
+                                                ),
+                                                child: Row(
+                                                  children: [
+                                                    Icon(
+                                                      Icons.phone_disabled,
+                                                      color: Colors.grey,
+                                                      size: 18,
                                                     ),
-                                                  ),
-                                                  child: Row(
-                                                    children: [
-                                                      Icon(
-                                                        Icons.phone,
+                                                    SizedBox(width: 8),
+                                                    Text(
+                                                      'No phone number available',
+                                                      style: TextStyle(
                                                         color: Colors
-                                                            .blue
-                                                            .shade700,
-                                                        size: 18,
+                                                            .grey
+                                                            .shade600,
+                                                        fontStyle:
+                                                            FontStyle.italic,
                                                       ),
-                                                      SizedBox(width: 8),
-                                                      Expanded(
-                                                        child: Text(
-                                                          order.kupac.telefon,
-                                                          style: TextStyle(
-                                                            color: Colors
-                                                                .blue
-                                                                .shade800,
-                                                            fontWeight:
-                                                                FontWeight.w500,
-                                                            decoration:
-                                                                TextDecoration
-                                                                    .underline,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      Text(
-                                                        "TAP TO CALL",
-                                                        style: TextStyle(
-                                                          fontSize: 10,
-                                                          color: Colors
-                                                              .blue
-                                                              .shade600,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
+                                                    ),
+                                                  ],
                                                 ),
                                               ),
+                                            ],
                                             if (order.kupac.email.isNotEmpty)
                                               Text("📧 ${order.kupac.email}"),
                                             if (order.napomena.isNotEmpty)
@@ -2067,7 +2165,7 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
 
                                                             smartIndividualScan(
                                                               "KU${nextBox}KU${order.oid}",
-                                                            );
+                                                            ); // 🔥 OVO MIJENJAJ
                                                           },
                                                           icon: Icon(
                                                             Icons

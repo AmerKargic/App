@@ -3,8 +3,8 @@ import 'package:http/http.dart' as http;
 
 class AdminApiService {
   static const String baseUrl =
-      //'https://www.digitalis.ba/webshop/appinternal/api/';
-      'http://10.0.2.2/appinternal/api/';
+      'https://www.digitalis.ba/webshop/appinternal/api/';
+  //'http://10.0.2.2/webshop/appinternal/api/';
 
   /// Fetch combined data for the admin dashboard
   Future<List<Map<String, dynamic>>> fetchAdminDashboardData() async {

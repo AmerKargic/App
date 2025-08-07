@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 class DriverOrder {
   final int oid;
   final int brojKutija;
+  final String broj;
+
   final String napomena;
   final String napomenaVozac;
   final double iznos;
@@ -11,6 +13,7 @@ class DriverOrder {
   final List<Stavka> stavke;
 
   DriverOrder({
+    required this.broj,
     required this.oid,
     required this.brojKutija,
     required this.napomena,
@@ -27,6 +30,8 @@ class DriverOrder {
 
     return DriverOrder(
       oid: json['oid'] ?? 0,
+      broj: json['broj']?.toString() ?? '',
+
       brojKutija: json['broj_kutija'] ?? 0,
       napomena: json['napomena'] ?? '',
       // Fix the field name to match API response
@@ -50,6 +55,7 @@ class DriverOrder {
   // Add a debug helper method
   Map<String, dynamic> toJson() => {
     'oid': oid,
+    'broj': broj,
     'broj_kutija': brojKutija,
     'napomena': napomena,
     'napomenaVozac': napomenaVozac,
@@ -58,6 +64,32 @@ class DriverOrder {
     'kupac': kupac.toJson(),
     'stavke': stavke.map((item) => item.toJson()).toList(),
   };
+}
+
+class PhoneNumber {
+  final String number;
+  final String type; // 'Mobitel', 'Telefon', etc.
+  final String displayText;
+
+  PhoneNumber({
+    required this.number,
+    required this.type,
+    required this.displayText,
+  });
+
+  // 🔥 Clean phone number for calling (remove spaces, dashes, etc.)
+  String get callableNumber {
+    return number.replaceAll(RegExp(r'[^\d+]'), '');
+  }
+
+  // 🔥 Check if number looks like a mobile number (starts with 06 in Bosnia)
+  bool get isMobile {
+    final cleanNum = callableNumber;
+    return cleanNum.startsWith('06') ||
+        cleanNum.startsWith('+38706') ||
+        cleanNum.startsWith('38706') ||
+        type.toLowerCase().contains('mobitel');
+  }
 }
 
 class Kupac {
@@ -110,6 +142,54 @@ class Kupac {
       mag2Id: json['mag2Id'] != null ? int.parse(json['mag2Id'].toString()) : 0,
     );
   }
+
+  List<PhoneNumber> get phoneNumbers {
+    if (telefon.isEmpty) return [];
+
+    // Split by " / " separator and clean up each number
+    final phones = telefon
+        .split(' / ')
+        .map((phone) => phone.trim())
+        .where((phone) => phone.isNotEmpty)
+        .toList();
+
+    List<PhoneNumber> phoneList = [];
+
+    for (int i = 0; i < phones.length; i++) {
+      String cleanPhone = phones[i];
+      String type = '';
+
+      // Determine phone type based on position or pattern
+      if (phones.length == 1) {
+        type = 'Telefon';
+      } else if (i == 0) {
+        // First number is usually mobile (from Mobitel1)
+        type = 'Mobitel';
+      } else {
+        // Second number is usually landline (from Telefon1)
+        type = 'Telefon';
+      }
+
+      phoneList.add(
+        PhoneNumber(
+          number: cleanPhone,
+          type: type,
+          displayText: '$type: $cleanPhone',
+        ),
+      );
+    }
+
+    return phoneList;
+  }
+
+  // 🔥 NEW: Get primary phone (first available)
+  String get primaryPhone {
+    final phones = phoneNumbers;
+    return phones.isNotEmpty ? phones.first.number : '';
+  }
+
+  // 🔥 NEW: Check if multiple phones available
+  bool get hasMultiplePhones => phoneNumbers.length > 1;
 
   Map<String, dynamic> toJson() => {
     'naziv': naziv,

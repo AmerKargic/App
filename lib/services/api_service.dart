@@ -1,10 +1,12 @@
 import 'dart:convert';
+import 'package:digitalisapp/core/utils/logout_util.dart';
 import 'package:digitalisapp/core/utils/session_manager.dart';
 import 'package:http/http.dart' as http;
+import 'package:path/path.dart';
 
 class ApiService {
-  static const String baseUrl = "http://10.0.2.2/appinternal";
-  //static const String baseUrl = "https://www.digitalis.ba/webshop/appinternal";
+  // static const String baseUrl = "http://10.0.2.2/webshop/appinternal";
+  static const String baseUrl = "https://www.digitalis.ba/webshop/appinternal";
 
   Future<Map<String, dynamic>> login(String email, String password) async {
     final url = Uri.parse('$baseUrl/api/login.php');
@@ -23,7 +25,8 @@ class ApiService {
       print("📥 [login] Raw response: ${response.body}");
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+        final data = await _handleResponse(response); // 🔥 SAMO OVO PROMIJENI
+
         print("✅ [login] Decoded JSON: $data");
         return data;
       } else {
@@ -39,6 +42,21 @@ class ApiService {
         'message': 'Greška prilikom povezivanja s API-jem: $e',
       };
     }
+  }
+
+  Future<Map<String, dynamic>> _handleResponse(http.Response response) async {
+    final responseData = jsonDecode(response.body);
+
+    // 🔥 SAMO OVA JEDNA PROVJERA
+    if (responseData['force_logout'] == true) {
+      print('🔥 Server requested logout: ${responseData['message']}');
+      await SessionManager().clearUser();
+      appLogout();
+      // Ovdje možeš dodati navigaciju na login screen ako je potrebno
+      throw Exception('Account disabled - logged out');
+    }
+
+    return responseData;
   }
 
   Future<Map<String, String>> _getSessionParams() async {

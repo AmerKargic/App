@@ -78,6 +78,7 @@ class _MultiStopNavigationScreenState extends State<MultiStopNavigationScreen>
         );
 
         final order = DriverOrder(
+          broj: '123/23$i',
           oid: 1000 + i,
           brojKutija: 1,
           napomena: "",
