@@ -45,12 +45,26 @@ class Product {
           [],
     );
   }
+  Product copyWith({List<WishStock>? wishstock}) {
+    return Product(
+      id: id,
+      ean: ean,
+      name: name,
+      brand: brand,
+      mpc: mpc,
+      mpcJednokratno: mpcJednokratno,
+      description: description,
+      image: image,
+      images: images,
+      wishstock: wishstock ?? this.wishstock,
+    );
+  }
 }
 
 class WishStock {
   final String kupId;
-  final String posId;
-  final String magId;
+  final String posId; // legacy (više se ne koristi za logiku)
+  final String magId; // aktivno polje
   final String name;
   final double stock;
   final double stockWish;
@@ -77,4 +91,6 @@ class WishStock {
       stockWishLocked: json['stock_wish_locked'] ?? "",
     );
   }
+
+  bool get isLocked => stockWishLocked == '1';
 }

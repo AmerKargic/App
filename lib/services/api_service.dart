@@ -64,7 +64,7 @@ class ApiService {
     if (user == null) return {};
     return {
       'kup_id': user['kup_id'].toString(),
-      'pos_id': user['pos_id'].toString(),
+      // 'pos_id': user['pos_id'].toString(),
       'hash1': user['hash1'],
       'hash2': user['hash2'],
     };
@@ -84,7 +84,7 @@ class ApiService {
       body: {
         'ean': barcode,
         'kup_id': kupId.toString(),
-        'pos_id': posId.toString(),
+        // 'pos_id': posId.toString(),
         'hash1': hash1,
         'hash2': hash2,
       },
@@ -100,6 +100,42 @@ class ApiService {
     }
   }
 
+  // ...existing code...
+
+  Future<Map<String, dynamic>> getProductsByMagacini({
+    List<String>? magaciniIds,
+  }) async {
+    final session = await _getSessionParams();
+
+    try {
+      // SVE VRIJEDNOSTI U BODY SU STRING!
+      final body = <String, String>{
+        'kup_id': session['kup_id']?.toString() ?? '',
+        'hash1': session['hash1']?.toString() ?? '',
+        'hash2': session['hash2']?.toString() ?? '',
+        'action': 'validate_session',
+        'magacini_ids': magaciniIds?.join(',') ?? '',
+      };
+
+      print('DEBUG: body=$body');
+
+      final url = Uri.parse('$baseUrl/api/get_product.php');
+      final resp = await http.post(url, body: body);
+
+      if (resp.statusCode == 200) {
+        final data = jsonDecode(resp.body);
+        print('🔍 [getProductsByMagacini] Response: $data');
+        return data;
+      }
+
+      return {'success': 0, 'message': 'Session validation failed'};
+    } catch (e) {
+      print('❌ [getProductsByMagacini] Error: $e');
+      return {'success': 0, 'message': 'Greška: $e'};
+    }
+  }
+
+  // ...existing code...
   //wishstock update
   Future<Map<String, dynamic>> saveWishstock({
     required int aid,
@@ -113,7 +149,7 @@ class ApiService {
         body: {
           'aid': aid.toString(),
           'kup_id': kupId.toString(),
-          'pos_id': posId.toString(),
+          'pos_id': '0',
           'stock_wish': stockWish.toString(),
         },
       );
@@ -141,7 +177,7 @@ class ApiService {
         body: {
           'aid': aid.toString(),
           'kup_id': kupId.toString(),
-          'pos_id': posId.toString(),
+          // 'pos_id': posId.toString(),
           'stock_wish_locked': locked.toString(),
         },
       );
@@ -151,6 +187,167 @@ class ApiService {
     } catch (e) {
       print('Save lock error: $e');
       return {'success': 0, 'message': 'Greška pri zaključavanju.'};
+    }
+  }
+
+  static Future<Map<String, dynamic>> getUserPermissions() async {
+    final apiService = ApiService();
+
+    try {
+      final sessionParams = await apiService._getSessionParams();
+
+      if (sessionParams.isEmpty) {
+        throw Exception('No session data');
+      }
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/api/login.php'), // 🔥 KORISTIM POSTOJEĆI login.php!
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'action': 'get_permissions', // 🔥 DODAJEM SAMO ACTION PARAMETER
+          ...sessionParams,
+        }),
+      );
+
+      print("📥 [getUserPermissions] Status: ${response.statusCode}");
+      print("📥 [getUserPermissions] Response: ${response.body}");
+
+      if (response.statusCode == 200) {
+        return await apiService._handleResponse(response);
+      } else {
+        throw Exception('HTTP ${response.statusCode}');
+      }
+    } catch (e) {
+      print("❌ [getUserPermissions] Error: $e");
+      return {'success': 0, 'message': 'Error getting permissions: $e'};
+    }
+  }
+
+  static Future<Map<String, dynamic>> getWarehouseProducts({
+    List<String>? magaciniIds,
+  }) async {
+    final apiService = ApiService();
+
+    try {
+      final sessionParams = await apiService._getSessionParams();
+
+      final response = await http.post(
+        Uri.parse(
+          '$baseUrl/api/get_product.php',
+        ), // 🔥 KORISTIM POSTOJEĆI get_product.php!
+        body: {
+          'action': 'get_warehouse_products', // 🔥 DODAJEM ACTION
+          'magacini_ids': magaciniIds?.join(',') ?? '',
+          ...sessionParams,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        throw Exception('HTTP ${response.statusCode}');
+      }
+    } catch (e) {
+      print("❌ [getWarehouseProducts] Error: $e");
+      return {
+        'success': 0,
+        'message': 'Error getting products: $e',
+        'products': [],
+      };
+    }
+  }
+
+  static Future<Map<String, dynamic>> getMagacini({
+    List<String>? magaciniIds,
+  }) async {
+    final apiService = ApiService();
+
+    try {
+      final sessionParams = await apiService._getSessionParams();
+
+      final response = await http.post(
+        Uri.parse(
+          '$baseUrl/api/get_product.php',
+        ), // 🔥 KORISTIM POSTOJEĆI get_product.php!
+        body: {
+          'action': 'get_magacini', // 🔥 DODAJEM ACTION
+          'magacini_ids': magaciniIds?.join(',') ?? '',
+          ...sessionParams,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        throw Exception('HTTP ${response.statusCode}');
+      }
+    } catch (e) {
+      print("❌ [getMagacini] Error: $e");
+      return {
+        'success': 0,
+        'message': 'Error getting magacini: $e',
+        'magacini': [],
+      };
+    }
+  }
+
+  Future<Map<String, dynamic>> getProductByAID(
+    String aid,
+    int kupId,
+    String hash1,
+    String hash2,
+  ) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/api/get_product.php'),
+      body: {
+        'aid': aid,
+        'kup_id': kupId.toString(),
+        'hash1': hash1,
+        'hash2': hash2,
+      },
+    );
+    return jsonDecode(response.body);
+  }
+
+  // 🔥 DODAJ I saveWishstock BEZ MANUAL SESSION PARAMS:
+  static Future<Map<String, dynamic>> saveWishstockNew({
+    required int aid,
+    required double stockWish,
+    required String magacinId,
+  }) async {
+    final apiService = ApiService();
+
+    try {
+      final sessionParams = await apiService._getSessionParams();
+
+      // DEBUG: Prije slanja requesta
+      print(
+        'DEBUG [saveWishstockNew] aid=$aid, stockWish=$stockWish, magacinId=$magacinId',
+      );
+      print('DEBUG [saveWishstockNew] sessionParams=$sessionParams');
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/api/save_wishstock.php'),
+        body: {
+          'aid': aid.toString(),
+          'stock_wish': stockWish.toString(),
+          'pos_id': magacinId,
+          'kup_id': sessionParams['kup_id'] ?? '',
+          'hash1': sessionParams['hash1'] ?? '',
+
+          'hash2': sessionParams['hash2'] ?? '',
+        },
+      );
+      print('debug debug');
+      // DEBUG: Nakon odgovora servera
+      print('DEBUG [saveWishstockNew] RAW response: ${response.body}');
+
+      final data = jsonDecode(response.body);
+      print('DEBUG [saveWishstockNew] Parsed response: $data');
+      return data;
+    } catch (e) {
+      print('DEBUG [saveWishstockNew] ERROR: $e');
+      return {'success': 0, 'message': 'Greška pri komunikaciji s API-jem.'};
     }
   }
 }

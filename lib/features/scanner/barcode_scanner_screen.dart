@@ -29,7 +29,7 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen>
 
   // Debug method to simulate barcode scan
   void _debugScanBarcode() {
-    const debugBarcode = "1234567890123"; // Replace with your test barcode
+    const debugBarcode = "5999883020395"; // Replace with your test barcode
     if (controller.isLoading.isFalse) {
       HapticFeedback.mediumImpact();
       if (!mounted) return;
@@ -97,9 +97,24 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen>
       if (!mounted) return;
       setState(() => _scanned = true);
       cameraController.stop();
-      await controller.fetchProduct(barcode);
 
-      // Camera will stay paused until user taps "Scan Another"
+      String? aid;
+      // If barcode is a URL like https://www.digitalis.ba/qr/AID
+      final uri = Uri.tryParse(barcode);
+      if (uri != null &&
+          uri.pathSegments.isNotEmpty &&
+          uri.pathSegments.first == 'qr') {
+        aid = uri.pathSegments.last;
+      } else if (barcode.length < 13 && int.tryParse(barcode) != null) {
+        // fallback: treat as AID if it's a short number
+        aid = barcode;
+      }
+
+      if (aid != null) {
+        await controller.fetchProductByAID(aid);
+      } else {
+        await controller.fetchProduct(barcode);
+      }
     }
   }
 
@@ -411,6 +426,12 @@ class ProductModal extends StatelessWidget {
       // Got product: show all info in nice glass popup
       final product = controller.productInfo;
       final wishstocks = List<Map>.from(product['wishstock'] ?? []);
+      wishstocks.sort((a, b) {
+        final aEdit = controller.canEditWishstock(a);
+        final bEdit = controller.canEditWishstock(b);
+        if (aEdit == bEdit) return 0;
+        return aEdit ? -1 : 1; // editable ide gore
+      });
 
       return _ModalGlass(
         child: SingleChildScrollView(
@@ -463,73 +484,186 @@ class ProductModal extends StatelessWidget {
                 final isMine = controller.isOwnStore(w);
 
                 return Card(
+                  margin: const EdgeInsets.symmetric(vertical: 6),
                   shape: isMine
                       ? RoundedRectangleBorder(
                           side: BorderSide(
                             color: const Color.fromARGB(255, 39, 177, 69),
                             width: 2,
                           ),
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(10),
                         )
-                      : null,
-                  color: isMine ? Colors.deepPurple.shade50 : null,
-                  child: ListTile(
-                    title: Text(
-                      w['name'] ?? '',
-                      style: TextStyle(
-                        fontWeight: isMine
-                            ? FontWeight.bold
-                            : FontWeight.normal,
-                        color: Colors.black,
-                      ),
-                    ),
-                    subtitle: Column(
+                      : RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                  color: isMine ? Colors.deepPurple.shade50 : Colors.white,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(14, 10, 8, 10),
+                    child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Stanje: ${w['stock']}',
-                          style: TextStyle(color: Colors.black),
+                        // Lijevi (info + tabela)
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                w['name'] ?? '',
+                                style: TextStyle(
+                                  fontWeight: isMine
+                                      ? FontWeight.bold
+                                      : FontWeight.w600,
+                                  fontSize: 15,
+                                  color: Colors.black,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: Colors.grey.shade300,
+                                  ),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Table(
+                                  columnWidths: const {
+                                    0: FlexColumnWidth(1),
+                                    1: FlexColumnWidth(1),
+                                  },
+                                  defaultVerticalAlignment:
+                                      TableCellVerticalAlignment.middle,
+                                  children: [
+                                    TableRow(
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey.shade200,
+                                      ),
+                                      children: const [
+                                        Padding(
+                                          padding: EdgeInsets.symmetric(
+                                            vertical: 6,
+                                            horizontal: 8,
+                                          ),
+                                          child: Text(
+                                            'Stanje',
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: EdgeInsets.symmetric(
+                                            vertical: 6,
+                                            horizontal: 8,
+                                          ),
+                                          child: Text(
+                                            'Željena količina',
+                                            textAlign: TextAlign.right,
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    TableRow(
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 8,
+                                            horizontal: 8,
+                                          ),
+                                          child: Text(
+                                            '${w['stock']}',
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 8,
+                                            horizontal: 8,
+                                          ),
+                                          child: Text(
+                                            '${w['stock_wish']}',
+                                            textAlign: TextAlign.right,
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              if (w['stock_wish_locked'].toString() == '1')
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 6),
+                                  child: Row(
+                                    children: const [
+                                      Icon(
+                                        Icons.lock,
+                                        size: 14,
+                                        color: Colors.redAccent,
+                                      ),
+                                      SizedBox(width: 4),
+                                      Text(
+                                        'Zaključano',
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          color: Colors.redAccent,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                            ],
+                          ),
                         ),
-                        Text(
-                          'Željeno stanje: ${w['stock_wish']}',
-                          style: TextStyle(color: Colors.black),
-                        ),
-                      ],
-                    ),
 
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Tooltip(
-                          message: controller.level.value == 'admin'
-                              ? (w['stock_wish_locked'] == "1"
-                                    ? 'Otključaj'
-                                    : 'Zaključaj')
-                              : 'Samo admin može zaključavati',
-
-                          child: IconButton(
-                            icon: Icon(
-                              (w['stock_wish_locked'].toString() == "1")
-                                  ? Icons.lock
-                                  : Icons.lock_open,
-
-                              color: (w['stock_wish_locked'].toString() == "1")
-                                  ? Colors.red
-                                  : Colors.green,
+                        // Desni (akcije)
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Tooltip(
+                              message: controller.level.value == 'admin'
+                                  ? (w['stock_wish_locked'].toString() == "1"
+                                        ? 'Otključaj'
+                                        : 'Zaključaj')
+                                  : 'Samo admin može zaključavati',
+                              child: IconButton(
+                                icon: Icon(
+                                  (w['stock_wish_locked'].toString() == "1")
+                                      ? Icons.lock
+                                      : Icons.lock_open,
+                                  color:
+                                      (w['stock_wish_locked'].toString() == "1")
+                                      ? Colors.red
+                                      : Colors.green,
+                                ),
+                                onPressed: controller.level.value == 'admin'
+                                    ? () => controller.toggleLock(i)
+                                    : null,
+                              ),
                             ),
-
-                            onPressed: controller.level.value == 'admin'
-                                ? () => controller.toggleLock(i)
-                                : null,
-                          ),
+                            if (controller.canEditWishstock(w))
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.edit,
+                                  color: Colors.green,
+                                ),
+                                tooltip: 'Uredi željeno stanje',
+                                onPressed: () =>
+                                    _showEditDialog(context, i, w, controller),
+                              ),
+                          ],
                         ),
-                        if (controller.canEditWishstock(w))
-                          IconButton(
-                            icon: Icon(Icons.edit, color: Colors.green),
-                            tooltip: 'Uredi željeno stanje',
-                            onPressed: () =>
-                                _showEditDialog(context, i, w, controller),
-                          ),
                       ],
                     ),
                   ),
@@ -594,7 +728,7 @@ class ProductModal extends StatelessWidget {
             onPressed: () {
               final newVal =
                   double.tryParse(controllerText.text) ?? item['stock_wish'];
-              controller.updateWishstock(index, newVal);
+              controller.updateWishstock(item['mag_id'].toString(), newVal);
               Navigator.pop(context);
             },
             child: Text('Spremi'),

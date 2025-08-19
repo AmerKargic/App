@@ -185,7 +185,7 @@ class DriverApiService {
   }
 
   static Future<Map<String, dynamic>> scanBox(String code, int oid) async {
-    return await post('driver_scan_box.php', {'code': code, 'oid': oid});
+    return await post('driver_order.php', {'code': code, 'oid': oid});
   }
 
   // Replace your existing cancelOrder method in DriverApiService with this:

@@ -55,15 +55,23 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
 
   // 🔥 SMART INDIVIDUAL SCANNING WITH PREDICTION
   Future<void> smartIndividualScan(String code) async {
+    print('🔍 DEBUG: smartIndividualScan called with: "$code"'); // DEBUG
+
     RegExp regex = RegExp(r'^KU(\d+)KU(\d+)$');
     final match = regex.firstMatch(code);
+
+    print('🔍 DEBUG: Regex match result: $match'); // DEBUG
+
     if (match == null) {
-      setState(() => statusMessage = "❌ Invalid barcode format");
+      print('🔥 DEBUG: Regex failed for code: "$code"'); // DEBUG
+      setState(() => statusMessage = "❌ Invalid barcode format: $code");
       return;
     }
 
     final boxNumber = int.parse(match.group(1)!);
     final oid = int.parse(match.group(2)!);
+
+    print('🔍 DEBUG: Parsed - Box: $boxNumber, Order: $oid'); // DEBUG
 
     // 🔥 CONFLICT CHECK FIRST
     final conflictResponse = await DriverApiService.checkConflict(
@@ -95,36 +103,13 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
   }
 
   void processOrder(DriverOrder order, String firstCode) async {
+    // Only add to route manager - don't process the box here
     await _routeManager.addStop(order);
 
-    if (!_scannedBoxesByOrder.containsKey(order.oid)) {
-      _scannedBoxesByOrder[order.oid] = {};
-    }
-
-    if (!_discardedBoxes.containsKey(order.oid)) {
-      _discardedBoxes[order.oid] = {};
-    }
-
-    final boxNumber = _extractBoxNumber(firstCode);
-    if (boxNumber > 0) {
-      _scannedBoxesByOrder[order.oid]!.add(boxNumber);
-
-      // Save scanned box locally
-      await _offlineService.saveScannedBox(
-        orderId: order.oid,
-        boxNumber: boxNumber,
-        boxBarcode: firstCode,
-        products: order.stavke,
-      );
-
-      // Log activity
-      await _offlineService.logActivity(
-        typeId: OfflineService.DRIVER_SCAN,
-        description: 'Scanned box',
-        relatedId: order.oid,
-        extraData: {'box_number': boxNumber, 'box_code': firstCode},
-      );
-    }
+    // Initialize tracking maps
+    _scannedBoxesByOrder[order.oid] ??= {};
+    _discardedBoxes[order.oid] ??= {};
+    _missingBoxes[order.oid] ??= {};
 
     setState(() {});
   }
@@ -1347,35 +1332,80 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
                   // Scanning section
                   HardwareBarcodeInput(
                     hintText: "Scan package barcode...",
-                    onBarcodeScanned: smartIndividualScan,
+                    onBarcodeScanned: (code) {
+                      print('🔍 Hardware scan received: $code');
+                      smartIndividualScan(code);
+                    },
                   ),
 
                   // Scan mode buttons
-                  Row(
+                  Column(
                     children: [
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: startBulkScanMode,
-                          icon: Icon(Icons.qr_code_scanner),
-                          label: Text("🔥 BULK SCAN"),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.orange,
-                            foregroundColor: Colors.white,
-                            padding: EdgeInsets.symmetric(vertical: 12),
+                      // Prvi red - 4 dugmeta
+                      const SizedBox(height: 8),
+                      // Drugi red - 3 dugmeta
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: () =>
+                                  smartIndividualScan("KU5KU2710152"),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.pink,
+                              ),
+                              child: Text(
+                                "Box 5",
+                                style: TextStyle(fontSize: 12),
+                              ),
+                            ),
                           ),
-                        ),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: () =>
+                                  smartIndividualScan("KU6KU2710152"),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.brown,
+                              ),
+                              child: Text(
+                                "Box 6",
+                                style: TextStyle(fontSize: 12),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: () =>
+                                  smartIndividualScan("KU7KU2710152"),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.deepOrange,
+                              ),
+                              child: Text(
+                                "Box 7",
+                                style: TextStyle(fontSize: 12),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () => smartIndividualScan("KU1KU2352418"),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue,
+                      const SizedBox(height: 8),
+                      // Treći red - BULK SCAN
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              onPressed: startBulkScanMode,
+                              icon: Icon(Icons.qr_code_scanner),
+                              label: Text("🔥 BULK SCAN"),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.orange,
+                                foregroundColor: Colors.white,
+                                padding: EdgeInsets.symmetric(vertical: 12),
+                              ),
+                            ),
                           ),
-                          child: Text("Test Order"),
-                        ),
-
-                        //can you add one more button here?
+                        ],
                       ),
                     ],
                   ),
@@ -2131,7 +2161,7 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
                                                         // Show next box to scan
                                                         ElevatedButton.icon(
                                                           onPressed: () {
-                                                            // Calculate next box number to scan
+                                                            // Calculate next box number
                                                             final scannedBoxes =
                                                                 _scannedBoxesByOrder[order
                                                                     .oid] ??
@@ -2142,7 +2172,6 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
                                                                 {};
                                                             int nextBox = 1;
 
-                                                            // Find first missing box number
                                                             for (
                                                               int i = 1;
                                                               i <=
@@ -2163,13 +2192,83 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
                                                               }
                                                             }
 
-                                                            smartIndividualScan(
-                                                              "KU${nextBox}KU${order.oid}",
-                                                            ); // 🔥 OVO MIJENJAJ
+                                                            // 🔥 CAMERA SCAN umjesto direktnog poziva
+                                                            Navigator.push(
+                                                              context,
+                                                              MaterialPageRoute(
+                                                                builder: (context) => Scaffold(
+                                                                  appBar: AppBar(
+                                                                    title: Text(
+                                                                      'Scan Box #$nextBox for Order #${order.oid}',
+                                                                    ),
+                                                                    backgroundColor:
+                                                                        Colors
+                                                                            .blue,
+                                                                  ),
+                                                                  body: Column(
+                                                                    children: [
+                                                                      Container(
+                                                                        padding:
+                                                                            EdgeInsets.all(
+                                                                              16,
+                                                                            ),
+                                                                        color: Colors
+                                                                            .blue
+                                                                            .shade50,
+                                                                        child: Column(
+                                                                          children: [
+                                                                            Text(
+                                                                              'Expected Code: KU${nextBox}KU${order.oid}',
+                                                                              style: TextStyle(
+                                                                                fontSize: 16,
+                                                                                fontWeight: FontWeight.bold,
+                                                                                color: Colors.blue.shade800,
+                                                                              ),
+                                                                            ),
+                                                                            Text(
+                                                                              'Scanning box $nextBox of ${order.brojKutija}',
+                                                                              style: TextStyle(
+                                                                                color: Colors.blue.shade600,
+                                                                              ),
+                                                                            ),
+                                                                          ],
+                                                                        ),
+                                                                      ),
+                                                                      Expanded(
+                                                                        child: MobileScanner(
+                                                                          onDetect:
+                                                                              (
+                                                                                capture,
+                                                                              ) {
+                                                                                final List<
+                                                                                  Barcode
+                                                                                >
+                                                                                barcodes = capture.barcodes;
+                                                                                if (barcodes.isNotEmpty) {
+                                                                                  final String code =
+                                                                                      barcodes.first.rawValue ??
+                                                                                      '';
+                                                                                  print(
+                                                                                    '🔍 Next box camera scan: $code',
+                                                                                  );
+                                                                                  Navigator.pop(
+                                                                                    context,
+                                                                                  );
+                                                                                  smartIndividualScan(
+                                                                                    code,
+                                                                                  );
+                                                                                }
+                                                                              },
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            );
                                                           },
                                                           icon: Icon(
-                                                            Icons
-                                                                .qr_code_scanner,
+                                                            Icons.camera_alt,
                                                             size: 16,
                                                           ),
                                                           label: Text(

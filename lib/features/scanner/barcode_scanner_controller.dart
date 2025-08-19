@@ -11,7 +11,7 @@ class BarcodeScannerController extends GetxController {
   final ApiService _apiService = ApiService();
 
   int kupId = 0;
-  int posId = 0;
+  List<String> allowedMagacini = [];
   String hash1 = '';
   String hash2 = '';
   final level = ''.obs;
@@ -27,13 +27,51 @@ class BarcodeScannerController extends GetxController {
     final user = await session.getUser();
     if (user != null) {
       kupId = user['kup_id'] ?? 0;
-      posId = user['pos_id'] ?? 0; // make sure your session has this
+      // make sure your session has this
       level.value = user['level'] ?? '';
       hash1 = user['hash1'] ?? '';
       hash2 = user['hash2'] ?? '';
+      await _loadAllowedMagacini();
     }
 
     debugPrintSession();
+  }
+
+  Future<void> _loadAllowedMagacini() async {
+    print('🔍 _loadAllowedMagacini called');
+    try {
+      final response = await ApiService.getUserPermissions();
+      print('🔍 getUserPermissions response: $response');
+
+      if (response['success'] == 1 && response['data']?['options'] != null) {
+        final options = response['data']['options'];
+        print('🔍 options: $options');
+
+        if (options['PristupProknjizi'] == 1 ||
+            options['pravo_pregleda_svihmpkomercs'] == 1) {
+          allowedMagacini = [];
+          print('🔑 Full access to all magacini');
+        } else {
+          final magaciniArray =
+              options['Magacini_ID_array'] as Map<String, dynamic>?;
+          if (magaciniArray != null) {
+            allowedMagacini = magaciniArray.keys.toList();
+            print('🔒 Restricted to magacini: $allowedMagacini');
+          } else {
+            allowedMagacini = ['333', '334'];
+            print('🔒 Fallback magacini: $allowedMagacini');
+          }
+        }
+      } else {
+        print('❌ Failed to get permissions, using fallback');
+        allowedMagacini = ['333', '334'];
+      }
+    } catch (e) {
+      print('❌ Error loading magacini permissions: $e');
+      allowedMagacini = ['333', '334'];
+    }
+
+    print('🔍 Final allowedMagacini: $allowedMagacini');
   }
 
   void debugPrintSession() {
@@ -45,8 +83,28 @@ class BarcodeScannerController extends GetxController {
   }
 
   bool isOwnStore(Map item) {
-    return item['kup_id'].toString() == kupId.toString() &&
-        item['pos_id'].toString() == posId.toString();
+    final itemMagacinId = item['mag_id']?.toString();
+    final itemKupId = item['kup_id']?.toString();
+
+    print('🔍 isOwnStore check:');
+    print('  - itemKupId: $itemKupId vs myKupId: $kupId');
+    print('  - itemMagId: $itemMagacinId');
+    print('  - allowedMagacini: $allowedMagacini');
+
+    // Ako je allowedMagacini prazna lista = full access
+    if (allowedMagacini.isEmpty) {
+      print('  - Full access mode: true');
+      return true;
+    }
+
+    // 🔥 NOVA LOGIKA: PROVJERI SAMO MAGACIN, NE kup_id!
+    // Skladištar može mijenjati SVE u svojem magacinu, bez obzira na kup_id
+    final result =
+        itemMagacinId != null && allowedMagacini.contains(itemMagacinId);
+    print(
+      '  - Magacin-only mode: $result (mag_id $itemMagacinId in $allowedMagacini)',
+    );
+    return result;
   }
 
   Future<void> fetchProduct(String barcode) async {
@@ -58,7 +116,7 @@ class BarcodeScannerController extends GetxController {
       final response = await _apiService.getProductByBarcode(
         barcode,
         kupId,
-        posId,
+        0, // pos_id se ne koristi više
         hash1,
         hash2,
       );
@@ -75,12 +133,27 @@ class BarcodeScannerController extends GetxController {
   }
 
   bool canEditWishstock(Map item) {
-    if (level.value == 'admin') return true;
-    final isMine =
-        item['kup_id'].toString() == kupId.toString() &&
-        item['pos_id'].toString() == posId.toString();
+    print('🔍 canEditWishstock called for item: $item');
+    print('🔍 user level: ${level.value}');
+    print('🔍 allowedMagacini: $allowedMagacini');
+
+    if (level.value == 'admin') {
+      print('✅ Admin access granted');
+      return true;
+    }
+
+    final isMine = isOwnStore(item);
     final locked = item['stock_wish_locked'].toString() == '1';
-    return isMine && !locked;
+    final itemMagacinId = item['mag_id']?.toString(); // ✅ PROMIJENI OVO!
+
+    print('🔍 itemMag_id: $itemMagacinId'); // ✅ PROMIJENI DEBUG
+    print('🔍 isMine: $isMine');
+    print('🔍 locked: $locked');
+
+    final canEdit = isMine && !locked;
+    print(canEdit ? '✅ Can edit' : '❌ Cannot edit');
+
+    return canEdit;
   }
 
   Future<void> toggleLock(int index) async {
@@ -115,12 +188,47 @@ class BarcodeScannerController extends GetxController {
     }
   }
 
-  void updateWishstock(int index, double newVal) {
+  void updateWishstock(String magacinId, double newVal) {
     final list = List<Map>.from(productInfo['wishstock']);
-    if (list[index]['stock_wish'] != newVal) {
-      list[index]['stock_wish'] = newVal;
-      changedIndexes.add(index);
+    final realIndex = list.indexWhere(
+      (p) => p['mag_id']?.toString() == magacinId,
+    );
+
+    print(
+      'DEBUG [updateWishstockByMagId] magacinId=$magacinId, newVal=$newVal, realIndex=$realIndex',
+    );
+
+    if (realIndex != -1 && list[realIndex]['stock_wish'] != newVal) {
+      print(
+        'DEBUG [updateWishstockByMagId] Changing stock_wish from ${list[realIndex]['stock_wish']} to $newVal',
+      );
+      list[realIndex]['stock_wish'] = newVal;
+      changedIndexes.add(realIndex);
       productInfo['wishstock'] = list;
+    }
+  }
+
+  Future<void> fetchProductByAID(String aid) async {
+    isLoading.value = true;
+    error.value = '';
+    productInfo.value = {};
+
+    try {
+      final response = await _apiService.getProductByAID(
+        aid,
+        kupId,
+        hash1,
+        hash2,
+      );
+      if (response['success'] == 1 && response['data'] != null) {
+        productInfo.value = response['data'];
+      } else {
+        error.value = response['message'] ?? 'Proizvod nije pronađen.';
+      }
+    } catch (e) {
+      error.value = 'Greška: $e';
+    } finally {
+      isLoading.value = false;
     }
   }
 
@@ -131,13 +239,23 @@ class BarcodeScannerController extends GetxController {
     for (final index in changedIndexes) {
       final item = list[index];
 
-      if (!canEditWishstock(item)) continue; // prevent unintended updates
+      if (!canEditWishstock(item)) continue;
 
-      await _apiService.saveWishstock(
+      // 🔥 KORISTI mag_id UMJESTO magacin_id!
+      final magacinId = item['mag_id']?.toString(); // ✅ PROMIJENI OVO!
+      if (magacinId == null) {
+        print('⚠️ Missing mag_id for item at index $index');
+        continue;
+      }
+
+      print(
+        '🔍 Saving wishstock: aid=${productInfo['ID']}, mag_id=$magacinId, stock=${item['stock_wish']}',
+      );
+
+      await ApiService.saveWishstockNew(
         aid: int.tryParse(productInfo['ID'].toString()) ?? 0,
-        kupId: int.tryParse(item['kup_id'].toString()) ?? 0,
-        posId: int.tryParse(item['pos_id'].toString()) ?? 0,
         stockWish: double.tryParse(item['stock_wish'].toString()) ?? 0,
+        magacinId: magacinId,
       );
     }
 
