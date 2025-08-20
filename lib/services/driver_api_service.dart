@@ -10,6 +10,8 @@ class DriverApiService {
       "https://www.digitalis.ba/webshop/appinternal/api";
   // "http://10.0.2.2/webshop/appinternal/api";
   // Add these methods to your existing driver_api_service.dart
+  static const String truckApiUrl =
+      'truck_endpoint.php'; //ovdje dodati lokaciju endpointa
 
   // Accept order and start tracking
   static Future<Map<String, dynamic>> acceptOrder(int orderId) async {
@@ -229,5 +231,43 @@ class DriverApiService {
 
   static Future<Map<String, dynamic>> confirmDelivery(int oid) async {
     return await post('driver_confirm_delivery.php', {'oid': oid});
+  }
+
+  // dodavanje funkcija za skeniranje tablica
+
+  static Future<Map<String, dynamic>> getTruck(String plate) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/$truckApiUrl'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'action': 'get', 'plate': plate}),
+    );
+    return jsonDecode(response.body);
+  }
+
+  static Future<Map<String, dynamic>> takeTruck(
+    String plate,
+    int driver_id,
+    String driver_name,
+  ) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/$truckApiUrl'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'action': 'take',
+        'plate': plate,
+        'driver_id': driver_id,
+        'driver_name': driver_name,
+      }),
+    );
+    return jsonDecode(response.body);
+  }
+
+  static Future<Map<String, dynamic>> returnTruck(String plate) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/$truckApiUrl'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'action': 'return', 'plate': plate}),
+    );
+    return jsonDecode(response.body);
   }
 }

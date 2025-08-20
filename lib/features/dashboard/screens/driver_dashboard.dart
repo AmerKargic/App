@@ -198,6 +198,7 @@
 // }
 import 'dart:async';
 
+import 'package:digitalisapp/features/scanner/plates_scanner.dart';
 import 'package:digitalisapp/models/offline_status_widget.dart';
 import 'package:digitalisapp/services/offline_services.dart';
 import 'package:flutter/material.dart';
@@ -276,6 +277,25 @@ class _DriverDashboardState extends State<DriverDashboard> {
                       ),
                     ),
                   ),
+                  _buildNeumorphicButton(
+                    icon: Icons.directions_car,
+                    label: 'Skeniraj tablicu',
+                    onTap: () async {
+                      final plate = await Navigator.push<String>(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const LicensePlateScanner(),
+                        ),
+                      );
+                      if (plate != null && plate.isNotEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Skenirana tablica: $plate')),
+                        );
+                        // Ovdje možeš odmah pozvati svoj API ili prikazati podatke
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 20),
                   const SizedBox(height: 20),
                   _buildNeumorphicButton(
                     icon: Icons.assignment,

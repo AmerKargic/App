@@ -5,7 +5,7 @@ class AndroidResponse {
 private $data = [];
 private $db;
 // dodavanje funkcija za bvozaca 
-<?php
+
 public function getDriverOrder($code) {
     $response = ['success' => 0, 'message' => 'Neispravan format barkoda.'];
     
@@ -24,10 +24,7 @@ public function getDriverOrder($code) {
         return $response;
     }
 
-    // Log validated data
-    $logFile = __DIR__ . '/driver_log.txt';
-    file_put_contents($logFile, date('[Y-m-d H:i:s] ') . "Box: $boxNumber, OID: $oid, Driver: $driverId\n", FILE_APPEND);
-
+   
     try {
         // Get order data
         $orderStmt = $this->db->prepare("SELECT * FROM z_web_dok WHERE oid = ? LIMIT 1");
