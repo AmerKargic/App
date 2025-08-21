@@ -73,7 +73,7 @@ void main() async {
     debugPrint("Error initializing offline database: $e");
   }
 
-  final userData = await session.getUser();
+  final userData = await SessionManager().getUser();
 
   String initialRoute = '/';
 
@@ -89,7 +89,7 @@ void main() async {
         initialRoute = '/warehouse_dashboard';
         break;
 
-      case 'vozač':
+      case 'vozac':
         initialRoute = '/driver_dashboard';
         break;
       default:

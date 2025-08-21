@@ -134,9 +134,9 @@ Future<bool> isLoggedIn() async {
 
   try {
     final response = await http.post(
-      //  Uri.parse("http://10.0.2.2/webshop/appinternal/api/check_session.php"),
+      //  Uri.parse("http://10.0.2.2/webshop/appinternal/api/check_sesion.php"),
       Uri.parse(
-        "https://www.digitalis.ba/webshop/appinternal/api/check_session.php",
+        "https://www.digitalis.ba/webshop/appinternal/api/check_sesion.php",
       ),
 
       headers: {'Content-Type': 'application/json'}, // 🔥 DODAJ OVO

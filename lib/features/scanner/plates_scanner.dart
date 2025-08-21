@@ -359,6 +359,17 @@ class _LicensePlateScannerState extends State<LicensePlateScanner> {
                     },
                   ),
                   Positioned(
+                    top: 40,
+                    right: 20,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange,
+                      ),
+                      onPressed: () => _onHit("A12-B-234"),
+                      child: const Text("Testiraj tablicu"),
+                    ),
+                  ),
+                  Positioned(
                     bottom: 24,
                     left: 16,
                     right: 16,
