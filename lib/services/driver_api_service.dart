@@ -237,10 +237,12 @@ class DriverApiService {
 
   static Future<Map<String, dynamic>> getTruck(String plate) async {
     final response = await http.post(
-      Uri.parse('truck_endpoint.php'),
+      Uri.parse('http://10.0.2.2/webshop/appinternal/api/truck_endpoint.php'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'action': 'get', 'plate': plate}),
     );
+    print('Šaljem API-ju: $plate');
+
     return jsonDecode(response.body);
   }
 
@@ -269,5 +271,20 @@ class DriverApiService {
       body: jsonEncode({'action': 'return', 'plate': plate}),
     );
     return jsonDecode(response.body);
+  }
+
+  static Future<Map<String, dynamic>> getDocumentsByDoc(String? docId) async {
+    if (docId == null) return {'success': 0, 'message': 'Nedostaje doc_id'};
+    var id = docId.trim();
+    if (id.toLowerCase().startsWith('blag')) id = id.substring(4).trim();
+    final m = RegExp(r'(\d+)').firstMatch(id);
+    if (m != null) id = m.group(1)!;
+    final response = await post('getOrderbyBlag.php', {
+      'action': 'get_by_doc',
+      'doc_id': id,
+    });
+
+    print('🔍 getDocumentsByDoc: response: $response');
+    return response;
   }
 }

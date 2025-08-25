@@ -230,6 +230,105 @@ public function getDriverOrder($code) {
         return ['success' => 0, 'message' => 'Greška u sistemu: ' . $e->getMessage()];
     }
 }
+public function getDocumentsByDoc($docId) {
+    $docId = trim($docId);
+    if ($docId === '') {
+        return ['success' => 0, 'message' => 'Nedostaje doc_id'];
+    }
+
+    try {
+        // Glavni upit: uzmi tražena polja iz tblIzvjestajiBiH, pridruži podatke iz tblKupci i z_web_dok (po oid)
+        $sql = "
+            SELECT 
+                b.ID AS blg_id,
+                b.Dokument_ID,
+                b.Napomena AS blg_Napomena,
+                b.oid_id,
+                b.Kupac_ID,
+                k.ImeZaNarudžbe,
+                k.Mobitel1,
+                k.Telefon1,
+                k.GrupaZaIsporukuID,
+                k.OpstinaID,
+                k.Postanski_Broj,
+                k.Adresa1,
+                k.Napomena AS kupac_Napomena,
+                k.NazivPJ,
+                z.oid AS z_oid,
+                z.br_kutija AS z_br_kutija,
+                z.iznos AS z_iznos,
+                z.nap AS z_nap,
+                z.nap_vozac AS z_nap_vozac
+            FROM tblIzvjestajiBiH AS b
+            LEFT JOIN tblKupci AS k ON k.ID = b.Kupac_ID
+            LEFT JOIN z_web_dok AS z ON z.oid = b.oid_id
+            WHERE b.Dokument_ID = ?
+            ORDER BY b.ID ASC
+        ";
+
+        $stmt = $this->db->prepare($sql);
+        if (!$stmt) {
+            return ['success' => 0, 'message' => 'Database prepare error: ' . $this->db->error];
+        }
+
+        $stmt->bind_param("s", $docId);
+        if (!$stmt->execute()) {
+            return ['success' => 0, 'message' => 'Database execute error: ' . $stmt->error];
+        }
+
+        $res = $stmt->get_result();
+        $documents = [];
+
+        // Pripremi statement za stavke (ako postoji z_web_dok_art)
+      
+        // itemsStmt može biti false ako tabela drugačije zove — u tom slučaju preskoči dohvat stavki
+
+        while ($row = $res->fetch_assoc()) {
+            $oid = intval($row['oid_id'] ?? 0);
+
+            $doc = [
+                'blg_id' => intval($row['blg_id'] ?? 0),
+                'Dokument_ID' => $row['Dokument_ID'] ?? '',
+                'blg_Napomena' => $row['blg_Napomena'] ?? '',
+                'oid_id' => $oid,
+                'Kupac_ID' => intval($row['Kupac_ID'] ?? 0),
+                // kupac fields from tblKupci
+                'Kupac' => [
+                    'ImeZaNarudžbe' => $row['ImeZaNarudžbe'] ?? '',
+                    'Mobitel1' => $row['Mobitel1'] ?? '',
+                    'Telefon1' => $row['Telefon1'] ?? '',
+                    'GrupaZaIsporukuID' => $row['GrupaZaIsporukuID'] ?? '',
+                    'OpstinaID' => $row['OpstinaID'] ?? '',
+                    'Postanski_Broj' => $row['Postanski_Broj'] ?? '',
+                    'Adresa1' => $row['Adresa1'] ?? '',
+                    'Kupac_Napomena' => $row['kupac_Napomena'] ?? '',
+                    'NazivPJ' => $row['NazivPJ'] ?? ''
+                ],
+                // osnovni podaci iz z_web_dok (ako postoji)
+                
+                
+            ];
+            // Ako imamo oid i pripremljen itemsStmt, dohvatimo stavke za taj oid
+           
+
+            $documents[] = $doc;
+        }
+
+        if (empty($documents)) {
+            return ['success' => 0, 'message' => 'Nema dokumenata za dati ID'];
+        }
+
+        return ['success' => 1, 'documents' => $documents];
+
+    } catch (Exception $e) {
+        return ['success' => 0, 'message' => 'Greška: ' . $e->getMessage()];
+    }
+}
+
+
+
+
+
 
 public function scanDriverBox($code) {
     $response = ['success' => 0, 'message' => 'Neispravan format barkoda.'];

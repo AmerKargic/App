@@ -5,8 +5,8 @@ import 'package:http/http.dart' as http;
 import 'package:path/path.dart';
 
 class ApiService {
-  // static const String baseUrl = "http://10.0.2.2/webshop/appinternal";
-  static const String baseUrl = "https://www.digitalis.ba/webshop/appinternal";
+  static const String baseUrl = "http://10.0.2.2/webshop/appinternal";
+  // static const String baseUrl = "https://www.digitalis.ba/webshop/appinternal";
 
   Future<Map<String, dynamic>> login(String email, String password) async {
     final url = Uri.parse('$baseUrl/api/login.php');

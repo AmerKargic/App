@@ -1,5 +1,8 @@
 import 'dart:convert';
 import 'dart:math';
+import 'package:digitalisapp/features/dashboard/screens/driver_order_details_screen.dart';
+import 'package:digitalisapp/models/driver_order_model.dart';
+import 'package:digitalisapp/services/driver_api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -27,6 +30,7 @@ class _VozacScannerScreenState extends State<VozacScannerScreen> {
   LatLng? currentLocation;
   LatLng? destination;
   final Set<Marker> markers = {};
+  final RxList<Map<String, dynamic>> blagOrders = <Map<String, dynamic>>[].obs;
   final MobileScannerController controller = MobileScannerController(
     detectionSpeed: DetectionSpeed.normal,
     facing: CameraFacing.back,
@@ -118,13 +122,73 @@ class _VozacScannerScreenState extends State<VozacScannerScreen> {
     isLoading.value = true;
     _hasDetectedBarcode = false; // Reset for future scans
 
+    // Ako je blag dokument, koristi poseban flow
+    if (barcode.toLowerCase().startsWith('blag')) {
+      try {
+        final resp = await DriverApiService.getDocumentsByDoc(barcode);
+        if (resp['success'] == 1 && resp['documents'] != null) {
+          final docs = List<Map<String, dynamic>>.from(
+            resp['documents'] as List,
+          );
+          blagOrders.assignAll(docs);
+          // Sortiraj po udaljenosti (ako imaš lokaciju)
+          Position? pos;
+          try {
+            pos = await Geolocator.getCurrentPosition(
+              desiredAccuracy: LocationAccuracy.best,
+              timeLimit: const Duration(seconds: 7),
+            );
+          } catch (_) {
+            pos = null;
+          }
+
+          final enriched = docs.map((d) {
+            double? lat;
+            double? lng;
+            lat ??= (d['latitude'] as num?)?.toDouble();
+            lng ??= (d['longitude'] as num?)?.toDouble();
+            lat ??= (d['Kupac']?['latitude'] as num?)?.toDouble();
+            lng ??= (d['Kupac']?['longitude'] as num?)?.toDouble();
+            double distance = double.infinity;
+            if (pos != null && lat != null && lng != null) {
+              distance = Geolocator.distanceBetween(
+                pos.latitude,
+                pos.longitude,
+                lat,
+                lng,
+              );
+            }
+            return {...d, '___distance': distance};
+          }).toList();
+
+          enriched.sort(
+            (a, b) => (a['___distance'] as double).compareTo(
+              b['___distance'] as double,
+            ),
+          );
+
+          await _showBlagOrdersList(enriched);
+          isLoading.value = false;
+          return;
+        } else {
+          Get.snackbar(
+            'Greška',
+            resp['message'] ?? 'Nema narudžbi za ovaj blag dokument',
+          );
+          isLoading.value = false;
+          return;
+        }
+      } catch (e) {
+        Get.snackbar('Greška', 'Neuspješno dohvaćanje blag narudžbi: $e');
+        isLoading.value = false;
+        return;
+      }
+    }
+
+    // Standardni flow za kutije (ostaje kao do sad)
     try {
-      // Real API call to your backend
       final response = await http.post(
-        Uri.parse(
-          'https://www.digitalis.ba/webshop/appinternal/api/driver_order.php',
-          // 'http://10.0.2.2/webshop/appinternal/api/driver_order.php',
-        ),
+        Uri.parse('http://10.0.2.2/webshop/appinternal/api/driver_order.php'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'code': barcode}),
       );
@@ -163,6 +227,59 @@ class _VozacScannerScreenState extends State<VozacScannerScreen> {
     } finally {
       isLoading.value = false;
     }
+  }
+
+  // Dodaj helper na dno klase:
+  Future<void> _showBlagOrdersList(List<Map<String, dynamic>> docs) async {
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) {
+        return SafeArea(
+          child: SizedBox(
+            height: MediaQuery.of(ctx).size.height * 0.8,
+            child: ListView.builder(
+              itemCount: docs.length,
+              itemBuilder: (c, i) {
+                final d = docs[i];
+                final kup = d['Kupac'] ?? {};
+                final title =
+                    kup['ImeZaNarudžbe'] ??
+                    d['Dokument_ID']?.toString() ??
+                    'Narudžba ${i + 1}';
+                final addr = kup['Adresa1'] ?? '';
+                final dist =
+                    (d['___distance'] is double &&
+                        (d['___distance'] as double).isFinite)
+                    ? '${((d['___distance'] as double) / 1000).toStringAsFixed(2)} km'
+                    : '—';
+                return ListTile(
+                  title: Text(title),
+                  subtitle: Text('$addr • $dist'),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    // Otvori detalje narudžbe i omogući dalje skeniranje kutija
+                    final orderJson = {
+                      'oid': d['oid_id'] ?? d['z_oid'] ?? 0,
+                      'broj': d['Dokument_ID'] ?? '',
+                      'kupac': kup,
+                      'stavke': d['stavke'] ?? [],
+                    };
+                    final order = DriverOrder.fromJson(orderJson);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => DriverOrderDetailsScreen(order: order),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );
   }
 
   void _updateMap() async {
@@ -237,8 +354,8 @@ class _VozacScannerScreenState extends State<VozacScannerScreen> {
         // Send to server
         final response = await http.post(
           Uri.parse(
-            'https://www.digitalis.ba/webshop/appinternal/api/driver_scan_box.php',
-            //'http://10.0.2.2/webshop/appinternal/api/driver_scan_box.php',
+            //'https://www.digitalis.ba/webshop/appinternal/api/driver_scan_box.php',
+            'http://10.0.2.2/webshop/appinternal/api/driver_scan_box.php',
           ),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({'code': shipmentData['barcode']}),
@@ -328,11 +445,70 @@ class _VozacScannerScreenState extends State<VozacScannerScreen> {
               ],
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: ElevatedButton.icon(
+              icon: Icon(Icons.bug_report, color: Colors.white),
+              label: Text('DEBUG: blag17635'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange,
+                foregroundColor: Colors.white,
+                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              ),
+              onPressed: () async {
+                _onBarcodeScanned('blag17635');
+              },
+            ),
+          ),
+
           Expanded(
             flex: 3,
             child: Obx(() {
               if (isLoading.value)
                 return Center(child: CircularProgressIndicator());
+
+              // Prikaz blag narudžbi ako ih ima
+              if (blagOrders.isNotEmpty) {
+                return ListView.builder(
+                  padding: EdgeInsets.all(12),
+                  itemCount: blagOrders.length,
+                  itemBuilder: (context, i) {
+                    final d = blagOrders[i];
+                    final kup = d['Kupac'] ?? {};
+                    final title =
+                        kup['ImeZaNarudžbe']?.toString().isNotEmpty == true
+                        ? kup['ImeZaNarudžbe']
+                        : 'Narudžba #${d['blg_id']}';
+                    final addr = kup['Adresa1'] ?? '';
+                    final iznos = d['OrderSummary']?['iznos']?.toString() ?? '';
+                    return Card(
+                      margin: EdgeInsets.only(bottom: 12),
+                      child: ListTile(
+                        title: Text(title),
+                        subtitle: Text('$addr | Iznos: $iznos'),
+                        onTap: () {
+                          final orderJson = {
+                            'oid': d['oid_id'] ?? d['z_oid'] ?? 0,
+                            'broj': d['Dokument_ID'] ?? '',
+                            'kupac': kup,
+                            'stavke': d['stavke'] ?? [],
+                          };
+                          final order = DriverOrder.fromJson(orderJson);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  DriverOrderDetailsScreen(order: order),
+                            ),
+                          );
+                        },
+                      ),
+                    );
+                  },
+                );
+              }
+
+              // Prikaz kutije kao do sada
               if (shipmentData.isEmpty)
                 return Center(child: Text("Skenirajte barkod kutije"));
 

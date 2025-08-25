@@ -56,7 +56,23 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
   // 🔥 SMART INDIVIDUAL SCANNING WITH PREDICTION
   Future<void> smartIndividualScan(String code) async {
     print('🔍 DEBUG: smartIndividualScan called with: "$code"'); // DEBUG
-
+    if (code.toLowerCase().startsWith('blag')) {
+      final resp = await DriverApiService.getDocumentsByDoc(code);
+      if (resp['success'] == 1 && resp['documents'] != null) {
+        addOrdersFromBlag(List<Map<String, dynamic>>.from(resp['documents']));
+        setState(() {
+          statusMessage =
+              "✅ Dodano ${resp['documents'].length} narudžbi sa blag dokumenta!";
+        });
+        return;
+      } else {
+        setState(() {
+          statusMessage =
+              resp['message'] ?? "Greška pri dohvaćanju narudžbi sa blaga!";
+        });
+        return;
+      }
+    }
     RegExp regex = RegExp(r'^KU(\d+)KU(\d+)$');
     final match = regex.firstMatch(code);
 
@@ -349,6 +365,27 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
         },
       ),
     );
+  }
+
+  void addOrdersFromBlag(List<Map<String, dynamic>> docs) async {
+    for (final doc in docs) {
+      final order = DriverOrder.fromJson({
+        'oid': doc['oid_id'] ?? doc['z_oid'] ?? 0,
+        'broj': doc['Dokument_ID'] ?? '',
+        'kupac': doc['Kupac'] ?? {},
+        'stavke': doc['stavke'] ?? [],
+        'iznos': doc['OrderSummary']?['iznos'] ?? 0,
+        'broj_kutija': doc['OrderSummary']?['br_kutija'] ?? 0,
+        'napomena': doc['blg_Napomena'] ?? '',
+        'napomena_vozac': doc['OrderSummary']?['nap_vozac'] ?? '',
+      });
+      await _routeManager.addStop(order);
+      _scannedBoxesByOrder[order.oid] ??= {};
+      _discardedBoxes[order.oid] ??= {};
+      _missingBoxes[order.oid] ??= {};
+      _expectedBoxCounts[order.oid] = order.brojKutija;
+    }
+    setState(() {});
   }
 
   Future<void> _processBulkScannedCodes(List<String> codes) async {
@@ -1344,26 +1381,27 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
                       // Prvi red - 4 dugmeta
                       const SizedBox(height: 8),
                       // Drugi red - 3 dugmeta
+                      // ...existing code...
                       Row(
                         children: [
+                          // DEBUG dugme umjesto Box 5
                           Expanded(
-                            child: ElevatedButton(
-                              onPressed: () =>
-                                  smartIndividualScan("KU5KU2710152"),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.pink,
-                              ),
-                              child: Text(
-                                "Box 5",
+                            child: ElevatedButton.icon(
+                              onPressed: () => smartIndividualScan("BLAG17635"),
+                              icon: Icon(Icons.bug_report, color: Colors.white),
+                              label: Text(
+                                "DEBUG BLAG",
                                 style: TextStyle(fontSize: 12),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.black,
                               ),
                             ),
                           ),
                           const SizedBox(width: 4),
                           Expanded(
                             child: ElevatedButton(
-                              onPressed: () =>
-                                  smartIndividualScan("KU6KU2710152"),
+                              onPressed: () => smartIndividualScan("BLAG17635"),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.brown,
                               ),
@@ -1377,7 +1415,7 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
                           Expanded(
                             child: ElevatedButton(
                               onPressed: () =>
-                                  smartIndividualScan("KU7KU2710152"),
+                                  smartIndividualScan("KU1KU2709382"),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.deepOrange,
                               ),
@@ -1389,6 +1427,7 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
                           ),
                         ],
                       ),
+                      // ...existing
                       const SizedBox(height: 8),
                       // Treći red - BULK SCAN
                       Row(
@@ -1641,11 +1680,13 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
                                             ),
                                             child: FractionallySizedBox(
                                               alignment: Alignment.centerLeft,
-                                              widthFactor:
-                                                  (scannedCount +
-                                                      discardedCount +
-                                                      missingCount) /
-                                                  order.brojKutija,
+                                              widthFactor: order.brojKutija > 0
+                                                  ? ((scannedCount +
+                                                                discardedCount +
+                                                                missingCount) /
+                                                            order.brojKutija)
+                                                        .clamp(0.0, 1.0)
+                                                  : 0.0,
                                               child: Container(
                                                 decoration: BoxDecoration(
                                                   borderRadius:
