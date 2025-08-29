@@ -2,6 +2,10 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:camera/camera.dart';
+import 'package:digitalisapp/core/utils/session_manager.dart';
+import 'package:digitalisapp/features/scanner/driver_order_scan_screen.dart';
+
+import 'package:digitalisapp/services/offline_services.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'dart:typed_data';
@@ -165,6 +169,59 @@ class _LicensePlateScannerState extends State<LicensePlateScanner> {
                     : (data['message'] ?? 'Greška'),
               ),
               actions: [
+                if (data['success'] == 1)
+                  ElevatedButton.icon(
+                    icon: Icon(Icons.directions_car),
+                    label: Text("Zauzmi vozilo"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                    ),
+                    onPressed: () async {
+                      final user = await SessionManager().getUser();
+                      final driverId = user?['kup_id'] ?? 0;
+                      final driverName = user?['name'] ?? '';
+
+                      final resp = await DriverApiService.takeTruck(
+                        plate,
+                        driverId,
+                        driverName,
+                      );
+
+                      await OfflineService().logActivity(
+                        typeId: OfflineService.DRIVER_TOOK_TRUCK,
+                        description: 'Vozač zauzeo vozilo',
+                        relatedId: null,
+                        text: 'Vozač zauzeo vozilo',
+                        extraData: {
+                          'plate': plate,
+                          'driver_id': driverId,
+                          'driver_name': driverName,
+                          'server_response': resp,
+                          'timestamp': DateTime.now().toIso8601String(),
+                        },
+                      );
+
+                      if (resp['success'] == 1) {
+                        if (mounted) {
+                          // Zatvori dialog
+                          Navigator.of(context).pop();
+                          // Sačekaj frame pa pushaj novi screen
+                          await Future.delayed(Duration(milliseconds: 100));
+                          if (mounted) {
+                            Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                builder: (_) => DriverOrderScanScreen(),
+                              ),
+                            );
+                          }
+                        }
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(resp['message'] ?? 'Greška!')),
+                        );
+                      }
+                    },
+                  ),
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).pop();

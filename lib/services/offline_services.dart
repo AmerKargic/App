@@ -698,7 +698,7 @@ class OfflineService extends ChangeNotifier {
           print('🔍 Decoded response: $result');
 
           // Check success using the format your API returns (boolean false, not 0)
-          if (result['success'] == true) {
+          if (result['success'] == 1) {
             // Mark synced logs
             for (final log in logs) {
               await db.update(
@@ -714,6 +714,7 @@ class OfflineService extends ChangeNotifier {
             print(
               '❌ Server returned error: ${result['message'] ?? 'Unknown error'}',
             );
+            await _deleteSyncedLogs();
           }
         } catch (e) {
           print('❌ Error parsing response: $e');
@@ -985,9 +986,9 @@ class OfflineService extends ChangeNotifier {
   static const int WAREHOUSE_PRODUCT = 3; // ORDER_SCAN_AID
   static const int WAREHOUSE_ORDER = 5; // ORDER_SCAN
   static const int WAREHOUSE_COMPLETE = 6; // ORDER_END
-  static const int WAREHOUSE_SHELF = 12; // SHELF_CREATE
+  static const int WAREHOUSE_SHELF = 13; // SHELF_CREATE
   static const int RETAIL_WISHSTOCK = 14; // WISHSTOCK_CHANGE
-
+  static const int DRIVER_TOOK_TRUCK = 12;
   // Save box scan with products
   Future<void> saveBoxScan(BoxScan boxScan) async {
     final db = await database;
@@ -1123,8 +1124,8 @@ class OfflineService extends ChangeNotifier {
 
       if (response.statusCode == 200) {
         final result = jsonDecode(response.body);
-
-        if (result['success'] == true) {
+        print('🔍 Servsder response: $result');
+        if (result['success'] == 1) {
           // Mark boxes as synced
           for (final box in boxes) {
             await db.update(

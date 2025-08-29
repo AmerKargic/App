@@ -236,14 +236,7 @@ class DriverApiService {
   // dodavanje funkcija za skeniranje tablica
 
   static Future<Map<String, dynamic>> getTruck(String plate) async {
-    final response = await http.post(
-      Uri.parse('http://10.0.2.2/webshop/appinternal/api/truck_endpoint.php'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'action': 'get', 'plate': plate}),
-    );
-    print('Šaljem API-ju: $plate');
-
-    return jsonDecode(response.body);
+    return await post('truck_endpoint.php', {'action': 'get', 'plate': plate});
   }
 
   static Future<Map<String, dynamic>> takeTruck(
@@ -251,17 +244,12 @@ class DriverApiService {
     int driver_id,
     String driver_name,
   ) async {
-    final response = await http.post(
-      Uri.parse('truck_endpoint.php'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'action': 'take',
-        'plate': plate,
-        'driver_id': driver_id,
-        'driver_name': driver_name,
-      }),
-    );
-    return jsonDecode(response.body);
+    return await post('truck_endpoint.php', {
+      'action': 'take',
+      'plate': plate,
+      'driver_id': driver_id,
+      'driver_name': driver_name,
+    });
   }
 
   static Future<Map<String, dynamic>> returnTruck(String plate) async {

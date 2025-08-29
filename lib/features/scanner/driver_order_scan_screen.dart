@@ -88,7 +88,12 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
     final oid = int.parse(match.group(2)!);
 
     print('🔍 DEBUG: Parsed - Box: $boxNumber, Order: $oid'); // DEBUG
-
+    await _offlineService.saveScannedBox(
+      orderId: oid,
+      boxNumber: boxNumber,
+      boxBarcode: code,
+      products: [], // Add products if needed
+    );
     // 🔥 CONFLICT CHECK FIRST
     final conflictResponse = await DriverApiService.checkConflict(
       oid,
