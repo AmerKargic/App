@@ -244,12 +244,14 @@ class DriverApiService {
     int driver_id,
     String driver_name,
   ) async {
-    return await post('truck_endpoint.php', {
+    final resp = await post('truck_endpoint.php', {
       'action': 'take',
       'plate': plate,
       'driver_id': driver_id,
       'driver_name': driver_name,
     });
+    print('TAKE TRUCK RESPONSE: $resp');
+    return resp;
   }
 
   static Future<Map<String, dynamic>> returnTruck(String plate) async {

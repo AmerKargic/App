@@ -6,6 +6,7 @@ import 'package:digitalisapp/core/utils/session_manager.dart';
 import 'package:digitalisapp/features/scanner/driver_order_scan_screen.dart';
 
 import 'package:digitalisapp/services/offline_services.dart';
+import 'package:digitalisapp/widgets/fuel_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'dart:typed_data';
@@ -15,6 +16,7 @@ import 'package:google_mlkit_commons/google_mlkit_commons.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/services.dart';
 // import 'package:digitalisapp/lib/services/driver_api_service.dart'; // prilagodi putanju ako treba
+import '../../core/utils/session_manager.dart';
 import '../../services/driver_api_service.dart';
 
 class LicensePlateScanner extends StatefulWidget {
@@ -202,10 +204,44 @@ class _LicensePlateScannerState extends State<LicensePlateScanner> {
                       );
 
                       if (resp['success'] == 1) {
+                        final truckId =
+                            int.tryParse(resp['truck_id']?.toString() ?? '') ??
+                            0;
+
+                        await SessionManager().setVehicleInfo(
+                          truckId,
+                          resp['truck_plate'] ?? plate,
+                        );
+
+                        // AUTOMATSKI OTVORI FUEL DIALOG
+                        final fuelEntry =
+                            await showDialog<Map<String, dynamic>>(
+                              context: context,
+                              barrierDismissible: false,
+                              builder: (ctx) => FuelDialog(),
+                            );
+
+                        if (fuelEntry != null) {
+                          final vehicleInfo = await SessionManager()
+                              .getVehicleInfo();
+                          await OfflineService().logActivity(
+                            typeId: OfflineService.DRIVER_ADDED_FUEL,
+                            description: 'Vozač sipao gorivo',
+                            extraData: {
+                              ...fuelEntry,
+                              'vehicle_id': vehicleInfo['vehicle_id'],
+                              'vehicle_plate': vehicleInfo['vehicle_plate'],
+                            },
+                          );
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text("Sipanje goriva zabilježeno!"),
+                            ),
+                          );
+                        }
+
                         if (mounted) {
-                          // Zatvori dialog
                           Navigator.of(context).pop();
-                          // Sačekaj frame pa pushaj novi screen
                           await Future.delayed(Duration(milliseconds: 100));
                           if (mounted) {
                             Navigator.of(context).pushReplacement(
@@ -222,6 +258,7 @@ class _LicensePlateScannerState extends State<LicensePlateScanner> {
                       }
                     },
                   ),
+
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).pop();

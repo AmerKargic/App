@@ -986,9 +986,10 @@ class OfflineService extends ChangeNotifier {
   static const int WAREHOUSE_PRODUCT = 3; // ORDER_SCAN_AID
   static const int WAREHOUSE_ORDER = 5; // ORDER_SCAN
   static const int WAREHOUSE_COMPLETE = 6; // ORDER_END
-  static const int WAREHOUSE_SHELF = 13; // SHELF_CREATE
+  static const int WAREHOUSE_SHELF = 122; // SHELF_CREATE
   static const int RETAIL_WISHSTOCK = 14; // WISHSTOCK_CHANGE
   static const int DRIVER_TOOK_TRUCK = 12;
+  static const int DRIVER_ADDED_FUEL = 13;
   // Save box scan with products
   Future<void> saveBoxScan(BoxScan boxScan) async {
     final db = await database;

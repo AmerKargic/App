@@ -49,6 +49,20 @@ class SessionManager {
     return null;
   }
 
+  Future<void> setVehicleInfo(int vehicleId, String vehiclePlate) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('vehicle_id', vehicleId);
+    await prefs.setString('vehicle_plate', vehiclePlate);
+  }
+
+  Future<Map<String, dynamic>> getVehicleInfo() async {
+    final prefs = await SharedPreferences.getInstance();
+    return {
+      'vehicle_id': prefs.getInt('vehicle_id') ?? 0,
+      'vehicle_plate': prefs.getString('vehicle_plate') ?? '',
+    };
+  }
+
   // ✅ Load user data
   Future<Map<String, dynamic>?> getUser() async {
     final prefs = await SharedPreferences.getInstance();
