@@ -190,6 +190,9 @@ class DriverApiService {
     return await post('driver_order.php', {'code': code, 'oid': oid});
   }
 
+  static Future<Map<String, dynamic>> scanBoxx(String code, int oid) async {
+    return await post('driver_scan_box.php', {'code': code, 'oid': oid});
+  }
   // Replace your existing cancelOrder method in DriverApiService with this:
 
   static Future<Map<String, dynamic>> cancelOrder(int orderId) async {
@@ -276,5 +279,43 @@ class DriverApiService {
 
     print('🔍 getDocumentsByDoc: response: $response');
     return response;
+  }
+
+  static Future<Map<String, dynamic>> requestRetailApproval(int orderId) async {
+    return await post('retail_flow_endpoint.php', {
+      'action': 'request_retail_approval',
+      'oid': orderId.toString(),
+    });
+  }
+
+  static Future<Map<String, dynamic>> retailScanBox(
+    String code, {
+    int? oid,
+  }) async {
+    return await post('retail_flow_endpoint.php', {
+      'action': 'retail_scan_box',
+      if (oid != null) 'oid': oid.toString(),
+      'code': code,
+    });
+  }
+
+  static Future<Map<String, dynamic>> retailAccept(int orderId) async {
+    return await post('retail_flow_endpoint.php', {
+      'action': 'retail_accept',
+      'oid': orderId.toString(),
+    });
+  }
+
+  static Future<Map<String, dynamic>> getNotifications() async {
+    return await post('retail_flow_endpoint.php', {
+      'action': 'get_notifications',
+    });
+  }
+
+  static Future<Map<String, dynamic>> markNotificationRead(int id) async {
+    return await post('retail_flow_endpoint.php', {
+      'action': 'mark_notification_read',
+      'id': id.toString(),
+    });
   }
 }

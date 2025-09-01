@@ -1330,6 +1330,198 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
     );
   }
 
+  // ...existing code...
+  // ...existing code...
+  // ...existing code...
+  Future<String?> _openScannerAndGetCode({required int oid}) async {
+    try {
+      // Determine next unscanned box
+      final scanned = _scannedBoxesByOrder[oid] ?? <int>{};
+      final discarded = _discardedBoxes[oid] ?? <int>{};
+      final stop = _routeManager.allStops
+          .where((s) => s.order.oid == oid)
+          .firstOrNull;
+      final total = _expectedBoxCounts[oid] ?? (stop?.order.brojKutija ?? 1);
+
+      int nextBox = 1;
+      for (int i = 1; i <= total; i++) {
+        if (!scanned.contains(i) && !discarded.contains(i)) {
+          nextBox = i;
+          break;
+        }
+      }
+
+      return await Navigator.push<String>(
+        context,
+        MaterialPageRoute(
+          builder: (_) {
+            bool armed = false;
+            return StatefulBuilder(
+              builder: (ctx, setLocalState) => Scaffold(
+                appBar: AppBar(
+                  title: const Text('Potvrdite skeniranjem kutije'),
+                  backgroundColor: Colors.blue,
+                  actions: [
+                    // DEBUG: real KU{box}KU{oid} for this order
+                    TextButton(
+                      onPressed: () =>
+                          Navigator.pop(context, 'KU${nextBox}KU$oid'),
+                      child: const Text(
+                        'DEBUG auto',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                    // DEBUG: your fixed test code
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, 'KU1KU2348487'),
+                      child: const Text(
+                        'DEBUG fixed',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
+                body: Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      color: Colors.blue.shade50,
+                      width: double.infinity,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Skenirajte bilo koju kutiju ove narudžbe (#$oid)',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            armed
+                                ? 'Spreman za skeniranje…'
+                                : 'Pritisnite “Skeniraj kutiju” pa usmjerite kameru u barkod.',
+                            style: TextStyle(color: Colors.blue.shade600),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Predloženi kod: KU...',
+                            style: TextStyle(
+                              color: Colors.blue.shade800,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: MobileScanner(
+                        onDetect: (capture) {
+                          if (!armed) return;
+                          final barcodes = capture.barcodes;
+                          if (barcodes.isEmpty) return;
+                          final code = barcodes.first.rawValue ?? '';
+                          setLocalState(() => armed = false);
+                          Navigator.pop(context, code);
+                        },
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              icon: const Icon(Icons.center_focus_strong),
+                              label: const Text('Skeniraj kutiju'),
+                              onPressed: () {
+                                setLocalState(() => armed = true);
+                                ScaffoldMessenger.of(ctx).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Ciljaj kod i skeniraj...'),
+                                  ),
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          // DEBUG: same as real scan (auto code)
+                          OutlinedButton(
+                            onPressed: () =>
+                                Navigator.pop(context, 'KU${nextBox}KU$oid'),
+                            child: const Text('DEBUG auto'),
+                          ),
+                          const SizedBox(width: 8),
+                          // DEBUG: fixed test code you asked for
+                          OutlinedButton(
+                            onPressed: () =>
+                                Navigator.pop(context, 'KU1KU2348487'),
+                            child: const Text('DEBUG fixed'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+  // ...existing code...
+  // ...existing code...
+
+  // ...existing code...
+  // ...existing code...
+  Future<void> _scanBeforeComplete(int oid) async {
+    final code = await _openScannerAndGetCode(oid: oid);
+    if (!mounted || code == null || code.isEmpty) return;
+
+    // Validate KU{box}KU{oid}
+    final re = RegExp(r'^KU(\d+)KU(\d+)$', caseSensitive: false);
+    final m = re.firstMatch(code.trim());
+    if (m == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Neispravan barkod')));
+      return;
+    }
+    final scannedOid = int.tryParse(m.group(2) ?? '0') ?? 0;
+    if (scannedOid != oid) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Skenirani OID $scannedOid ne odgovara narudžbi #$oid'),
+        ),
+      );
+      return;
+    }
+
+    // Record this scan like normal
+    try {
+      final resp = await DriverApiService.scanBoxx(code, oid);
+      if (mounted && (resp['message'] is String)) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(resp['message'] as String)));
+      }
+    } catch (_) {}
+
+    await completeOrder(oid);
+  }
+  // ...existing code...
+
   @override
   Widget build(BuildContext context) {
     final allStops = _routeManager.allStops;
@@ -1420,7 +1612,7 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
                           Expanded(
                             child: ElevatedButton(
                               onPressed: () =>
-                                  smartIndividualScan("KU1KU2709382"),
+                                  smartIndividualScan("KU1KU2348487"),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.deepOrange,
                               ),
@@ -1545,6 +1737,20 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
                               final isExpanded = _expandedOrders.contains(
                                 order.oid,
                               );
+
+                              // ADD THIS: safe retail detection (works even if the model doesn't expose flags)
+                              final bool isRetailOrder = (() {
+                                try {
+                                  final dynamic d = order;
+                                  final dynamic k = order.kupac;
+                                  return d?.isMaloprodaja == true ||
+                                      k?.isMaloprodaja == true ||
+                                      d?.meta?['is_maloprodaja'] == 1 ||
+                                      d?.extra?['is_maloprodaja'] == 1;
+                                } catch (_) {
+                                  return false;
+                                }
+                              })();
 
                               return Card(
                                 margin: const EdgeInsets.only(bottom: 12),
@@ -2169,9 +2375,12 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
                                                   // Accept/Complete button
                                                   ElevatedButton(
                                                     onPressed: isAccepted
-                                                        ? () => completeOrder(
-                                                            order.oid,
-                                                          )
+                                                        ? () async {
+                                                            // Scan again before completing
+                                                            await _scanBeforeComplete(
+                                                              order.oid,
+                                                            );
+                                                          }
                                                         : canAccept
                                                         ? () => acceptOrder(
                                                             order.oid,
@@ -2197,6 +2406,44 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
                                                     ),
                                                   ),
 
+                                                  //  if (isRetailOrder &&
+                                                  //    !isAccepted) ...[
+                                                  const SizedBox(height: 6),
+                                                  ElevatedButton.icon(
+                                                    icon: const Icon(
+                                                      Icons.store,
+                                                    ),
+                                                    label: const Text(
+                                                      'Predaj maloprodaji',
+                                                    ),
+                                                    onPressed: () async {
+                                                      final resp =
+                                                          await DriverApiService.requestRetailApproval(
+                                                            order.oid,
+                                                          );
+                                                      final msg =
+                                                          resp['message'] ??
+                                                          'Zahtjev poslan';
+                                                      if (!context.mounted)
+                                                        return;
+                                                      ScaffoldMessenger.of(
+                                                        context,
+                                                      ).showSnackBar(
+                                                        SnackBar(
+                                                          content: Text(msg),
+                                                        ),
+                                                      );
+                                                    },
+                                                    style:
+                                                        ElevatedButton.styleFrom(
+                                                          backgroundColor:
+                                                              Colors.indigo,
+                                                          foregroundColor:
+                                                              Colors.white,
+                                                        ),
+                                                  ),
+
+                                                  //],
                                                   const SizedBox(height: 4),
 
                                                   // Action buttons row
