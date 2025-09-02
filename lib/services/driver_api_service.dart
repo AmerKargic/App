@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:digitalisapp/core/utils/session_manager.dart';
 import 'package:digitalisapp/models/user_model.dart';
@@ -105,16 +106,19 @@ class DriverApiService {
     String endpoint,
     Map<String, dynamic> data,
   ) async {
-    // Get session data
     final SessionManager sessionManager = SessionManager();
     final userData = await sessionManager.getUser();
-
-    // Add authentication data to every request
+    print('userData: $userData');
+    // 🔥 DODANO: Dodaj Magacini_ID_array iz sesije ako postoji
     if (userData != null) {
-      data['kup_id'] = userData['kup_id'].toString();
-      data['pos_id'] = userData['pos_id'].toString();
+      data['kup_id'] = userData['kup_id']?.toString();
+      data['pos_id'] = userData['pos_id']?.toString();
       data['hash1'] = userData['hash1'];
       data['hash2'] = userData['hash2'];
+
+      // Dodaj Magacini_ID_array iz sesije
+
+      data['Magacini_ID_array'] = userData['Magacini_ID_array'];
     }
 
     final url = Uri.parse('$baseUrl/$endpoint');
@@ -122,15 +126,18 @@ class DriverApiService {
       // Log what we're sending (for debugging)
       print('Sending to $endpoint: ${jsonEncode(data)}');
 
-      final response = await http.post(
-        url,
-        headers: {
-          'Content-Type':
-              'application/json', // 🔥 CRUCIAL: Set JSON content type
-          'Accept': 'application/json',
-        },
-        body: jsonEncode(data), // Changed to send as JSON
-      );
+      final response = await http
+          .post(
+            url,
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+            body: jsonEncode(data),
+          )
+          .timeout(
+            const Duration(seconds: 15),
+          ); // 🔥 DODANO: Timeout da ne visi loading
 
       print('Response from $endpoint: ${response.body}');
 
@@ -142,11 +149,16 @@ class DriverApiService {
           'message': 'Server error: ${response.statusCode}',
         };
       }
+    } on TimeoutException {
+      print('Timeout in $endpoint');
+      return {'success': 0, 'message': 'Request timeout'};
     } catch (e) {
       print('Error in $endpoint: $e');
       return {'success': 0, 'message': 'API error: $e'};
     }
   }
+
+  // ...existing code...
 
   static Future<bool> isOnline() async {
     final connectivityResult = await Connectivity().checkConnectivity();
@@ -307,9 +319,73 @@ class DriverApiService {
   }
 
   static Future<Map<String, dynamic>> getNotifications() async {
-    return await post('retail_flow_endpoint.php', {
-      'action': 'get_notifications',
-    });
+    final sessionManager = SessionManager();
+    final userData = await sessionManager.getUser();
+    print('userData: $userData');
+    final data = {'action': 'get_notifications'};
+
+    print(
+      'Sending toasda retail_flow_endpoint.php: ${jsonEncode(data)}',
+    ); // 🔥 ISPRAVLJENO: Typo "Zending" -> "Sending"
+    return await post('retail_flow_endpoint.php', data);
+  }
+
+  // 🔥 DODANO: Nova funkcija za pending orders
+  static Future<Map<String, dynamic>> getPendingForRetail() async {
+    final sessionManager = SessionManager();
+    final localUser = await sessionManager.getUser();
+    if (localUser == null) return {'success': 0, 'message': 'Nema usera'};
+
+    // Pozovi server da dobiješ svježe podatke
+    final response = await http.post(
+      Uri.parse("http://10.0.2.2/webshop/appinternal/api/check_sesion.php"),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        "kup_id": localUser["kup_id"].toString(),
+        "pos_id": localUser["pos_id"].toString(),
+        "hash1": localUser["hash1"], // OVO JE BITNO!
+        "hash2": localUser["hash2"], // OVO JE BITNO!
+      }),
+    );
+
+    print('check_sesion.php response: ${response.body}');
+
+    if (response.statusCode != 200) {
+      return {'success': 0, 'message': 'Greška na serveru'};
+    }
+
+    final serverResponse = jsonDecode(response.body);
+    if (serverResponse["success"] != 1 || serverResponse["data"] == null) {
+      return {'success': 0, 'message': 'Nevalidna sesija'};
+    }
+
+    final options = serverResponse["data"]["options"];
+
+    // 2. Pripremi payload za pending_for_retail
+    final data = {
+      'action': 'pending_for_retail',
+      'Magacini_ID_array': options['Magacini_ID_array'],
+      'Magacini_ID': options['Magacini_ID'],
+      'kup_id': options['kup_id'].toString(),
+      'pos_id': options['pos_id'].toString(),
+      'hash1': localUser['hash1'], // UZMI IZ SESIJE!
+      'hash2': localUser['hash2'], // UZMI IZ SESIJE!
+    };
+
+    print('Sending to retail_flow_endpoint.php: ${jsonEncode(data)}');
+    final resp = await http.post(
+      Uri.parse(
+        "http://10.0.2.2/webshop/appinternal/api/retail_flow_endpoint.php",
+      ),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(data),
+    );
+
+    print('Response from retail_flow_endpoint.php: ${resp.body}');
+    if (resp.statusCode == 200) {
+      return jsonDecode(resp.body);
+    }
+    return {'success': 0, 'message': 'Greška u povlačenju pending orders'};
   }
 
   static Future<Map<String, dynamic>> markNotificationRead(int id) async {

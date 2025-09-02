@@ -12,9 +12,9 @@ class RetailPendingOrdersScreen extends StatefulWidget {
 
 class _RetailPendingOrdersScreenState extends State<RetailPendingOrdersScreen> {
   Future<List<Map<String, dynamic>>> _load() async {
-    final resp = await DriverApiService.getNotifications();
+    final resp = await DriverApiService.getPendingForRetail();
     if (resp['success'] == 1) {
-      final list = (resp['notifications'] as List).cast<Map<String, dynamic>>();
+      final list = (resp['items'] as List).cast<Map<String, dynamic>>();
       return list;
     }
     return [];
@@ -49,20 +49,53 @@ class _RetailPendingOrdersScreenState extends State<RetailPendingOrdersScreen> {
               final n = items[i];
               final oid = _oidFromPayload(n);
               return ListTile(
-                title: Text(n['title'] ?? 'Order'),
-                subtitle: Text(n['body'] ?? ''),
-                trailing: const Icon(Icons.qr_code_scanner),
-                onTap: () async {
-                  await DriverApiService.markNotificationRead(
-                    (n['id'] as num).toInt(),
-                  );
-                  if (!context.mounted) return;
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => RetailScanAcceptScreen(oid: oid),
+                title: Text('Order ${n['oid']}'),
+                subtitle: Text(
+                  'Magacin: ${n['mag2_id']}, Kutije: ${n['br_kutija']}',
+                ),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.check_circle, color: Colors.green),
+                      tooltip: 'Odobri narudžbu',
+                      onPressed: () async {
+                        final resp = await DriverApiService.retailAccept(
+                          n['oid'],
+                        );
+                        if (!context.mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              resp['success'] == 1
+                                  ? 'Narudžba odobrena!'
+                                  : 'Greška: ${resp['message']}',
+                            ),
+                          ),
+                        );
+                        setState(() {}); // Refresh liste
+                      },
                     ),
-                  );
-                },
+                    IconButton(
+                      icon: const Icon(Icons.qr_code_scanner),
+                      tooltip: 'Skeniraj',
+                      onPressed: () async {
+                        if (n['id'] != null) {
+                          await DriverApiService.markNotificationRead(
+                            (n['id'] as num).toInt(),
+                          );
+                        }
+                        if (!context.mounted) return;
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                RetailScanAcceptScreen(oid: n['oid']),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
               );
             },
           );
