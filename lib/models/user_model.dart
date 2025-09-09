@@ -8,7 +8,7 @@ class UserModel {
   final String level;
   final String hash1;
   final String hash2;
-  final Map<String, dynamic>? magaciniIdArray; // DODAJ OVO
+  // DODAJ OVO
 
   UserModel({
     required this.kupId,
@@ -18,7 +18,7 @@ class UserModel {
     required this.level,
     required this.hash1,
     required this.hash2,
-    this.magaciniIdArray, // DODAJ OVO
+    // DODAJ OVO
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -41,15 +41,6 @@ class UserModel {
     }
 
     // DODAJ OVO
-    Map<String, dynamic>? magaciniIdArray;
-    if (json['options'] != null &&
-        json['options']['Magacini_ID_array'] != null) {
-      magaciniIdArray = Map<String, dynamic>.from(
-        json['options']['Magacini_ID_array'],
-      );
-    } else if (json['Magacini_ID_array'] != null) {
-      magaciniIdArray = Map<String, dynamic>.from(json['Magacini_ID_array']);
-    }
 
     return UserModel(
       kupId: kupId,
@@ -59,7 +50,7 @@ class UserModel {
       level: level,
       hash1: json['hash1'] ?? '',
       hash2: json['hash2'] ?? '',
-      magaciniIdArray: magaciniIdArray, // DODAJ OVO
+      // DODAJ OVO
     );
   }
 
@@ -72,7 +63,7 @@ class UserModel {
       'level': level,
       'hash1': hash1,
       'hash2': hash2,
-      'Magacini_ID_array': magaciniIdArray, // DODAJ OVO
+      // DODAJ OVO
     };
   }
 }

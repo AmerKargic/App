@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:digitalisapp/features/dashboard/screens/retail_accept_screen.dart';
+import 'package:digitalisapp/services/offline_services.dart';
 import 'package:flutter/material.dart';
 import 'package:digitalisapp/services/driver_api_service.dart';
 
@@ -29,6 +30,8 @@ class _RetailPendingOrdersScreenState extends State<RetailPendingOrdersScreen> {
       return 0;
     }
   }
+
+  final OfflineService _offlineService = OfflineService();
 
   @override
   Widget build(BuildContext context) {
@@ -63,6 +66,17 @@ class _RetailPendingOrdersScreenState extends State<RetailPendingOrdersScreen> {
                         final resp = await DriverApiService.retailAccept(
                           n['oid'],
                         );
+                        print('RAW RESPONSE retailAccept: "${resp}"');
+                        await _offlineService.logActivity(
+                          typeId: OfflineService.RETAIL_ACCEPTED,
+                          description: 'Retail order accepted',
+                          relatedId: n['oid'],
+                          extraData: {
+                            'mag2_id': n['mag2_id'],
+                            'timestamp': DateTime.now().toIso8601String(),
+                            'response': resp,
+                          },
+                        );
                         if (!context.mounted) return;
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
@@ -92,6 +106,42 @@ class _RetailPendingOrdersScreenState extends State<RetailPendingOrdersScreen> {
                                 RetailScanAcceptScreen(oid: n['oid']),
                           ),
                         );
+                      },
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.bug_report, color: Colors.red),
+                      tooltip: 'Debug scan box (retail)',
+                      onPressed: () async {
+                        final boxNumber =
+                            1; // ili izaberi broj kutije koju želiš simulirati
+                        final resp = await DriverApiService.retailScanBox(
+                          n['oid'],
+                          boxNumber,
+                        );
+                        await _offlineService.logActivity(
+                          typeId: OfflineService.RETAIL_SCANNED_BOX,
+                          description: 'Retail scan started',
+                          relatedId: n['oid'],
+                          extraData: {
+                            'mag2_id': n['mag2_id'],
+                            'timestamp': DateTime.now().toIso8601String(),
+                          },
+                        );
+                        print('Retail scan response: $resp');
+                        print(
+                          'DEBUG RETAIL SCAN: oid=${n['oid']} box=$boxNumber => $resp',
+                        );
+                        if (!context.mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              resp['success'] == 1
+                                  ? 'Retail scan successful!'
+                                  : 'Retail scan failed: ${resp['message']}',
+                            ),
+                          ),
+                        );
+                        setState(() {});
                       },
                     ),
                   ],

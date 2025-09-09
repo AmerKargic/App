@@ -76,23 +76,6 @@ class _MultiStopNavigationScreenState extends State<MultiStopNavigationScreen>
           telefon: "123456789",
           email: "",
         );
-
-        final order = DriverOrder(
-          broj: '123/23$i',
-          oid: 1000 + i,
-          brojKutija: 1,
-          napomena: "",
-          napomenaVozac: "",
-          iznos: 100.0,
-          trebaVratitiNovac: false,
-          kupac: kupac,
-          stavke: [],
-        );
-
-        routeManager.addStopWithCoordinates(
-          order,
-          LatLng(testLocations[i]["lat"]!, testLocations[i]["lng"]!),
-        );
       }
     }
 

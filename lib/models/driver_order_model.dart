@@ -11,7 +11,7 @@ class DriverOrder {
   final bool trebaVratitiNovac;
   final Kupac kupac;
   final List<Stavka> stavke;
-
+  final int isretail;
   DriverOrder({
     required this.broj,
     required this.oid,
@@ -22,6 +22,7 @@ class DriverOrder {
     required this.trebaVratitiNovac,
     required this.kupac,
     required this.stavke,
+    this.isretail = 0,
   });
 
   factory DriverOrder.fromJson(Map<String, dynamic> json) {
@@ -31,7 +32,7 @@ class DriverOrder {
     return DriverOrder(
       oid: json['oid'] ?? 0,
       broj: json['broj']?.toString() ?? '',
-
+      isretail: json['isretail'] ?? 0,
       brojKutija: json['broj_kutija'] ?? 0,
       napomena: json['napomena'] ?? '',
       // Fix the field name to match API response

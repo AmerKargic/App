@@ -14,7 +14,25 @@ class _RetailScanAcceptScreenState extends State<RetailScanAcceptScreen> {
   bool accepting = false;
 
   Future<void> _handleScan(String code) async {
-    final resp = await DriverApiService.retailScanBox(code, oid: widget.oid);
+    // Pretpostavljamo da je kod formata KU{boxNumber}KU{oid}
+    final reg = RegExp(r'^KU(\d+)KU(\d+)$');
+    final match = reg.firstMatch(code);
+    if (match == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Invalid code format!')));
+      return;
+    }
+    final boxNumber = int.tryParse(match.group(1) ?? '');
+    final oid = int.tryParse(match.group(2) ?? '');
+    if (boxNumber == null || oid == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Invalid code data!')));
+      return;
+    }
+
+    final resp = await DriverApiService.retailScanBox(oid, boxNumber);
     if (resp['success'] == 1) {
       setState(() {
         scanned = (resp['scanned'] ?? 0) as int;

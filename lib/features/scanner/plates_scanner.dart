@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:camera/camera.dart';
 import 'package:digitalisapp/core/utils/session_manager.dart';
 import 'package:digitalisapp/features/scanner/driver_order_scan_screen.dart';
@@ -9,14 +8,9 @@ import 'package:digitalisapp/services/offline_services.dart';
 import 'package:digitalisapp/widgets/fuel_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
-import 'dart:typed_data';
 import 'package:flutter/services.dart';
-import 'package:google_mlkit_commons/google_mlkit_commons.dart';
-import 'package:google_mlkit_commons/google_mlkit_commons.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:flutter/services.dart';
 // import 'package:digitalisapp/lib/services/driver_api_service.dart'; // prilagodi putanju ako treba
-import '../../core/utils/session_manager.dart';
 import '../../services/driver_api_service.dart';
 
 class LicensePlateScanner extends StatefulWidget {
@@ -141,6 +135,7 @@ class _LicensePlateScannerState extends State<LicensePlateScanner> {
     }
   }
 
+  // kada se pronadje tablica u kadru poziva se ova funkcija da bi se provjerile informacije na serveru i ako se poklapaju vozacu se prikaziva vozilo koje je skenirao i moze ga zauzeti ili prekinuti pa skenirati ponovo
   Future<void> _onHit(String plate) async {
     _found = true;
     try {
@@ -388,7 +383,7 @@ class _LicensePlateScannerState extends State<LicensePlateScanner> {
       _torchOn = false;
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Torch nije podržan na ovom uređaju.')),
+          const SnackBar(content: Text('Blic nije podržan na ovom uređaju.')),
         );
       }
     }

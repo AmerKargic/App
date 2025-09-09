@@ -8,6 +8,7 @@ import '../../../services/api_service.dart';
 import '../../../models/user_model.dart';
 import 'package:digitalisapp/features/dashboard/screens/admin_dashboard.dart';
 
+// login screen koji nam sluzi samo za podjelu rola i provjeru sesije :D
 class LoginController extends GetxController {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
@@ -23,12 +24,10 @@ class LoginController extends GetxController {
     final response = await apiService.login(email, password);
 
     isLoading.value = false;
-    // checking roles and assigning screens (modules)
 
     if (response['success'] == true || response['success'] == 1) {
       final user = UserModel.fromJson(response['data']);
 
-      //Seng user data to session manager
       final session = SessionManager();
       await session.saveUser({
         'kup_id': user.kupId,
@@ -41,35 +40,46 @@ class LoginController extends GetxController {
         'firstLogin': true,
       });
       final loaded = await session.getUser();
+      //sve printove odavde mozemo ukloniti kad zavrsimo sa debuggingom
       print('Loaded user after save: $loaded');
       print('LOGIN RESPONSE: ${response['data']}');
       print('USER OBJ: ${user.toJson()}');
-      //checking user level and navigating to the appropriate dashboard
       switch (user.level) {
         case 'skladištar':
           Get.offAll(() => SkladistarDashboard(skladistarName: user.name));
-
+          print('Prebacivanje na skladistar screen'); // DEBUG
           break;
         case 'admin':
           Get.offAll(() => AdminDashboard(adminName: user.name));
           // ignore: avoid_print
-
+          print('prebaceno na admin screen');
           break;
         case 'vozac':
           Get.offAll(() => DriverDashboard());
+          print('Prebaceno na vozac screen'); // DEBUG
+
           break;
         case 'kupac':
           Get.offAll(() => WarehouseDashboard());
+          print(
+            'prebaceno na screen za skladistara jer je on kao kupac naveden u bazi',
+          );
+
           break;
         case 'vozač':
           Get.offAll(() => DriverDashboard());
+          print(
+            'Prebaceno opet na vozac screen jer imamo negdje vozac negdje sa č',
+          );
           break;
         default:
           Get.snackbar('Greška', 'Nepoznata korisnička rola');
+          print('ne postoji role');
       }
     } else {
       Get.snackbar(
         'Login neuspješan',
+
         response['message'] ?? 'Greška prilikom prijave',
       );
     }

@@ -254,6 +254,20 @@ class DriverApiService {
     return await post('truck_endpoint.php', {'action': 'get', 'plate': plate});
   }
 
+  static Future<Map<String, dynamic>> getActiveOrders() async {
+    final sessionManager = SessionManager();
+    final userData = await sessionManager.getUser();
+    if (userData == null) return {'success': 0, 'orders': []};
+
+    return await post('driver_order.php', {
+      'action': 'get_active_orders',
+      'kup_id': userData['kup_id'],
+      'pos_id': userData['pos_id'],
+      'hash1': userData['hash1'],
+      'hash2': userData['hash2'],
+    });
+  }
+
   static Future<Map<String, dynamic>> takeTruck(
     String plate,
     int driver_id,
@@ -301,13 +315,21 @@ class DriverApiService {
   }
 
   static Future<Map<String, dynamic>> retailScanBox(
-    String code, {
-    int? oid,
-  }) async {
+    int oid,
+    int boxNumber,
+  ) async {
+    final sessionManager = SessionManager();
+    final userData = await sessionManager.getUser();
+    if (userData == null) return {'success': 0, 'message': 'No user session.'};
+
     return await post('retail_flow_endpoint.php', {
       'action': 'retail_scan_box',
-      if (oid != null) 'oid': oid.toString(),
-      'code': code,
+      'oid': oid,
+      'box_number': boxNumber,
+      'kup_id': userData['kup_id'],
+      'pos_id': userData['pos_id'],
+      'hash1': userData['hash1'],
+      'hash2': userData['hash2'],
     });
   }
 
@@ -392,6 +414,21 @@ class DriverApiService {
     return await post('retail_flow_endpoint.php', {
       'action': 'mark_notification_read',
       'id': id.toString(),
+    });
+  }
+
+  static Future<Map<String, dynamic>> completeOrderRetail(int oid) async {
+    final sessionManager = SessionManager();
+    final userData = await sessionManager.getUser();
+    if (userData == null) return {'success': 0, 'message': 'No user session.'};
+
+    return await post('retail_flow_endpoint.php', {
+      'action': 'complete_order',
+      'oid': oid,
+      'kup_id': userData['kup_id'],
+      'pos_id': userData['pos_id'],
+      'hash1': userData['hash1'],
+      'hash2': userData['hash2'],
     });
   }
 }

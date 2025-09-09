@@ -51,6 +51,35 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
   void initState() {
     super.initState();
     setState(() {});
+    _loadActiveOrders();
+  }
+
+  Future<void> _loadActiveOrders() async {
+    setState(() => loading = true);
+    final resp = await DriverApiService.getActiveOrders();
+    if (resp['success'] == 1 && resp['orders'] != null) {
+      // Pretvori svaku narudžbu u DriverOrder i dodaj u route manager
+      for (final orderJson in resp['orders']) {
+        final order = DriverOrder.fromJson(orderJson);
+        await _routeManager.addStop(order);
+        _scannedBoxesByOrder[order.oid] ??= {};
+        _discardedBoxes[order.oid] ??= {};
+        _missingBoxes[order.oid] ??= {};
+        _expectedBoxCounts[order.oid] = order.brojKutija;
+        final scannedBoxes =
+            (orderJson['scanned_boxes'] as List?)?.cast<int>() ?? [];
+        _scannedBoxesByOrder[order.oid] = scannedBoxes.toSet();
+
+        _discardedBoxes[order.oid] ??= {};
+        _missingBoxes[order.oid] ??= {};
+        _expectedBoxCounts[order.oid] = order.brojKutija;
+        // OVO DODAJ:
+        final status = orderJson['status'] as String? ?? '';
+        _acceptedOrders[order.oid] =
+            (status == 'accepted' || status == 'in_transit');
+      }
+    }
+    setState(() => loading = false);
   }
 
   // 🔥 SMART INDIVIDUAL SCANNING WITH PREDICTION
@@ -1107,6 +1136,109 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
     }
   }
 
+  Future<void> completeOrderRetail(int orderId) async {
+    setState(() {
+      loading = true;
+      statusMessage = 'Completing retail order #$orderId...';
+    });
+
+    try {
+      // Otvori prozor za skeniranje kutije
+      final code = await _openScannerAndGetCode(oid: orderId);
+      if (!mounted || code == null || code.isEmpty) {
+        setState(() {
+          loading = false;
+          statusMessage = '❌ Retail scan cancelled or failed.';
+        });
+        return;
+      }
+
+      // Validiraj format barkoda
+      final re = RegExp(r'^KU(\d+)KU(\d+)$', caseSensitive: false);
+      final m = re.firstMatch(code.trim());
+      if (m == null) {
+        setState(() {
+          loading = false;
+          statusMessage = '❌ Invalid barcode format for retail complete.';
+        });
+        return;
+      }
+      final scannedOid = int.tryParse(m.group(2) ?? '0') ?? 0;
+      if (scannedOid != orderId) {
+        setState(() {
+          loading = false;
+          statusMessage =
+              '❌ Scanned OID $scannedOid does not match order #$orderId';
+        });
+        return;
+      }
+
+      // Skeniraj kutiju kao i obično
+      try {
+        final respScan = await DriverApiService.scanBoxx(code, orderId);
+        if (mounted && (respScan['message'] is String)) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(respScan['message'] as String)),
+          );
+        }
+      } catch (_) {}
+
+      // Pozovi retail complete API
+      final response = await DriverApiService.completeOrderRetail(orderId);
+
+      print('🔍 DEBUG: Retail Complete response: $response');
+
+      if (response['success'] == 1) {
+        // Ukloni narudžbu iz UI
+        _routeManager.removeStop(orderId);
+        _scannedBoxesByOrder.remove(orderId);
+        _acceptedOrders.remove(orderId);
+        _discardedBoxes.remove(orderId);
+        _missingBoxes.remove(orderId);
+        _expectedBoxCounts.remove(orderId);
+
+        await _offlineService.logActivity(
+          typeId: OfflineService.DRIVER_DELIVERY,
+          description: 'Retail order completed and removed',
+          relatedId: orderId,
+          extraData: {
+            'oid': orderId,
+            'action': 'retail_delivery_completed',
+            'timestamp': DateTime.now().toIso8601String(),
+          },
+        );
+
+        setState(() {
+          loading = false;
+          statusMessage = '✅ Retail order #$orderId completed and removed';
+        });
+      } else {
+        setState(() {
+          loading = false;
+          statusMessage = '❌ ${response['message']}';
+        });
+      }
+
+      // Clear status message after 3 seconds
+      Timer(Duration(seconds: 3), () {
+        if (mounted) {
+          setState(() => statusMessage = "");
+        }
+      });
+    } catch (e) {
+      setState(() {
+        loading = false;
+        statusMessage = '❌ Error completing retail order: ${e.toString()}';
+      });
+
+      Timer(Duration(seconds: 3), () {
+        if (mounted) {
+          setState(() => statusMessage = "");
+        }
+      });
+    }
+  }
+
   // Replace your completeOrder function with this fixed version:
   Future<void> completeOrder(int orderId) async {
     setState(() {
@@ -1739,18 +1871,8 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
                               );
 
                               // ADD THIS: safe retail detection (works even if the model doesn't expose flags)
-                              final bool isRetailOrder = (() {
-                                try {
-                                  final dynamic d = order;
-                                  final dynamic k = order.kupac;
-                                  return d?.isMaloprodaja == true ||
-                                      k?.isMaloprodaja == true ||
-                                      d?.meta?['is_maloprodaja'] == 1 ||
-                                      d?.extra?['is_maloprodaja'] == 1;
-                                } catch (_) {
-                                  return false;
-                                }
-                              })();
+
+                              final bool isRetailOrder = order.isretail == 1;
 
                               return Card(
                                 margin: const EdgeInsets.only(bottom: 12),
@@ -2376,10 +2498,33 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
                                                   ElevatedButton(
                                                     onPressed: isAccepted
                                                         ? () async {
-                                                            // Scan again before completing
-                                                            await _scanBeforeComplete(
-                                                              order.oid,
-                                                            );
+                                                            // OVDJE DODAJ PROVJERU
+                                                            if (isRetailOrder) {
+                                                              // Pozovi retail complete funkciju
+                                                              await completeOrderRetail(
+                                                                order.oid,
+                                                              );
+                                                              await _offlineService.logActivity(
+                                                                typeId: OfflineService
+                                                                    .RETAIL_COMPLETED,
+                                                                description:
+                                                                    'Retail order completed',
+                                                                relatedId:
+                                                                    order.oid,
+                                                                extraData: {
+                                                                  'action':
+                                                                      'retail_delivery_completed',
+                                                                  'timestamp':
+                                                                      DateTime.now()
+                                                                          .toIso8601String(),
+                                                                },
+                                                              );
+                                                            } else {
+                                                              // Standardni complete
+                                                              await completeOrder(
+                                                                order.oid,
+                                                              );
+                                                            }
                                                           }
                                                         : canAccept
                                                         ? () => acceptOrder(
@@ -2421,6 +2566,18 @@ class _DriverOrderScanScreenState extends State<DriverOrderScanScreen> {
                                                           await DriverApiService.requestRetailApproval(
                                                             order.oid,
                                                           );
+                                                      await _offlineService.logActivity(
+                                                        typeId: OfflineService
+                                                            .DRIVER_REQUESTED_RETAIL_APPROVAL,
+                                                        description:
+                                                            'Retail approval requested',
+                                                        relatedId: order.oid,
+                                                        extraData: {
+                                                          'timestamp':
+                                                              DateTime.now()
+                                                                  .toIso8601String(),
+                                                        },
+                                                      );
                                                       final msg =
                                                           resp['message'] ??
                                                           'Zahtjev poslan';

@@ -1,5 +1,7 @@
+import 'package:digitalisapp/services/offline_services.dart';
 import 'package:flutter/material.dart';
 
+// klasa za sipanje goriva
 class FuelDialog extends StatefulWidget {
   final int? defaultOdometer;
   const FuelDialog({this.defaultOdometer, super.key});
@@ -91,13 +93,23 @@ class _FuelDialogState extends State<FuelDialog> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    onPressed: () {
-                      Navigator.pop(context, {
+                    onPressed: () async {
+                      final logData = {
                         'liters': double.tryParse(_litersController.text) ?? 0,
                         'odometer': int.tryParse(_odometerController.text) ?? 0,
                         'note': _noteController.text,
                         'timestamp': DateTime.now().toIso8601String(),
-                      });
+                      };
+                      // logovanje u offline bazu poslije se iz klase offline_services uploaduje
+
+                      await OfflineService().logActivity(
+                        typeId: OfflineService.DRIVER_ADDED_FUEL,
+                        description: 'Unos sipanja goriva',
+                        relatedId: null,
+                        extraData: logData,
+                      );
+
+                      Navigator.pop(context, logData);
                     },
                   ),
                 ],

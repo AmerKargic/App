@@ -19,19 +19,17 @@ import 'features/scanner/warehouse_scanner_screen.dart';
 import 'services/warehouse_api_service.dart';
 import 'services/offline_services.dart'; // Add this import
 
-// 🔥 GLOBALNI EVENT STREAM
 class ForceLogoutEvent {}
 
 final StreamController<ForceLogoutEvent> _forceLogoutController =
     StreamController<ForceLogoutEvent>.broadcast();
 
 Stream<ForceLogoutEvent> get forceLogoutStream => _forceLogoutController.stream;
-
+// funkcija za slucaj da korisnik bude iskljucen ili je vec iskljucen :D
 void triggerForceLogout() {
   _forceLogoutController.add(ForceLogoutEvent());
 }
 
-// Set your API base URL here:
 const String warehouseApiBaseUrl =
     //"https://www.digitalis.ba/webshop/appinternal/api/";
     "http://10.0.2.2/webshop/appinternal/api/";
