@@ -996,6 +996,8 @@ class OfflineService extends ChangeNotifier {
   static const int RETAIL_SCANNED_BOX = 16;
   static const int DRIVER_SCANNED_BOX_FOR_COMPLETION = 73;
   static const int RETAIL_COMPLETED = 18;
+  static const int RETURN_SCANNED_BOX = 20;
+  static const int RETURN_ACCEPTED = 21;
 
   // Save box scan with products
   Future<void> saveBoxScan(BoxScan boxScan) async {

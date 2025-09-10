@@ -431,4 +431,42 @@ class DriverApiService {
       'hash2': userData['hash2'],
     });
   }
+
+  //funkcije za vracanje narudzbi u skladiste
+  static Future<Map<String, dynamic>> getPendingReturns() async {
+    return await post('return_flow_endpoint.php', {
+      'action': 'pending_returns',
+    });
+  }
+
+  static Future<Map<String, dynamic>> requestReturn(
+    int oid,
+    String reason, {
+    String note = '',
+  }) async {
+    return await post('return_flow_endpoint.php', {
+      'action': 'request_return',
+      'oid': oid.toString(),
+      'reason': reason,
+      'note': note,
+    });
+  }
+
+  static Future<Map<String, dynamic>> returnScanBox(
+    int oid,
+    int boxNumber,
+  ) async {
+    return await post('return_flow_endpoint.php', {
+      'action': 'scan_return_box',
+      'oid': oid,
+      'box_number': boxNumber,
+    });
+  }
+
+  static Future<Map<String, dynamic>> returnAccept(int oid) async {
+    return await post('return_flow_endpoint.php', {
+      'action': 'return_accept',
+      'oid': oid,
+    });
+  }
 }
