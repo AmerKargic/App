@@ -296,7 +296,7 @@ class _WarehouseDashboardState extends State<WarehouseDashboard> {
 
       // FALLBACK - koristi osnovne podatke iz session-a
       _hasFullAccess = _userLevel == 'admin'; // ili neka druga logika
-      _allowedMagacini = ['333', '334']; // iz tvog primjera
+      _allowedMagacini = ['101', '334']; // iz tvog primjera
 
       print('🔑 Using fallback permissions:');
       print('  - Full access: $_hasFullAccess');
@@ -306,7 +306,7 @@ class _WarehouseDashboardState extends State<WarehouseDashboard> {
       print('❌ Error loading permissions: $e');
       // FALLBACK
       _hasFullAccess = false;
-      _allowedMagacini = ['333', '334']; // iz tvog server response-a
+      _allowedMagacini = ['101', '334']; // iz tvog server response-a
     }
   }
 

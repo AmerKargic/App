@@ -29,7 +29,7 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen>
 
   // Debug method to simulate barcode scan
   void _debugScanBarcode() {
-    const debugBarcode = "5999883020395"; // Replace with your test barcode
+    const debugBarcode = "1234567890123"; // Replace with your test barcode
     if (controller.isLoading.isFalse) {
       HapticFeedback.mediumImpact();
       if (!mounted) return;

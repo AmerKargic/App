@@ -325,6 +325,7 @@ class _RetailPendingOrdersScreenState extends State<RetailPendingOrdersScreen> {
                             boxNumber,
                           );
                         }
+
                         await _offlineService.logActivity(
                           typeId: widget.mode == 'return'
                               ? OfflineService.RETURN_SCANNED_BOX

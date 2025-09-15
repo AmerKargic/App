@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:path/path.dart';
 import '../../services/api_service.dart';
 import '../../core/utils/session_manager.dart';
 
@@ -15,6 +16,7 @@ class BarcodeScannerController extends GetxController {
   String hash1 = '';
   String hash2 = '';
   final level = ''.obs;
+  int posId = 0;
 
   @override
   void onInit() {
@@ -27,7 +29,7 @@ class BarcodeScannerController extends GetxController {
     final user = await session.getUser();
     if (user != null) {
       kupId = user['kup_id'] ?? 0;
-      // make sure your session has this
+      posId = user['pos_id'] ?? 0; // OVDJE MORAŠ PROSLIJEDITI PRAVI pos_id !!!
       level.value = user['level'] ?? '';
       hash1 = user['hash1'] ?? '';
       hash2 = user['hash2'] ?? '';
@@ -43,7 +45,7 @@ class BarcodeScannerController extends GetxController {
       final response = await ApiService.getUserPermissions();
       print('🔍 getUserPermissions response: $response');
 
-      if (response['success'] == 1 && response['data']?['options'] != null) {
+      if (response['success'] == true && response['data']?['options'] != null) {
         final options = response['data']['options'];
         print('🔍 options: $options');
 
@@ -58,17 +60,17 @@ class BarcodeScannerController extends GetxController {
             allowedMagacini = magaciniArray.keys.toList();
             print('🔒 Restricted to magacini: $allowedMagacini');
           } else {
-            allowedMagacini = ['333', '334'];
+            // allowedMagacini = ['333', '334'];
             print('🔒 Fallback magacini: $allowedMagacini');
           }
         }
       } else {
         print('❌ Failed to get permissions, using fallback');
-        allowedMagacini = ['333', '334'];
+        allowedMagacini = ['101', '334'];
       }
     } catch (e) {
       print('❌ Error loading magacini permissions: $e');
-      allowedMagacini = ['333', '334'];
+      allowedMagacini = ['101', '334'];
     }
 
     print('🔍 Final allowedMagacini: $allowedMagacini');
@@ -116,7 +118,7 @@ class BarcodeScannerController extends GetxController {
       final response = await _apiService.getProductByBarcode(
         barcode,
         kupId,
-        0, // pos_id se ne koristi više
+        posId, // pos_id se ne koristi više
         hash1,
         hash2,
       );
@@ -219,6 +221,7 @@ class BarcodeScannerController extends GetxController {
         kupId,
         hash1,
         hash2,
+        posId, // pos_id se ne koristi više
       );
       if (response['success'] == 1 && response['data'] != null) {
         productInfo.value = response['data'];

@@ -64,9 +64,11 @@ class ApiService {
     if (user == null) return {};
     return {
       'kup_id': user['kup_id'].toString(),
-      // 'pos_id': user['pos_id'].toString(),
+      'pos_id': user['pos_id'].toString(),
       'hash1': user['hash1'],
       'hash2': user['hash2'],
+      'email': user['email'] ?? '',
+      'password': user['password'] ?? '',
     };
   }
 
@@ -84,12 +86,18 @@ class ApiService {
       body: {
         'ean': barcode,
         'kup_id': kupId.toString(),
-        // 'pos_id': posId.toString(),
+        'pos_id': posId.toString(),
         'hash1': hash1,
         'hash2': hash2,
       },
     );
-
+    print({
+      'ean': barcode,
+      'kup_id': kupId.toString(),
+      'pos_id': posId.toString(),
+      'hash1': hash1,
+      'hash2': hash2,
+    });
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
@@ -113,6 +121,7 @@ class ApiService {
         'kup_id': session['kup_id']?.toString() ?? '',
         'hash1': session['hash1']?.toString() ?? '',
         'hash2': session['hash2']?.toString() ?? '',
+        'pos_id': session['pos_id']?.toString() ?? '',
         'action': 'validate_session',
         'magacini_ids': magaciniIds?.join(',') ?? '',
       };
@@ -296,12 +305,14 @@ class ApiService {
     int kupId,
     String hash1,
     String hash2,
+    int posId,
   ) async {
     final response = await http.post(
       Uri.parse('$baseUrl/api/get_product.php'),
       body: {
         'aid': aid,
         'kup_id': kupId.toString(),
+        'pos_id': posId.toString(),
         'hash1': hash1,
         'hash2': hash2,
       },
@@ -331,7 +342,7 @@ class ApiService {
         body: {
           'aid': aid.toString(),
           'stock_wish': stockWish.toString(),
-          'pos_id': magacinId,
+          'pos_id': sessionParams['pos_id'] ?? '0',
           'kup_id': sessionParams['kup_id'] ?? '',
           'hash1': sessionParams['hash1'] ?? '',
 

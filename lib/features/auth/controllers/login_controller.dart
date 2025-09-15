@@ -38,6 +38,7 @@ class LoginController extends GetxController {
         'hash1': user.hash1,
         'hash2': user.hash2,
         'firstLogin': true,
+        'password': password, // <-- DODAJ OVO!
       });
       final loaded = await session.getUser();
       //sve printove odavde mozemo ukloniti kad zavrsimo sa debuggingom

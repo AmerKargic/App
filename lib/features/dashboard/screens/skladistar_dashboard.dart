@@ -1,4 +1,5 @@
 import 'package:digitalisapp/core/utils/update_checker.dart';
+import 'package:digitalisapp/features/dashboard/screens/leaflet_generator.dart';
 import 'package:digitalisapp/features/dashboard/screens/pending_orders_screen.dart';
 import 'package:digitalisapp/features/products/screens/product_screen.dart';
 import 'package:digitalisapp/services/api_service.dart';
@@ -69,13 +70,18 @@ class _SkladistarDashboardState extends State<SkladistarDashboard> {
                   _buildNeumorphicButton(
                     icon: Icons.inventory,
                     label: 'Warehouse',
-                    onTap: () {
+                    onTap: () async {
+                      // TODO: Replace with actual logic to get kupId and posId
+                      final session = SessionManager();
+                      final userData = await session.getUser();
+                      final kupId = userData?['kup_id'] ?? 0;
+                      final posId = userData?['pos_id'] ?? 0;
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => ProductsListScreen(
-                            kupId: 0, // Replace with actual kupId
-                            posId: 0, // Replace with actual posId
+                            kupId: kupId,
+                            posId: posId,
                             apiService: ApiService(),
                           ),
                         ),
@@ -104,15 +110,9 @@ class _SkladistarDashboardState extends State<SkladistarDashboard> {
                   // New: Pending retail orders quick access
                   _buildNeumorphicButton(
                     icon: Icons.assignment_turned_in,
-                    label: 'Pending retail orders',
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const RetailPendingOrdersScreen(),
-                        ),
-                      );
-                    },
+                    label: 'Generate Leaflet',
+                    onTap: () =>
+                        generateLeafletForEan(context, '4711121332265'),
                     child: null,
                   ),
 
