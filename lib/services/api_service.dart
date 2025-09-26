@@ -5,8 +5,8 @@ import 'package:http/http.dart' as http;
 import 'package:path/path.dart';
 
 class ApiService {
-  static const String baseUrl = "http://10.0.2.2/webshop/appinternal";
-  // static const String baseUrl = "https://www.digitalis.ba/webshop/appinternal";
+  //static const String baseUrl = "http://10.0.2.2/webshop/appinternal";
+  static const String baseUrl = "https://www.digitalis.ba/webshop/appinternal";
 
   Future<Map<String, dynamic>> login(String email, String password) async {
     final url = Uri.parse('$baseUrl/api/login.php');
@@ -158,7 +158,7 @@ class ApiService {
         body: {
           'aid': aid.toString(),
           'kup_id': kupId.toString(),
-          'pos_id': '0',
+          'pos_id': posId.toString(),
           'stock_wish': stockWish.toString(),
         },
       );
@@ -181,13 +181,16 @@ class ApiService {
     required int locked,
   }) async {
     try {
+      final session = await SessionManager().getUser();
       final response = await http.post(
         Uri.parse('$baseUrl/api/lock_state.php'),
         body: {
           'aid': aid.toString(),
-          'kup_id': kupId.toString(),
-          // 'pos_id': posId.toString(),
+          'kup_id': session?['kup_id'].toString() ?? '',
+          'pos_id': session?['pos_id'].toString() ?? '',
           'stock_wish_locked': locked.toString(),
+          'hash1': session?['hash1'] ?? '',
+          'hash2': session?['hash2'] ?? '',
         },
       );
       print('RAW lock response: ${response.body}');

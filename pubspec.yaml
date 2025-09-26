@@ -112,7 +112,35 @@ flutter:
     - assets/stickers/icon_laptop.png
     - assets/stickers/icon_gpu.png
     - assets/stickers/icon_warranty.png
+    - assets/stickers/icon_gigabyte.png
+    - assets/stickers/icon_msi.png
+    - assets/stickers/icon_acer.png
+    - assets/stickers/icon_asus.png
+    - assets/stickers/icon_apple.png
+    - assets/stickers/icon_hp.png
+    - assets/stickers/icon_lenovo.png
+    - assets/stickers/icon_xiaomi.png
+    - assets/stickers/icon_dell.png
+    - assets/stickers/icon_fsiemens.png
+    - assets/stickers/icon_samsung.png
+    - assets/stickers/icon_toshiba.png
+    - assets/stickers/icon_huawei.png
+    - assets/stickers/icon_razer.png
+    - assets/stickers/icon_microsoft.png
+    - assets/stickers/icon_m1.png
+    - assets/stickers/icon_m2.png
+    - assets/stickers/icon_m3.png
+    - assets/stickers/icon_m4.png
     - assets/fonts/Montserrat-Regular.ttf
+    - assets/stickers/intelgpu.png
+    - assets/stickers/logo_4k.png
+    - assets/stickers/icon_tizen.png
+    - assets/stickers/icon_webos.png
+    - assets/stickers/icon_ports.png
+    - assets/stickers/icon_audio.png
+    - assets/stickers/icon_panel.png
+    - assets/stickers/icon_tv.png
+    - assets/stickers/icon_smart.png
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.

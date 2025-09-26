@@ -22,7 +22,7 @@ class SkladistarDashboard extends StatefulWidget {
 class _SkladistarDashboardState extends State<SkladistarDashboard> {
   String? userName;
   bool firstLogin = false;
-
+  List<String> scannedEans = [];
   @override
   void initState() {
     UpdateChecker.checkForUpdate(context);
@@ -108,16 +108,74 @@ class _SkladistarDashboardState extends State<SkladistarDashboard> {
                   const SizedBox(height: 20),
 
                   // New: Pending retail orders quick access
+                  // _buildNeumorphicButton(
+                  //   icon: Icons.assignment_turned_in,
+                  //   label: 'Generate Leaflet',
+                  //   onTap: () =>
+                  //       generateLeafletForEan(context, '4711121332265'),
+                  //   child: null,
+                  // ),
                   _buildNeumorphicButton(
-                    icon: Icons.assignment_turned_in,
-                    label: 'Generate Leaflet',
-                    onTap: () =>
-                        generateLeafletForEan(context, '4711121332265'),
+                    icon: Icons.qr_code_scanner,
+                    label: 'Barcode scanner',
+                    onTap: () async {
+                      final scannedEan = await BarcodeScannerScreen.scanOnly(
+                        context,
+                      );
+                      if (scannedEan != null && scannedEan.isNotEmpty) {
+                        setState(() {
+                          scannedEans.add(scannedEan);
+                        });
+                      }
+                    },
                     child: null,
                   ),
-
                   const SizedBox(height: 12),
-
+                  Row(
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            scannedEans.add('8697853293134');
+                          });
+                        },
+                        child: const Text('Add Test EAN 1'),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            scannedEans.add('0195697499289');
+                          });
+                        },
+                        child: const Text('Add Test EAN 2'),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            scannedEans.add('8697853293134');
+                          });
+                        },
+                        child: const Text('Add Test EAN 3'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  if (scannedEans.isNotEmpty) ...[
+                    Text(
+                      'Scanned EANs:',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    ...scannedEans.map((ean) => Text(ean)).toList(),
+                    const SizedBox(height: 12),
+                    ElevatedButton(
+                      onPressed: () async {
+                        await generateLeafletsForEans(context, scannedEans);
+                      },
+                      child: Text('Generate Leaflets for All'),
+                    ),
+                  ],
                   // Optional: small debug helpers
                   Row(
                     children: [

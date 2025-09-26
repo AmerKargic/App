@@ -10,6 +10,64 @@ import 'barcode_scanner_controller.dart'; // Your existing controller
 class BarcodeScannerScreen extends StatefulWidget {
   @override
   State<BarcodeScannerScreen> createState() => _BarcodeScannerScreenState();
+  static Future<String?> scanOnly(BuildContext context) async {
+    bool scanned = false;
+    String? result;
+
+    final controller = MobileScannerController();
+
+    await showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (ctx) => Stack(
+        children: [
+          Scaffold(
+            backgroundColor: Colors.black,
+            body: MobileScanner(
+              controller: controller,
+              fit: BoxFit.cover,
+              onDetect: (capture) {
+                if (scanned) return;
+                final barcode = capture.barcodes.first.rawValue;
+                if (barcode != null && barcode.isNotEmpty) {
+                  scanned = true;
+                  controller.stop();
+                  Navigator.of(ctx).pop();
+                  result = barcode;
+                }
+              },
+            ),
+          ),
+          // Debug button (bottom left)
+          Positioned(
+            bottom: 40,
+            left: 32,
+            child: ElevatedButton.icon(
+              icon: Icon(Icons.bug_report, color: Colors.white),
+              label: Text("Debug EAN", style: TextStyle(color: Colors.white)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.deepPurple,
+                elevation: 6,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+              onPressed: () {
+                if (!scanned) {
+                  scanned = true;
+                  controller.stop();
+                  Navigator.of(ctx).pop();
+                  result = "0195697499289";
+                }
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    return result;
+  }
 }
 
 class _BarcodeScannerScreenState extends State<BarcodeScannerScreen>
@@ -29,7 +87,7 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen>
 
   // Debug method to simulate barcode scan
   void _debugScanBarcode() {
-    const debugBarcode = "1234567890123"; // Replace with your test barcode
+    const debugBarcode = "6423154000018"; // Replace with your test barcode
     if (controller.isLoading.isFalse) {
       HapticFeedback.mediumImpact();
       if (!mounted) return;

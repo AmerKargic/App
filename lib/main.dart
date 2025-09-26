@@ -31,8 +31,8 @@ void triggerForceLogout() {
 }
 
 const String warehouseApiBaseUrl =
-    //"https://www.digitalis.ba/webshop/appinternal/api/";
-    "http://10.0.2.2/webshop/appinternal/api/";
+    "https://www.digitalis.ba/webshop/appinternal/api/";
+//"http://10.0.2.2/webshop/appinternal/api/";
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
