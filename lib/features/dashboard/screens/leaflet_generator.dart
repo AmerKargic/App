@@ -1543,13 +1543,10 @@ Future<void> generateLeafletsForEans(
 
     final data = product['data'];
 
-    final opis = data['description'] as String? ?? '';
-    final liRegExp = RegExp(r'<li>(.*?)<\/li>', caseSensitive: false);
-    final parts = liRegExp
-        .allMatches(opis)
-        .map((m) => m.group(1)?.trim() ?? '')
+    final parts = (data['description_bullets'] as List<dynamic>? ?? [])
+        .map((e) => e.toString())
+        .where((e) => e.isNotEmpty)
         .toList();
-
     String diagonal = '';
     String processor = '';
     String gpu = '';

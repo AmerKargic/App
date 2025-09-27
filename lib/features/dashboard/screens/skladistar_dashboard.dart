@@ -136,7 +136,7 @@ class _SkladistarDashboardState extends State<SkladistarDashboard> {
                       ElevatedButton(
                         onPressed: () {
                           setState(() {
-                            scannedEans.add('8697853293134');
+                            scannedEans.add('0196786139154');
                           });
                         },
                         child: const Text('Add Test EAN 1'),
