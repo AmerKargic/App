@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:digitalisapp/features/dashboard/screens/driver_order_details_screen.dart';
 import 'package:digitalisapp/models/driver_order_model.dart';
+import 'package:digitalisapp/services/apo_config.dart';
 import 'package:digitalisapp/services/driver_api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -12,6 +13,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 import 'package:http/http.dart' as http;
+import 'package:digitalisapp/services/apo_config.dart';
 
 class VozacScannerScreen extends StatefulWidget {
   final Function(String)? onBarcodeDetected; // New callback parameter
@@ -188,9 +190,8 @@ class _VozacScannerScreenState extends State<VozacScannerScreen> {
     // Standardni flow za kutije (ostaje kao do sad)
     try {
       final response = await http.post(
-        Uri.parse(
-          'https://www.digitalis.ba/webshop/appinternal/api/driver_order.php',
-        ),
+        Uri.parse("${ApiConfig.baseUrl}driver_order.php"),
+
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'code': barcode}),
       );
@@ -355,10 +356,7 @@ class _VozacScannerScreenState extends State<VozacScannerScreen> {
       } else {
         // Send to server
         final response = await http.post(
-          Uri.parse(
-            'https://www.digitalis.ba/webshop/appinternal/api/driver_scan_box.php',
-            // 'http://10.0.2.2/webshop/appinternal/api/driver_scan_box.php',
-          ),
+          Uri.parse("${ApiConfig.baseUrl}driver_scan_box.php"),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({'code': shipmentData['barcode']}),
         );

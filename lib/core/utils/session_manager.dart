@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:digitalisapp/services/apo_config.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
@@ -27,10 +28,7 @@ class SessionManager {
       };
 
       final response = await http.post(
-        Uri.parse(
-          'https://www.digitalis.ba/webshop/appinternal/api/analytics/realtime_stats.php',
-          // 'http://10.0.2.2/webshop/appinternal/api/analytics/realtime_stats.php',
-        ),
+        Uri.parse("${ApiConfig.baseUrl}analytics/realtime_stats.php"),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(requestData),
       );
@@ -78,9 +76,7 @@ class SessionManager {
       // 🔥 ZATIM PROVJERI NA SERVERU
       final response = await http.post(
         // Uri.parse("http://10.0.2.2/webshop/appinternal/api/check_sesion.php"),
-        Uri.parse(
-          "https://www.digitalis.ba/webshop/appinternal/api/check_sesion.php",
-        ),
+        Uri.parse("${ApiConfig.baseUrl}check_sesion.php"),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           "kup_id": localUser["kup_id"].toString(),
@@ -149,9 +145,7 @@ Future<bool> isLoggedIn() async {
   try {
     final response = await http.post(
       // Uri.parse("http://10.0.2.2/webshop/appinternal/api/check_sesion.php"),
-      Uri.parse(
-        "https://www.digitalis.ba/webshop/appinternal/api/check_sesion.php",
-      ),
+      Uri.parse("${ApiConfig.baseUrl}check_sesion.php"),
       headers: {'Content-Type': 'application/json'}, // 🔥 DODAJ OVO
       body: jsonEncode({
         // 🔥 PROMIJENI U jsonEncode

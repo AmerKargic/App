@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:digitalisapp/features/dashboard/screens/driver_dashboard.dart';
 import 'package:digitalisapp/features/dashboard/screens/warehouse_dashboard.dart';
 import 'package:digitalisapp/features/scanner/warehouse_scanner_controller.dart';
+import 'package:digitalisapp/services/apo_config.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -30,9 +31,7 @@ void triggerForceLogout() {
   _forceLogoutController.add(ForceLogoutEvent());
 }
 
-const String warehouseApiBaseUrl =
-    "https://www.digitalis.ba/webshop/appinternal/api/";
-//"http://10.0.2.2/webshop/appinternal/api/";
+const String warehouseApiBaseUrl = ApiConfig.baseUrl;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 

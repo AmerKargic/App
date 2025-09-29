@@ -1,15 +1,16 @@
 import 'dart:convert';
 import 'package:digitalisapp/core/utils/logout_util.dart';
 import 'package:digitalisapp/core/utils/session_manager.dart';
+import 'package:digitalisapp/services/apo_config.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart';
 
 class ApiService {
   //static const String baseUrl = "http://10.0.2.2/webshop/appinternal";
-  static const String baseUrl = "https://www.digitalis.ba/webshop/appinternal";
+  static const String baseUrl = ApiConfig.baseUrl;
 
   Future<Map<String, dynamic>> login(String email, String password) async {
-    final url = Uri.parse('$baseUrl/api/login.php');
+    final url = Uri.parse('${baseUrl}login.php');
 
     print("🔄 [login] Sending request to: $url");
     print("📤 [login] Payload: {email: $email, password: $password}");
@@ -79,7 +80,7 @@ class ApiService {
     String hash1,
     String hash2,
   ) async {
-    final url = Uri.parse('$baseUrl/api/get_product.php');
+    final url = Uri.parse('${baseUrl}get_product.php');
 
     final response = await http.post(
       url,

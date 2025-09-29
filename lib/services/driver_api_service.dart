@@ -2,13 +2,13 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:digitalisapp/core/utils/session_manager.dart';
 import 'package:digitalisapp/models/user_model.dart';
+import 'package:digitalisapp/services/apo_config.dart';
 import 'package:digitalisapp/services/offline_services.dart';
 import 'package:http/http.dart' as http;
 import 'package:connectivity_plus/connectivity_plus.dart';
 
 class DriverApiService {
-  static const String baseUrl =
-      "https://www.digitalis.ba/webshop/appinternal/api";
+  static const String baseUrl = ApiConfig.baseUrl;
   // "http://10.0.2.2/webshop/appinternal/api";
   // Add these methods to your existing driver_api_service.dart
   // static const String baseUrl =
@@ -360,9 +360,7 @@ class DriverApiService {
 
     // Pozovi server da dobiješ svježe podatke
     final response = await http.post(
-      Uri.parse(
-        "https://www.digitalis.ba/webshop/appinternal/api/check_sesion.php",
-      ),
+      Uri.parse("${ApiConfig.baseUrl}check_sesion.php"),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         "kup_id": localUser["kup_id"].toString(),
@@ -398,9 +396,7 @@ class DriverApiService {
 
     print('Sending to retail_flow_endpoint.php: ${jsonEncode(data)}');
     final resp = await http.post(
-      Uri.parse(
-        "https://www.digitalis.ba/webshop/appinternal/api/retail_flow_endpoint.php",
-      ),
+      Uri.parse("${ApiConfig.baseUrl}retail_flow_endpoint.php"),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(data),
     );

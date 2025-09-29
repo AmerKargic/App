@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'package:digitalisapp/core/utils/session_manager.dart';
+import 'package:digitalisapp/services/apo_config.dart';
 import 'package:http/http.dart' as http;
 
 class AnalyticsApiService {
-  static const String baseUrl =
-      "https://www.digitalis.ba/webshop/appinternal/api";
+  static const String baseUrl = ApiConfig.baseUrl;
   // "http://10.0.2.2/appinternal/api";
 
   /// Get real-time dashboard statistics

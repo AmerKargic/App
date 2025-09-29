@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:digitalisapp/models/driver_order_model.dart';
+import 'package:digitalisapp/services/apo_config.dart';
 import 'package:digitalisapp/services/driver_api_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
@@ -437,10 +438,9 @@ class OfflineService extends ChangeNotifier {
       );
 
       final response = await http.post(
-        Uri.parse(
-          'https://www.digitalis.ba/webshop/appinternal/api/save_location.php',
-          //'http://10.0.2.2/webshop/appinternal/api/save_location.php',
-        ),
+        Uri.parse("${ApiConfig.baseUrl}save_location.php"),
+
+        //'http://10.0.2.2/webshop/appinternal/api/save_location.php',
         headers: {'Content-Type': 'application/json'},
         body: requestBody,
       );
@@ -683,10 +683,9 @@ class OfflineService extends ChangeNotifier {
 
       // Send to server
       final response = await http.post(
-        Uri.parse(
-          'https://www.digitalis.ba/webshop/appinternal/api/sync_logs.php',
-          // 'http://10.0.2.2/webshop/appinternal/api/sync_logs.php',
-        ),
+        Uri.parse("${ApiConfig.baseUrl}sync_logs.php"),
+
+        // 'http://10.0.2.2/webshop/appinternal/api/sync_logs.php',
         headers: {'Content-Type': 'application/json'},
         body: requestBody,
       );
@@ -805,10 +804,7 @@ class OfflineService extends ChangeNotifier {
       // Send to server - use driver_scan_box.php endpoint
       for (final box in boxesForSync) {
         final response = await http.post(
-          Uri.parse(
-            'https://www.digitalis.ba/webshop/appinternal/api/driver_scan_box.php',
-            // 'http://10.0.2.2/webshop/appinternal/api/driver_scan_box.php',
-          ),
+          Uri.parse("${ApiConfig.baseUrl}driver_scan_box.php"),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({
             'code': box['box_barcode'],
@@ -846,10 +842,7 @@ class OfflineService extends ChangeNotifier {
       final labels = await db.query('shelf_labels', where: 'synced = 0');
       for (final label in labels) {
         final response = await http.post(
-          Uri.parse(
-            'https://www.digitalis.ba/webshop/appinternal/api/add_shelf.php',
-            // 'http://10.0.2.2/webshop/appinternal/api/add_shelf.php',
-          ),
+          Uri.parse("${ApiConfig.baseUrl}add_shelf.php"),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({
             'shelf_name': label['name'].toString(),
@@ -877,10 +870,9 @@ class OfflineService extends ChangeNotifier {
       final products = await db.query('shelf_products', where: 'synced = 0');
       for (final product in products) {
         final response = await http.post(
-          Uri.parse(
-            'https://www.digitalis.ba/webshop/appinternal/api/add_products_to_shelf.php',
-            //'http://10.0.2.2/webshop/appinternal/api/add_products_to_shelf.php',
-          ),
+          Uri.parse("${ApiConfig.baseUrl}add_products_to_shelf.php"),
+
+          //'http://10.0.2.2/webshop/appinternal/api/add_products_to_shelf.php',
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({
             'shelf_barcode': product['shelf_barcode'].toString(),
@@ -916,10 +908,7 @@ class OfflineService extends ChangeNotifier {
 
       for (final change in changes) {
         final response = await http.post(
-          Uri.parse(
-            'https://www.digitalis.ba/webshop/appinternal/api/save_wishstock.php',
-            // 'http://10.0.2.2/webshop/appinternal/api/save_wishstock.php',
-          ),
+          Uri.parse("${ApiConfig.baseUrl}save_wishstock.php"),
           body: {
             'aid': change['aid'].toString(),
             'kup_id': change['kup_id'].toString(),
@@ -1116,10 +1105,7 @@ class OfflineService extends ChangeNotifier {
 
       // Send to server
       final response = await http.post(
-        Uri.parse(
-          'https://www.digitalis.ba/webshop/appinternal/api/sync_boxes.php',
-          //'http://10.0.2.2/webshop/appinternal/api/sync_boxes.php',
-        ),
+        Uri.parse("${ApiConfig.baseUrl}sync_boxes.php"),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'kup_id': user['kup_id'].toString(),

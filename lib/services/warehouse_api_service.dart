@@ -1,12 +1,12 @@
 import 'dart:convert';
+import 'package:digitalisapp/services/apo_config.dart';
 import 'package:http/http.dart' as http;
 import '../models/shelf.dart';
 import '../models/product.dart';
 
 class WarehouseApiService {
   //final String baseUrl; // e.g. "https://10.0.2.2/appinternal/"
-  static const String baseUrl =
-      "https://www.digitalis.ba/webshop/appinternal/api/";
+  static const String baseUrl = ApiConfig.baseUrl;
   // "http://10.0.2.2/webshop/appinternal/api/";
   WarehouseApiService();
   Future<Shelf?> createShelf(String name) async {

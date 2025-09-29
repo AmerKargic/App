@@ -57,7 +57,7 @@ class BarcodeScannerScreen extends StatefulWidget {
                   scanned = true;
                   controller.stop();
                   Navigator.of(ctx).pop();
-                  result = "0195697499289";
+                  result = "4711121332265";
                 }
               },
             ),
